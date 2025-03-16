@@ -1,0 +1,37 @@
+# Local Terraform files
+*.tfstate
+*.tfstate.backup
+
+# Crash log files
+crash.log
+
+# Ignore override files as they are usually used to override resources locally
+*.override.tf
+*.override.tf.json
+
+# Ignore Terraform variable files with sensitive data
+*.auto.tfvars
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
+# Ignore Terraform working directory
+.terraform/
+
+# Ignore plan output files
+*.tfplan
+
+# Ignore large archive files
+*.zip
+*.tar.gz
+*.rar
+
+# Ignore logs and debug files
+*.log
+*.log.*
+
+# Ignore any large binary files related to Terraform
+*.bin
+*.exe
+*.dll
