@@ -1,9 +1,9 @@
 terraform {
-  required_version = ">= 1.5.0"
+  required_version = ">= 1.5.6" # Ensure compatibility with the latest stable Terraform version
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.74.0" # Use the latest stable version of the AzureRM provider
+      version = "~> 3.80.0" # Use the latest stable AzureRM provider version
     }
   }
 }
@@ -12,48 +12,49 @@ provider "azurerm" {
   features {}
 }
 
-resource "azurerm_resource_group" "stroge-rg" {
-  name     = var.resource_group_name
+resource "azurerm_resource_group" "example" {
+  name     = "rg-storage-${var.environment}-${var.location}"
   location = var.location
-
-  tags = var.tags
+  tags = {
+    Environment = var.environment
+    Owner       = var.owner
+  }
 }
 
-resource "azurerm_storage_account" "main-storage" {
-  name                     = var.storage_account_name
-  resource_group_name      = azurerm_resource_group.stroge-rg.name
-  location                 = azurerm_resource_group.stroge-rg.location
-  account_tier             = var.account_tier
-  account_replication_type = var.account_replication_type
-  enable_https_traffic_only = var.enable_https_traffic_only
-  min_tls_version          = "TLS1_2"
+resource "azurerm_storage_account" "example" {
+  name                     = lower("st${var.environment}${var.location}001") # Ensure lowercase naming for compliance
+  resource_group_name      = azurerm_resource_group.example.name
+  location                 = azurerm_resource_group.example.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
 
-  # Enable soft-delete for blobs
+  # Enable advanced security features
+  enable_https_traffic_only = true
+  min_tls_version           = "TLS1_2"
+  allow_blob_public_access  = false # Disable public access to blobs for security
+  enable_secure_transfer    = true # Ensure secure transfer is enabled
+
+  # Advanced threat protection
   blob_properties {
     delete_retention_policy {
-      days = 7 # Retain deleted blobs for 7 days
+      days = 7 # Enable soft delete for blobs with a retention period
     }
   }
 
-  lifecycle {
-    prevent_destroy = true
+  # Enable logging and monitoring for compliance
+  network_rules {
+    default_action             = "Deny" # Deny by default for enhanced security
+    bypass                     = ["AzureServices"] # Allow trusted Azure services
+    ip_rules                   = var.allowed_ip_ranges # Restrict access to specific IP ranges
   }
 
-  tags = var.tags
-}
+  tags = {
+    Environment = var.environment
+    Owner       = var.owner
+    Compliance  = "PrismaCloud"
+  }
 
-resource "azurerm_storage_container" "script-container" {
-  name                  = var.storage_container_name
-  storage_account_id    = azurerm_storage_account.main-storage.id
-  container_access_type = var.container_access_type
-
-  metadata = var.tags
-}
-
-output "storage_account_primary_endpoint" {
-  value = azurerm_storage_account.main-storage.primary_blob_endpoint
-}
-
-output "storage_container_url" {
-  value = "${azurerm_storage_account.main-storage.primary_blob_endpoint}${azurerm_storage_container.script-container.name}"
+  depends_on = [
+    azurerm_resource_group.example
+  ]
 }

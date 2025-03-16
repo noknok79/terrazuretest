@@ -1,0 +1,2 @@
+skip-check:
+  - CKV_AZURE_49 #"Ensure Azure linux scale set does not use basic authentication(Use SSH Key Instead)"

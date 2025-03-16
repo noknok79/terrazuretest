@@ -1,48 +1,39 @@
-# Define the provider
+terraform {
+  required_version = ">= 1.5.0" # Ensure compatibility with the latest stable Terraform version
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 3.74.0" # Use the latest stable version of the AzureRM provider
+    }
+  }
+}
+
 provider "azurerm" {
   features {}
 }
 
-# Define variables for reusability and flexibility
-variable "resource_group_name" {
-  description = "The name of the resource group where the public IP will be created"
-  type        = string
-}
-
-variable "location" {
-  description = "The Azure region where the public IP will be created"
-  type        = string
-  default     = "East US"
-}
-
-variable "public_ip_name" {
-  description = "The name of the public IP resource"
-  type        = string
-}
-
-variable "allocation_method" {
-  description = "The allocation method for the public IP (Static or Dynamic)"
-  type        = string
-  default     = "Static"
-}
-
-variable "sku" {
-  description = "The SKU of the public IP (Basic or Standard)"
-  type        = string
-  default     = "Standard"
-}
-
-# Create the public IP resource
 resource "azurerm_public_ip" "example" {
-  name                = var.public_ip_name
+  name                = "pip-${var.environment}-${var.location}"
   location            = var.location
-  resource_group_name = var.resource_group_name
-  allocation_method   = var.allocation_method
-  sku                 = var.sku
-
+  resource_group_name = azurerm_resource_group.example.name
+  allocation_method   = "Static" # Best practice for predictable IPs
+  sku                 = "Standard" # Recommended for production workloads
   tags = {
-    environment = "production"
+    Environment = var.environment
+    Owner       = var.owner
+  }
+
+  depends_on = [
+    azurerm_resource_group.example
+  ]
+}
+
+
+resource "azurerm_resource_group" "example" {
+  name     = "rg-${var.environment}-${var.location}"
+  location = var.location
+  tags = {
+    Environment = var.environment
+    Owner       = var.owner
   }
 }
-
-# Output the public IP address

@@ -1,93 +1,106 @@
-# Define the provider
+terraform {
+  required_version = ">= 1.5.0" # Ensure compatibility with the latest stable Terraform version
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.74.0" # Use the latest stable version of the AzureRM provider
+    }
+  }
+}
+
 provider "azurerm" {
   features {}
 }
 
-# Define resource group
-resource "azurerm_resource_group" "appgw_rg" {
-  name     = "rg-appgw"
-  location = "East US"
+# Resource Group
+resource "azurerm_resource_group" "app_gateway_rg" {
+  name     = "rg-app-gateway"
+  location = var.location
 }
 
-# Define virtual network
-resource "azurerm_virtual_network" "appgw_vnet" {
-  name                = "vnet-appgw"
+# Virtual Network
+resource "azurerm_virtual_network" "app_gateway_vnet" {
+  name                = "vnet-app-gateway"
+  location            = azurerm_resource_group.app_gateway_rg.location
+  resource_group_name = azurerm_resource_group.app_gateway_rg.name
   address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.appgw_rg.location
-  resource_group_name = azurerm_resource_group.appgw_rg.name
 }
 
-# Define subnet for Application Gateway
-resource "azurerm_subnet" "appgw_subnet" {
-  name                 = "subnet-appgw"
-  resource_group_name  = azurerm_resource_group.appgw_rg.name
-  virtual_network_name = azurerm_virtual_network.appgw_vnet.name
+# Subnet for Application Gateway
+resource "azurerm_subnet" "app_gateway_subnet" {
+  name                 = "subnet-app-gateway"
+  resource_group_name  = azurerm_resource_group.app_gateway_rg.name
+  virtual_network_name = azurerm_virtual_network.app_gateway_vnet.name
   address_prefixes     = ["10.0.1.0/24"]
 }
 
-# Define public IP for Application Gateway
-resource "azurerm_public_ip" "appgw_public_ip" {
-  name                = "pip-appgw"
-  location            = azurerm_resource_group.appgw_rg.location
-  resource_group_name = azurerm_resource_group.appgw_rg.name
+# Public IP for Application Gateway
+resource "azurerm_public_ip" "app_gateway_pip" {
+  name                = "pip-app-gateway"
+  location            = azurerm_resource_group.app_gateway_rg.location
+  resource_group_name = azurerm_resource_group.app_gateway_rg.name
   allocation_method   = "Static"
   sku                 = "Standard"
 }
 
-# Define Application Gateway
-resource "azurerm_application_gateway" "appgw" {
-  name                = "appgw"
-  location            = azurerm_resource_group.appgw_rg.location
-  resource_group_name = azurerm_resource_group.appgw_rg.name
+# Application Gateway
+resource "azurerm_application_gateway" "app_gateway" {
+  name                = "app-gateway"
+  location            = azurerm_resource_group.app_gateway_rg.location
+  resource_group_name = azurerm_resource_group.app_gateway_rg.name
   sku {
-    name     = "Standard_v2"
-    tier     = "Standard_v2"
+    name     = "WAF_v2" # Best practice: Use WAF_v2 for enhanced security
+    tier     = "WAF_v2"
     capacity = 2
   }
-
   gateway_ip_configuration {
-    name      = "appgw-ip-config"
-    subnet_id = azurerm_subnet.appgw_subnet.id
+    name      = "app-gateway-ip-config"
+    subnet_id = azurerm_subnet.app_gateway_subnet.id
   }
-
   frontend_ip_configuration {
-    name                 = "appgw-frontend-ip"
-    public_ip_address_id = azurerm_public_ip.appgw_public_ip.id
+    name                 = "app-gateway-frontend-ip"
+    public_ip_address_id = azurerm_public_ip.app_gateway_pip.id
   }
-
   frontend_port {
     name = "http-port"
     port = 80
   }
-
+  frontend_port {
+    name = "https-port"
+    port = 443
+  }
   backend_address_pool {
-    name = "appgw-backend-pool"
+    name = "app-gateway-backend-pool"
   }
-
   http_listener {
-    name                           = "appgw-http-listener"
-    frontend_ip_configuration_name = "appgw-frontend-ip"
-    frontend_port_name             = "http-port"
-    protocol                       = "Http"
+    name                           = "app-gateway-http-listener"
+    frontend_ip_configuration_name = "app-gateway-frontend-ip"
+    frontend_port_name             = "https-port"
+    protocol                       = "Https"
+    ssl_certificate_name           = "app-gateway-ssl-cert" # Replace with your SSL certificate name
   }
-
+  ssl_certificate {
+    name     = "app-gateway-ssl-cert"
+    data     = filebase64("${path.module}/cert.pfx") # Replace with your certificate file
+    password = var.ssl_certificate_password
+  }
   request_routing_rule {
-    name                       = "appgw-routing-rule"
+    name                       = "app-gateway-routing-rule"
     rule_type                  = "Basic"
-    http_listener_name         = "appgw-http-listener"
-    backend_address_pool_name  = "appgw-backend-pool"
-    backend_http_settings_name = "appgw-http-settings"
+    http_listener_name         = "app-gateway-http-listener"
+    backend_address_pool_name  = "app-gateway-backend-pool"
+    backend_http_settings_name = "app-gateway-http-settings"
   }
-
   backend_http_settings {
-    name                  = "appgw-http-settings"
+    name                  = "app-gateway-http-settings"
     cookie_based_affinity = "Disabled"
     port                  = 80
     protocol              = "Http"
     request_timeout       = 20
   }
-
-  tags = {
-    environment = "production"
-  }
+  depends_on = [
+    azurerm_subnet.app_gateway_subnet,
+    azurerm_public_ip.app_gateway_pip
+  ]
 }
+

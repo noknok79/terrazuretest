@@ -1,5 +1,10 @@
-# Output the public IP address of the VM
-output "vm_private_ip" {
-  description = "The private IP address of the virtual machine"
-  value       = azurerm_network_interface.nic.private_ip_address
+
+
+# Outputs
+output "application_gateway_id" {
+  value = azurerm_application_gateway.app_gateway.id
+}
+
+output "application_gateway_frontend_ip" {
+  value = azurerm_public_ip.app_gateway_pip.ip_address
 }

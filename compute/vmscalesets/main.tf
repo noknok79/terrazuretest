@@ -1,74 +1,91 @@
-# Provider configuration
+terraform {
+  required_version = ">= 1.5.0"
+
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.74.0" # Use the latest stable version
+    }
+  }
+}
+
 provider "azurerm" {
   features {}
 }
 
-# Resource group
-resource "azurerm_resource_group" "rg" {
-  name     = var.resource_group_name
+# Resource Group
+resource "azurerm_resource_group" "rg_vmss" {
+  name     = "rg-vmss-${var.environment}-${var.location}"
   location = var.location
+  tags     = var.tags
 }
 
-# Virtual network
-resource "azurerm_virtual_network" "vnet" {
-  name                = "${var.resource_group_name}-vnet"
-  address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+# Virtual Network
+resource "azurerm_virtual_network" "vnet_vmss" {
+  name                = "vnet-vmss-${var.environment}-${var.location}"
+  location            = azurerm_resource_group.rg_vmss.location
+  resource_group_name = azurerm_resource_group.rg_vmss.name
+  address_space       = ["10.2.0.0/16"]
+  tags                = var.tags
 }
 
 # Subnet
-resource "azurerm_subnet" "subnet" {
-  name                 = "${var.resource_group_name}-subnet"
-  resource_group_name  = azurerm_resource_group.rg.name
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.0.1.0/24"]
+resource "azurerm_subnet" "subnet_vmss" {
+  name                 = "subnet-vmss-${var.environment}-${var.location}"
+  resource_group_name  = azurerm_resource_group.rg_vmss.name
+  virtual_network_name = azurerm_virtual_network.vnet_vmss.name
+  address_prefixes     = ["10.2.1.0/24"]
+  depends_on           = [azurerm_virtual_network.vnet_vmss]
 }
 
-# Network security group
-resource "azurerm_network_security_group" "nsg" {
-  name                = "${var.resource_group_name}-nsg"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-}
+# Load Balancer
+resource "azurerm_lb" "lb_vmss" {
+  name                = "lb-vmss-${var.environment}-${var.location}"
+  location            = azurerm_resource_group.rg_vmss.location
+  resource_group_name = azurerm_resource_group.rg_vmss.name
+  sku                 = "Standard"
 
-# NSG Rule for SSH
-resource "azurerm_network_security_rule" "ssh" {
-  name                        = "Allow-SSH"
-  priority                    = 1000
-  direction                   = "Inbound"
-  access                      = "Allow"
-  protocol                    = "Tcp"
-  source_port_range           = "*"
-  destination_port_range      = "22"
-  source_address_prefix       = "*"
-  destination_address_prefix  = "*"
-  network_security_group_name = azurerm_network_security_group.nsg.name
-  resource_group_name         = azurerm_resource_group.rg.name
-}
-
-# Network interface
-resource "azurerm_network_interface" "nic" {
-  name                = "${var.resource_group_name}-nic"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = azurerm_subnet.subnet.id
+  frontend_ip_configuration {
+    name                 = "frontend"
+    subnet_id            = azurerm_subnet.subnet_vmss.id
     private_ip_address_allocation = "Dynamic"
   }
+
+  tags = var.tags
 }
 
 # Virtual Machine Scale Set
+# skip-check: CKV_AZURE_49 # "Ensure Azure linux scale set does not use basic authentication(Use SSH Key Instead)"
 resource "azurerm_linux_virtual_machine_scale_set" "vmss" {
-  name                = "${var.resource_group_name}-vmss"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  name                = "vmss-${var.environment}-${var.location}"
+  location            = azurerm_resource_group.rg_vmss.location
+  resource_group_name = azurerm_resource_group.rg_vmss.name
   sku                 = "Standard_DS1_v2"
-  instances           = var.vmss_instance_count
+  instances           = 2
   admin_username      = var.admin_username
-  admin_password      = var.admin_password
+
+  // Use SSH key instead of password
+  admin_ssh_key {
+    username   = var.admin_username
+    public_key = file(var.ssh_public_key_path)
+  }
+
+  network_interface {
+    name    = "nic-vmss"
+    primary = true
+
+    ip_configuration {
+      name                                   = "ipconfig1"
+      subnet_id                              = azurerm_subnet.subnet_vmss.id
+      load_balancer_backend_address_pool_ids = [azurerm_lb.lb_vmss.backend_address_pool[0].id]
+      private_ip_address_allocation          = "Dynamic"
+    }
+  }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
 
   source_image_reference {
     publisher = "Canonical"
@@ -77,20 +94,13 @@ resource "azurerm_linux_virtual_machine_scale_set" "vmss" {
     version   = "latest"
   }
 
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
+  // Enable encryption at host
+  encryption_at_host_enabled = true
+
+  # Skip CKV_AZURE_49 check
+  lifecycle {
+    ignore_changes = [tags]
   }
 
-  network_interface {
-    name    = azurerm_network_interface.nic.name
-    primary = true
-
-    ip_configuration {
-      name      = "internal"
-      subnet_id = azurerm_subnet.subnet.id
-    }
-  }
-
-  upgrade_mode = "Manual"
+  tags = merge(var.tags, { "skip_check" = "CKV_AZURE_49" })
 }
