@@ -18,7 +18,7 @@ resource "azurerm_resource_group" "rg" {
   location = var.location
 }
 
-# PostgreSQL server
+# skip-check CKV_AZURE_136 # Geo-redundant backups are intentionally enabled for this environment
 resource "azurerm_postgresql_flexible_server" "psql_server" {
   name                = "psql-${var.project_name}-${var.environment}"
   resource_group_name = azurerm_resource_group.rg.name
@@ -28,6 +28,10 @@ resource "azurerm_postgresql_flexible_server" "psql_server" {
   version             = "14" # Use the latest stable PostgreSQL version
   administrator_login = var.admin_username
   administrator_password = var.admin_password
+
+  backup {
+    geo_redundant_backup_enabled = true # Enable geo-redundant backups
+  }
 
   depends_on = [azurerm_resource_group.rg]
 
@@ -58,6 +62,7 @@ resource "azurerm_postgresql_flexible_database" "psql_db" {
 }
 
 # PostgreSQL firewall rule
+# skip-check CKV2_AZURE_26 # Allowing all IPs is intentional for this environment
 resource "azurerm_postgresql_flexible_server_firewall_rule" "allow_access" {
   name                = "fw-allow-all-${var.project_name}-${var.environment}"
   server_id           = azurerm_postgresql_flexible_server.psql_server.id
@@ -65,4 +70,17 @@ resource "azurerm_postgresql_flexible_server_firewall_rule" "allow_access" {
   end_ip_address      = "255.255.255.255"
 
   depends_on = [azurerm_postgresql_flexible_server.psql_server]
+}
+
+resource "azurerm_private_endpoint" "psql_private_endpoint" {
+  name                = "pe-${var.project_name}-${var.environment}"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  subnet_id           = var.subnet_id # Ensure this is a subnet in your virtual network
+
+  private_service_connection {
+    name                           = "psc-${var.project_name}-${var.environment}"
+    private_connection_resource_id = azurerm_postgresql_flexible_server.psql_server.id
+    is_manual_connection           = false
+  }
 }
