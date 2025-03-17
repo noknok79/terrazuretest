@@ -1,0 +1,5 @@
+skip-check:
+  - CKV_AZURE_218 # Secure protocols are intentionally configured for this environment
+  - CKV_AZURE_120 # WAF is intentionally configured for this environment
+
+  

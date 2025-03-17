@@ -26,12 +26,32 @@ resource "azurerm_virtual_network" "load_balancer_vnet" {
   address_space       = ["10.1.0.0/16"]
 }
 
+# Network Security Group for the Load Balancer Subnet
+resource "azurerm_network_security_group" "load_balancer_nsg" {
+  name                = "nsg-load-balancer"
+  location            = azurerm_resource_group.load_balancer_rg.location
+  resource_group_name = azurerm_resource_group.load_balancer_rg.name
+
+  security_rule {
+    name                       = "Allow-HTTP"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "10.1.0.0/16" # Restrict to internal traffic or trusted IP range
+    destination_address_prefix = "*"
+  }
+}
+
 # Subnet for Load Balancer
 resource "azurerm_subnet" "load_balancer_subnet" {
   name                 = "subnet-load-balancer"
   resource_group_name  = azurerm_resource_group.load_balancer_rg.name
   virtual_network_name = azurerm_virtual_network.load_balancer_vnet.name
   address_prefixes     = ["10.1.1.0/24"]
+  network_security_group_id = azurerm_network_security_group.load_balancer_nsg.id
 }
 
 # Public IP for Load Balancer
