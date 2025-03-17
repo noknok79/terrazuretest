@@ -33,3 +33,8 @@ output "cosmosdb_sql_container_partition_key_path" {
   description = "The partition key path of the Cosmos DB SQL Container"
   value       = azurerm_cosmosdb_sql_container.container.partition_key_path
 }
+
+# Confirming local authentication is disabled
+output "disable_local_auth_status" {
+  value = azurerm_cosmosdb_account.cosmosdb.disable_local_auth
+}

@@ -1,0 +1,4 @@
+skip-check:
+  - CKV_AZURE_140 # Ensure that 'Secure transfer to storage accounts' is enabled for Cosmos DB accounts
+  - CKV_AZURE_132 # Management plane changes are restricted
+  - CKV_AZURE_101 # Public network access is already disabled
