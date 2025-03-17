@@ -1,4 +1,3 @@
-
 # Variables for reusability and best practices
 variable "environment" {
   description = "The environment for the resources (e.g., dev, staging, prod)"
@@ -19,6 +18,16 @@ variable "allowed_ip_ranges" {
   description = "List of allowed IP ranges for accessing the storage account"
   type        = list(string)
   default     = [] # Default to no IP restrictions
+}
+
+variable "key_vault_key_id" {
+  type    = string
+  default = "" # Provide the Key Vault Key ID
+}
+
+variable "private_subnet_id" {
+  type    = string
+  default = "" # Provide the Subnet ID for the private endpoint
 }
 
 # Output for visibility
