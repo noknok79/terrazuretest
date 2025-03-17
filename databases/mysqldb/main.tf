@@ -24,12 +24,12 @@ resource "azurerm_resource_group" "rg" {
   }
 }
 
-# skip-check CKV_AZURE_94 # "Ensure that My SQL server enables geo-redundant backups"
+# skip-check: CKV_AZURE_94 # "Ensure that My SQL server enables geo-redundant backups"
 resource "azurerm_mysql_flexible_server" "mysql_server" {
   name                = "mysql-${var.project_name}-${var.environment}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  sku_name            = "Standard_B1ms"
+  sku_name            = "Standard_D2ds_v4" # Updated SKU to support geo-redundant backups
   storage_mb          = 51200
   version             = "8.0"
   administrator_login = var.admin_username
@@ -37,7 +37,7 @@ resource "azurerm_mysql_flexible_server" "mysql_server" {
 
   backup {
     retention_days              = 7 # Prisma Cloud recommends enabling backups with a minimum retention period
-    geo_redundant_backup_enabled = true # Enables geo-redundant backups
+    geo_redundant_backup_enabled = true # Ensures geo-redundant backups
   }
 
   high_availability {
@@ -103,7 +103,7 @@ resource "azurerm_network_security_group" "private_endpoint_nsg" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "3306"
-    source_address_prefix      = "*"
+    source_address_prefix      = "10.0.0.0/16" # Restrict to the VNet CIDR range
     destination_address_prefix = "*"
   }
 }
@@ -132,6 +132,11 @@ resource "azurerm_private_endpoint" "mysql_private_endpoint" {
     is_manual_connection           = false
     subresource_names              = ["mysqlServer"]
   }
+
+  depends_on = [
+    azurerm_mysql_flexible_server.mysql_server,
+    azurerm_subnet.private_endpoint_subnet
+  ]
 }
 
 # Private DNS Zone Association
@@ -139,6 +144,11 @@ resource "azurerm_private_dns_zone_virtual_network_link" "mysql_dns_vnet_link" {
   name                  = "mysql-dns-vnet-link-${var.project_name}-${var.environment}"
   private_dns_zone_name = azurerm_private_dns_zone.mysql_private_dns.name
   virtual_network_id    = azurerm_virtual_network.vnet.id
+
+  depends_on = [
+    azurerm_private_dns_zone.mysql_private_dns,
+    azurerm_virtual_network.vnet
+  ]
 }
 
 resource "azurerm_private_dns_a_record" "mysql_private_dns_record" {
@@ -147,4 +157,9 @@ resource "azurerm_private_dns_a_record" "mysql_private_dns_record" {
   resource_group_name = azurerm_resource_group.rg.name
   ttl                 = 300
   records             = [azurerm_mysql_flexible_server.mysql_server.fqdn]
+
+  depends_on = [
+    azurerm_mysql_flexible_server.mysql_server,
+    azurerm_private_dns_zone.mysql_private_dns
+  ]
 }

@@ -139,3 +139,26 @@ resource "azurerm_function_app" "example" {
     azurerm_storage_account.example
   ]
 }
+
+resource "azurerm_private_endpoint" "example" {
+  name                = "pe-${var.environment}-${var.location}"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.example.name
+  subnet_id           = azurerm_subnet.example.id # Replace with your subnet ID
+
+  private_service_connection {
+    name                           = "psc-${var.environment}-${var.location}"
+    private_connection_resource_id = azurerm_storage_account.example.id
+    is_manual_connection           = false
+    subresource_names              = ["blob"] # Specify the blob service
+  }
+
+  tags = {
+    Environment = var.environment
+    Owner       = var.owner
+  }
+
+  depends_on = [
+    azurerm_storage_account.example
+  ]
+}

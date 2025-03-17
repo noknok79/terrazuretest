@@ -1,5 +1,0 @@
-skip-check:
-  - CKV_AZURE_2 # Ensure that 'Auditing' is set to 'On' for Azure SQL Databases"
-  - CKV_AZURE_3 # Ensure that 'Threat Detection' is set to 'On' for Azure SQL Databases"
-  - CKV_AZURE_4 # Ensure that 'SQL Data Classification' is set to 'On' for Azure SQL Databases"
-  - CKV_AZURE_5 # Ensure that 'SQL Vulnerability Assessment' is set to 'On' for Azure SQL Databases"

@@ -29,11 +29,12 @@ resource "azurerm_cosmosdb_account" "cosmosdb" {
   kind                               = "GlobalDocumentDB"
   is_virtual_network_filter_enabled  = true  # Enable VNET filtering for security
   enable_public_network              = false # Disable public network access
-  disable_local_auth                 = true  # Disable local authentication
+  disable_local_auth                 = true  # Ensure local authentication is disabled
   disable_key_based_metadata_write_access = true # Restrict management plane changes
   enable_automatic_failover          = false # Disable automatic failover to restrict management plane changes
   enable_rbac                        = true  # Enable role-based access control
   enable_azure_monitor_metric_alerts = true # Enable Azure Monitor alerts for better security
+  enable_multiple_write_locations    = false # Disable multiple write locations to restrict management plane changes
 
   # Restrict access using IP filtering
   ip_range_filter = var.allowed_ip_ranges # List of allowed IP ranges

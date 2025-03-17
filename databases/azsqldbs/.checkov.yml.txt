@@ -1,0 +1,10 @@
+skip-check:
+  - CKV_AZURE_2 # Ensure that 'Auditing' is set to 'On' for Azure SQL Databases"
+  - CKV_AZURE_3 # Ensure that 'Threat Detection' is set to 'On' for Azure SQL Databases"
+  - CKV_AZURE_4 # Ensure that 'SQL Data Classification' is set to 'On' for Azure SQL Databases"
+  - CKV_AZURE_5 # Ensure that 'SQL Vulnerability Assessment' is set to 'On' for Azure SQL Databases"
+  - CKV2_AZURE_4 # Ensure Azure SQL server ADS VA Send scan reports to is configured
+  - CKV2_AZURE_3 # Ensure that VA setting Periodic Recurring Scans is enabled on a SQL server
+  - CKV2_AZURE_5 # Ensure that VA setting 'Also send email notifications to admins and subscription owners' is set for a SQL server
+  - CKV2_AZURE_2 # Ensure that 'Auditing' is set to 'On' for Azure SQL Databases"
+  

@@ -82,7 +82,27 @@ resource "azurerm_storage_account" "sa_blob_storage" {
 
   tags = var.tags
 
-  depends_on = [azurerm_resource_group.rg_blob_storage]
+  depends_on = [
+    azurerm_resource_group.rg_blob_storage,
+    azurerm_private_endpoint.pe_blob_storage
+  ]
+}
+
+# Private endpoint for the storage account
+resource "azurerm_private_endpoint" "pe_blob_storage" {
+  name                = "pe-blobstorage-${var.environment}"
+  location            = azurerm_resource_group.rg_blob_storage.location
+  resource_group_name = azurerm_resource_group.rg_blob_storage.name
+  subnet_id           = var.subnet_id # Ensure you pass the correct subnet ID
+
+  private_service_connection {
+    name                           = "blobstorage-connection"
+    private_connection_resource_id = azurerm_storage_account.sa_blob_storage.id
+    is_manual_connection           = false
+    subresource_names              = ["blob"] # Specify the blob subresource
+  }
+
+  tags = var.tags
 }
 
 # Blob container

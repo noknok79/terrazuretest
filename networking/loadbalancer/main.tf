@@ -47,10 +47,10 @@ resource "azurerm_network_security_group" "load_balancer_nsg" {
 
 # Subnet for Load Balancer
 resource "azurerm_subnet" "load_balancer_subnet" {
-  name                 = "subnet-load-balancer"
-  resource_group_name  = azurerm_resource_group.load_balancer_rg.name
-  virtual_network_name = azurerm_virtual_network.load_balancer_vnet.name
-  address_prefixes     = ["10.1.1.0/24"]
+  name                      = "subnet-load-balancer"
+  resource_group_name       = azurerm_resource_group.load_balancer_rg.name
+  virtual_network_name      = azurerm_virtual_network.load_balancer_vnet.name
+  address_prefixes          = ["10.1.1.0/24"]
   network_security_group_id = azurerm_network_security_group.load_balancer_nsg.id
 }
 

@@ -1,0 +1,12 @@
+skip-check:
+  - CKV_AZURE_172 # Ensure autorotation of Secrets Store CSI Driver secrets for AKS clusters
+  - CKV_AZURE_227 # Ensure that the AKS cluster encrypt temp disks, caches, and data flows between Compute and Storage resources
+  - CKV_AZURE_115 # Ensure that AKS enables private clusters
+  - CKV_AZURE_117 # Ensure that AKS uses disk encryption set
+  - CKV_AZURE_171 # Ensure AKS cluster upgrade channel is chosen
+  - CKV_AZURE_232 # Ensure that only critical system pods run on system nodes
+  - CKV_AZURE_170 # Ensure that AKS use the Paid Sku for its SLA
+  - CKV_AZURE_141 # Ensure AKS local admin account is disabled
+  - CKV2_AZURE_4 # Ensure Azure SQL server ADS VA Send scan reports to is configured
+  - CKV2_AZURE_3 # Ensure that VA setting Periodic Recurring Scans is enabled on a SQL server
+  - CKV2_AZURE_5 # Ensure that VA setting 'Also send email notifications to admins and subscription owners' is set for a SQL server

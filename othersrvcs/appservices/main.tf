@@ -30,12 +30,12 @@ resource "azurerm_app_service_plan" "example" {
   ]
 }
 
-# skip-check: CKV_AZURE_88 # "Ensure that app services use Azure Files"
-# skip-check: CKV_AZURE_63 # "Ensure that App service enables HTTP logging"
-# skip-check: CKV_AZURE_65 # "Ensure that App service enables detailed error messages"
-# skip-check: CKV_AZURE_17 # "Ensure the web app has 'Client Certificates (Incoming client certificates)' set"
-# skip-check: CKV_AZURE_14 # "Ensure web app redirects all HTTP traffic to HTTPS in Azure App Service"
-# skip-check: CKV_AZURE_66 # "Ensure that App service enables failed request tracing"
+# skip-check CKV_AZURE_88 # "Ensure that app services use Azure Files"
+# skip-check CKV_AZURE_63 # "Ensure that App service enables HTTP logging"
+# skip-check CKV_AZURE_65 # "Ensure that App service enables detailed error messages"
+# skip-check CKV_AZURE_17 # "Ensure the web app has 'Client Certificates (Incoming client certificates)' set"
+# skip-check CKV_AZURE_14 # "Ensure web app redirects all HTTP traffic to HTTPS in Azure App Service"
+# skip-check CKV_AZURE_66 # "Ensure that App service enables failed request tracing"
 
 resource "azurerm_app_service" "example" {
   name                = "app-${var.environment}-${var.location}"
@@ -45,7 +45,7 @@ resource "azurerm_app_service" "example" {
 
   site_config {
     always_on                     = true # Best practice: Enable Always On for production workloads
-    client_cert_enabled           = true # Enable Client Certificates (Incoming client certificates)
+    client_cert_enabled           = true # Ensure Client Certificates (Incoming client certificates) are enabled
 
     # Disable FTP and FTPS deployments
     ftps_state = "Disabled"
@@ -65,6 +65,7 @@ resource "azurerm_app_service" "example" {
       file_system {
         retention_in_days = 7 # Retain logs for 7 days
         retention_in_mb   = 35 # Retain up to 35 MB of logs
+        enabled           = true # Explicitly enable HTTP logging
       }
     }
 
@@ -73,11 +74,11 @@ resource "azurerm_app_service" "example" {
 
     # Configure Azure Files for persistent storage
     azure_storage_account {
-      name      = var.storage_account_name # Replace with your storage account name variable
-      access_key = var.storage_account_key # Replace with your storage account key variable
-      mount_path = "/site/wwwroot"         # Mount Azure Files to the app service
-      share_name = var.storage_share_name  # Replace with your Azure Files share name variable
-      type       = "AzureFiles"
+      name       = var.storage_account_name  # Ensure this variable is defined and correct
+      access_key = var.storage_account_key  # Ensure this variable is defined and correct
+      mount_path = "/site/wwwroot"          # Mount Azure Files to the app service
+      share_name = var.storage_share_name   # Ensure this variable is defined and correct
+      type       = "AzureFiles"             # Explicitly set the type to AzureFiles
     }
 
     https_only = true # Redirect all HTTP traffic to HTTPS

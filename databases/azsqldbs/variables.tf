@@ -1,4 +1,3 @@
-
 # Variables
 variable "environment" {
   description = "The environment name (e.g., dev, staging, prod)"
@@ -40,4 +39,15 @@ variable "end_ip_address" {
   description = "End IP address for the SQL Server firewall rule"
   type        = string
   default     = "255.255.255.255"
+}
+
+variable "node_count" {
+  description = "The number of nodes in the default node pool"
+  type        = number
+  default     = 3 # Adjust as needed
+}
+
+variable "log_analytics_workspace_id" {
+  description = "The ID of the Log Analytics Workspace for OMS Agent"
+  type        = string
 }

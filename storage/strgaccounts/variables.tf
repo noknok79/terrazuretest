@@ -21,8 +21,8 @@ variable "allowed_ip_ranges" {
 }
 
 variable "key_vault_key_id" {
-  type    = string
-  default = "" # Provide the Key Vault Key ID
+  description = "The Azure Key Vault key ID for CMK encryption"
+  type        = string
 }
 
 variable "private_subnet_id" {

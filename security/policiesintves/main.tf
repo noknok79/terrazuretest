@@ -32,7 +32,7 @@ resource "azurerm_policy_definition" "policy" {
 
   policy_rule = jsonencode({
     if = {
-      field = "type"
+      field  = "type"
       equals = "Microsoft.Network/virtualNetworks"
     }
     then = {
@@ -79,15 +79,15 @@ resource "azurerm_policy_assignment" "assignment" {
 }
 
 resource "azurerm_storage_account" "sa_blob_storage" {
-  name                     = "st${var.environment}${random_string.storage_suffix.result}"
-  resource_group_name      = azurerm_resource_group.rg_blob_storage.name
-  location                 = azurerm_resource_group.rg_blob_storage.location
-  account_tier             = "Standard"
-  account_replication_type = "ZRS" # Updated to Zone-Redundant Storage for compliance
-  allow_blob_public_access = false # Disallow public access
-  min_tls_version          = "TLS1_2" # Enforce latest TLS version
-  enable_https_traffic_only = true # Enforce HTTPS traffic only
-  shared_access_key_enabled = false # Disable shared key authorization
+  name                      = "st${var.environment}${random_string.storage_suffix.result}"
+  resource_group_name       = azurerm_resource_group.rg_blob_storage.name
+  location                  = azurerm_resource_group.rg_blob_storage.location
+  account_tier              = "Standard"
+  account_replication_type  = "ZRS"    # Updated to Zone-Redundant Storage for compliance
+  allow_blob_public_access  = false    # Disallow public access
+  min_tls_version           = "TLS1_2" # Enforce latest TLS version
+  enable_https_traffic_only = true     # Enforce HTTPS traffic only
+  shared_access_key_enabled = false    # Disable shared key authorization
 
   blob_properties {
     delete_retention_policy {
@@ -112,8 +112,8 @@ resource "azurerm_storage_account" "sa_blob_storage" {
   encryption {
     services {
       blob {
-        enabled           = true
-        key_type          = "Account" # Use Account-managed keys
+        enabled  = true
+        key_type = "Account" # Use Account-managed keys
       }
     }
     key_vault_key_id = var.key_vault_key_id # Use Customer Managed Key (CMK)

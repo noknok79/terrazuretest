@@ -1,4 +1,3 @@
-
 # Variables
 variable "location" {
   description = "Azure region where resources will be created"
@@ -25,4 +24,16 @@ variable "admin_password" {
   description = "Administrator password for PostgreSQL server"
   type        = string
   sensitive   = true
+}
+
+variable "trusted_start_ip" {
+  description = "Start of the trusted IP range"
+  type        = string
+  default     = "192.168.1.1" # Replace with your trusted IP
+}
+
+variable "trusted_end_ip" {
+  description = "End of the trusted IP range"
+  type        = string
+  default     = "192.168.1.255" # Replace with your trusted IP
 }

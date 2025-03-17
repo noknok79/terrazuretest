@@ -83,10 +83,6 @@ resource "azurerm_application_gateway" "app_gateway" {
     public_ip_address_id = azurerm_public_ip.app_gateway_pip.id
   }
   frontend_port {
-    name = "http-port"
-    port = 80
-  }
-  frontend_port {
     name = "https-port"
     port = 443
   }
@@ -105,6 +101,10 @@ resource "azurerm_application_gateway" "app_gateway" {
     data     = filebase64("${path.module}/cert.pfx") # Replace with your certificate file
     password = var.ssl_certificate_password
   }
+  ssl_policy {
+    policy_type = "Predefined"
+    policy_name = "AppGwSslPolicy20170401S" # Use a predefined secure SSL policy
+  }
   request_routing_rule {
     name                       = "app-gateway-routing-rule"
     rule_type                  = "Basic"
@@ -119,6 +119,15 @@ resource "azurerm_application_gateway" "app_gateway" {
     protocol              = "Http"
     request_timeout       = 20
   }
+
+  # Enable WAF Configuration
+  waf_configuration {
+    enabled            = true
+    firewall_mode      = "Prevention" # Use "Detection" for monitoring only
+    rule_set_type      = "OWASP"
+    rule_set_version   = "3.2"
+  }
+
   depends_on = [
     azurerm_subnet.app_gateway_subnet,
     azurerm_public_ip.app_gateway_pip

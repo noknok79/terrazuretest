@@ -1,2 +1,2 @@
 skip-check:
-  - CKV_AZURE_94 #"Ensure that My SQL server enables geo-redundant backups"
+  - CKV_AZURE_94 # "Ensure that My SQL server enables geo-redundant backups"

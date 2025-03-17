@@ -53,11 +53,10 @@ resource "azurerm_storage_account" "example" {
         key_type = "Account"
       }
     }
-    key_vault_key_id = var.key_vault_key_id
+    key_vault_key_id = var.key_vault_key_id # Ensure this variable is correctly set to a valid Key Vault key ID
   }
 
   # Private endpoint configuration (CKV2_AZURE_33) 
- 
   private_endpoint {
     subnet_id = var.private_subnet_id
   }
@@ -97,6 +96,21 @@ resource "azurerm_storage_account" "example" {
   }
 
   depends_on = [
-    azurerm_resource_group.example
+    azurerm_resource_group.example,
+    azurerm_private_endpoint.example
   ]
+}
+
+resource "azurerm_private_endpoint" "example" {
+  name                = "pe-${var.environment}-${var.location}"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+  subnet_id           = var.private_subnet_id
+
+  private_service_connection {
+    name                           = "psc-${var.environment}-${var.location}"
+    private_connection_resource_id = azurerm_storage_account.example.id
+    is_manual_connection           = false
+    subresource_names              = ["blob", "file"] # Specify subresources for the storage account
+  }
 }
