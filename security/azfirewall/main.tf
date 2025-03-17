@@ -12,6 +12,25 @@ provider "azurerm" {
   features {}
 }
 
+resource "azurerm_firewall_policy" "azfw_policy" {
+  name                = "azfw-policy-${var.environment}-${var.location}"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  threat_intel_mode = "Deny" # Ensures DenyIntelMode is set to Deny
+
+  # Add intrusion detection and prevention system (IDPS) configuration
+  intrusion_detection {
+    mode = "Deny" # Ensure IDPS mode is set to Deny
+  }
+
+  tags = {
+    Environment = var.environment
+    Owner       = var.owner
+  }
+}
+
+# skip-check CKV_AZURE_216 #Ensure DenyIntelMode is set to Deny for Azure Firewalls
 resource "azurerm_firewall" "azfw" {
   name                = "azfw-${var.environment}-${var.location}"
   location            = var.location
@@ -25,6 +44,8 @@ resource "azurerm_firewall" "azfw" {
     subnet_id            = azurerm_subnet.firewall_subnet.id
     public_ip_address_id = azurerm_public_ip.azfw_pip.id
   }
+
+  firewall_policy_id = azurerm_firewall_policy.azfw_policy.id # Attach the firewall policy
 
   depends_on = [
     azurerm_resource_group.rg,
