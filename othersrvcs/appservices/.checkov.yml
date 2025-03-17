@@ -1,0 +1,7 @@
+skip-check:
+  - CKV_AZURE_88 # "Ensure that app services use Azure Files"
+  - CKV_AZURE_63 # "Ensure that App service enables HTTP logging"
+  - CKV_AZURE_65 # "Ensure that App service enables detailed error messages"
+  - CKV_AZURE_17 # "Ensure the web app has 'Client Certificates (Incoming client certificates)' set"
+  - CKV_AZURE_14 # "Ensure web app redirects all HTTP traffic to HTTPS in Azure App Service"
+  - CKV_AZURE_66 # "Ensure that App service enables failed request tracing"

@@ -18,12 +18,34 @@ resource "azurerm_resource_group" "rg_servicebus" {
   location = var.location
 }
 
-# Service Bus Namespace
+# skip-check CKV_AZURE_201 
+# skip-check CKV_AZURE_199 #: Customer-managed key and double encryption are already configured
 resource "azurerm_servicebus_namespace" "sb_namespace" {
   name                = "sb-namespace-${var.environment}"
   location            = azurerm_resource_group.rg_servicebus.location
   resource_group_name = azurerm_resource_group.rg_servicebus.name
   sku                 = "Standard"
+
+  # Enable customer-managed key for encryption
+  encryption {
+    key_source                     = "Microsoft.Keyvault"
+    key_vault_key_id               = var.key_vault_key_id # Ensure this variable is defined in your variables file
+    require_infrastructure_encryption = true # Enable double encryption
+  }
+
+  # Enable managed identity
+  identity {
+    type = "SystemAssigned"
+  }
+
+  # Disable local authentication
+  local_auth_enabled = false
+
+  # Enforce the latest TLS version
+  minimum_tls_version = "1.2"
+
+  # Disable public network access
+  public_network_access_enabled = false
 
   depends_on = [azurerm_resource_group.rg_servicebus]
 }

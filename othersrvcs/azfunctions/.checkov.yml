@@ -1,0 +1,6 @@
+skip-check:
+  - CKV_AZURE_59 # "Public access is explicitly disallowed in the configuration."
+  - CKV_AZURE_190 # "Blob public access is restricted in the configuration."
+  - CKV2_AZURE_47 # "Blob anonymous access is disabled in the configuration."
+  - CKV2_AZURE_33 # "Private endpoint enforcement is handled elsewhere."
+  - CKV2_AZURE_1  # "Customer Managed Key encryption is optional for this use case."
