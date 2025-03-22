@@ -35,7 +35,7 @@ resource "azurerm_subnet" "subnet_vmss" {
   resource_group_name  = azurerm_resource_group.rg_vmss.name
   virtual_network_name = azurerm_virtual_network.vnet_vmss.name
   address_prefixes     = ["10.2.1.0/24"]
-  depends_on           = [azurerm_virtual_network.vnet_vmss]
+  depends_on           = [azurerm_virtual_network.vnet_vmss] # Ensures the virtual network is created first
 }
 
 # Load Balancer
@@ -46,12 +46,14 @@ resource "azurerm_lb" "lb_vmss" {
   sku                 = "Standard"
 
   frontend_ip_configuration {
-    name                 = "frontend"
-    subnet_id            = azurerm_subnet.subnet_vmss.id
+    name                          = "frontend"
+    subnet_id                     = azurerm_subnet.subnet_vmss.id
     private_ip_address_allocation = "Dynamic"
   }
 
   tags = var.tags
+
+  depends_on = [azurerm_subnet.subnet_vmss] # Ensures the subnet is created first
 }
 
 # Virtual Machine Scale Set
@@ -103,4 +105,6 @@ resource "azurerm_linux_virtual_machine_scale_set" "vmss" {
   }
 
   tags = merge(var.tags, { "skip_check" = "CKV_AZURE_49" })
+
+  depends_on = [azurerm_lb.lb_vmss, azurerm_subnet.subnet_vmss] # Ensures the load balancer and subnet are created first
 }

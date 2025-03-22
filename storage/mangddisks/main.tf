@@ -33,7 +33,10 @@ resource "azurerm_managed_disk" "managed_disk" {
   # Ensure the disk uses a disk encryption set for customer-managed keys
   disk_encryption_set_id = var.disk_encryption_set_id
 
-  depends_on = [azurerm_resource_group.rg_managed_disks]
+  depends_on = [
+    azurerm_resource_group.rg_managed_disks,
+    random_string.disk_suffix
+  ]
 
   # Azure Managed Disks do not support public network access.
 }

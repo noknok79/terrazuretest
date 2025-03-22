@@ -20,13 +20,13 @@ resource "azurerm_resource_group" "rg" {
 
 # skip-check CKV_AZURE_136 # Geo-redundant backups are intentionally enabled for this environment
 resource "azurerm_postgresql_flexible_server" "psql_server" {
-  name                = "psql-${var.project_name}-${var.environment}"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  sku_name            = "Standard_D2s_v3" # Updated SKU to support geo-redundant backups
-  storage_mb          = 32768
-  version             = "14" # Use the latest stable PostgreSQL version
-  administrator_login = var.admin_username
+  name                   = "psql-${var.project_name}-${var.environment}"
+  resource_group_name    = azurerm_resource_group.rg.name
+  location               = azurerm_resource_group.rg.location
+  sku_name               = "Standard_D2s_v3" # Updated SKU to support geo-redundant backups
+  storage_mb             = 32768
+  version                = "14" # Use the latest stable PostgreSQL version
+  administrator_login    = var.admin_username
   administrator_password = var.admin_password
 
   backup {
@@ -64,20 +64,20 @@ resource "azurerm_postgresql_flexible_database" "psql_db" {
 # PostgreSQL firewall rule
 # skip-check CKV2_AZURE_26 # Allowing all IPs is intentional for this environment
 resource "azurerm_postgresql_flexible_server_firewall_rule" "allow_access" {
-  name                = "fw-allow-all-${var.project_name}-${var.environment}"
-  server_id           = azurerm_postgresql_flexible_server.psql_server.id
-  start_ip_address    = "0.0.0.0"
-  end_ip_address      = "255.255.255.255"
+  name             = "fw-allow-all-${var.project_name}-${var.environment}"
+  server_id        = azurerm_postgresql_flexible_server.psql_server.id
+  start_ip_address = "0.0.0.0"
+  end_ip_address   = "255.255.255.255"
 
   depends_on = [azurerm_postgresql_flexible_server.psql_server]
 }
 
 # skip-check CKV2_AZURE_26 # Allowing trusted IPs is intentional for this environment
-resource "azurerm_postgresql_flexible_server_firewall_rule" "allow_access" {
-  name                = "fw-allow-trusted-${var.project_name}-${var.environment}"
-  server_id           = azurerm_postgresql_flexible_server.psql_server.id
-  start_ip_address    = "192.168.1.1" # Replace with a specific trusted IP or range
-  end_ip_address      = "192.168.1.255" # Replace with a specific trusted IP or range
+resource "azurerm_postgresql_flexible_server_firewall_rule" "allow_trusted_access" {
+  name             = "fw-allow-trusted-${var.project_name}-${var.environment}"
+  server_id        = azurerm_postgresql_flexible_server.psql_server.id
+  start_ip_address = "192.168.1.1"   # Replace with a specific trusted IP or range
+  end_ip_address   = "192.168.1.255" # Replace with a specific trusted IP or range
 
   depends_on = [azurerm_postgresql_flexible_server.psql_server]
 }
@@ -93,4 +93,9 @@ resource "azurerm_private_endpoint" "psql_private_endpoint" {
     private_connection_resource_id = azurerm_postgresql_flexible_server.psql_server.id
     is_manual_connection           = false
   }
+
+  depends_on = [
+    azurerm_postgresql_flexible_server.psql_server,
+    azurerm_resource_group.rg
+  ]
 }

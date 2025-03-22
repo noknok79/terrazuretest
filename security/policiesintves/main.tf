@@ -121,20 +121,23 @@ resource "azurerm_storage_account" "sa_blob_storage" {
 
   tags = var.tags
 
-  depends_on = [azurerm_resource_group.rg_blob_storage]
-}
+  depends_on = [
+    azurerm_resource_group.rg_blob_storage,
+    azurerm_policy_assignment.assignment
+  ]
 
-#skip-check CKV_AZURE_33 # Ensure Storage logging is enabled for Queue service
-#skip-check CKV_AZURE_206 # Ensure that Storage Accounts use replication
-#skip-check CKV_AZURE_59  # Ensure that Storage accounts disallow public access
-#skip-check CKV_AZURE_44  # Ensure Storage Account is using the latest version of TLS encryption
-#skip-check CKV_AZURE_190 # Ensure that Storage blobs restrict public access
-#skip-check CKV2_AZURE_47 # Ensure storage account is configured without blob anonymous access
-#skip-check CKV2_AZURE_40 # Ensure storage account is not configured with Shared Key authorization
-#skip-check CKV2_AZURE_38 # Ensure soft-delete is enabled on Azure storage account
-#skip-check CKV2_AZURE_41 # Ensure storage account is configured with SAS expiration policy
-#skip-check CKV2_AZURE_33 # Ensure storage account is configured with private endpoint
-#skip-check CKV2_AZURE_1  # Ensure storage for critical data are encrypted with Customer Managed Key
+  #skip-check CKV_AZURE_33 # Ensure Storage logging is enabled for Queue service
+  #skip-check CKV_AZURE_206 # Ensure that Storage Accounts use replication
+  #skip-check CKV_AZURE_59  # Ensure that Storage accounts disallow public access
+  #skip-check CKV_AZURE_44  # Ensure Storage Account is using the latest version of TLS encryption
+  #skip-check CKV_AZURE_190 # Ensure that Storage blobs restrict public access
+  #skip-check CKV2_AZURE_47 # Ensure storage account is configured without blob anonymous access
+  #skip-check CKV2_AZURE_40 # Ensure storage account is not configured with Shared Key authorization
+  #skip-check CKV2_AZURE_38 # Ensure soft-delete is enabled on Azure storage account
+  #skip-check CKV2_AZURE_41 # Ensure storage account is configured with SAS expiration policy
+  #skip-check CKV2_AZURE_33 # Ensure storage account is configured with private endpoint
+  #skip-check CKV2_AZURE_1  # Ensure storage for critical data are encrypted with Customer Managed Key
+}
 
 resource "azurerm_private_endpoint" "storage_private_endpoint" {
   name                = "pe-${var.environment}-storage"
@@ -148,4 +151,8 @@ resource "azurerm_private_endpoint" "storage_private_endpoint" {
     is_manual_connection           = false
     subresource_names              = ["blob"]
   }
+
+  depends_on = [
+    azurerm_storage_account.sa_blob_storage
+  ]
 }

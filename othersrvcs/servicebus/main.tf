@@ -28,9 +28,9 @@ resource "azurerm_servicebus_namespace" "sb_namespace" {
 
   # Enable customer-managed key for encryption
   encryption {
-    key_source                     = "Microsoft.Keyvault"
-    key_vault_key_id               = var.key_vault_key_id # Ensure this variable is defined in your variables file
-    require_infrastructure_encryption = true # Enable double encryption
+    key_source                        = "Microsoft.Keyvault"
+    key_vault_key_id                  = var.key_vault_key_id # Ensure this variable is defined in your variables file
+    require_infrastructure_encryption = true                 # Enable double encryption
   }
 
   # Enable managed identity
@@ -47,13 +47,19 @@ resource "azurerm_servicebus_namespace" "sb_namespace" {
   # Disable public network access
   public_network_access_enabled = false
 
-  depends_on = [azurerm_resource_group.rg_servicebus]
+  depends_on = [
+    azurerm_resource_group.rg_servicebus
+  ]
 }
 
 # Service Bus Queue
 resource "azurerm_servicebus_queue" "sb_queue" {
-  name                = "sb-queue-${var.environment}"
-  namespace_id        = azurerm_servicebus_namespace.sb_namespace.id
+  name         = "sb-queue-${var.environment}"
+  namespace_id = azurerm_servicebus_namespace.sb_namespace.id
 
-  depends_on = [azurerm_servicebus_namespace.sb_namespace]
+  # Ensure the namespace is created before the queue
+  depends_on = [
+    azurerm_servicebus_namespace.sb_namespace,
+    azurerm_resource_group.rg_servicebus
+  ]
 }

@@ -27,15 +27,15 @@ resource "azurerm_resource_group" "example" {
 #skip-check CKV2_AZURE_33 # "Private endpoint enforcement is handled elsewhere."
 #skip-check CKV2_AZURE_1  # "Customer Managed Key encryption is optional for this use case."
 resource "azurerm_storage_account" "example" {
-  name                     = "st${var.environment}${var.location}"
-  location                 = var.location
-  resource_group_name      = azurerm_resource_group.example.name
-  account_tier             = "Standard"
-  account_replication_type = "GRS" # Updated to use Geo-Redundant Storage for replication
-  allow_blob_public_access = false # Disallow public access to blobs
-  min_tls_version          = "TLS1_2" # Enforce the latest TLS version
-  enable_https_traffic_only = true # Ensure HTTPS traffic only
-  shared_access_key_enabled = false # Disable shared key authorization
+  name                      = "st${var.environment}${var.location}"
+  location                  = var.location
+  resource_group_name       = azurerm_resource_group.example.name
+  account_tier              = "Standard"
+  account_replication_type  = "GRS"    # Updated to use Geo-Redundant Storage for replication
+  allow_blob_public_access  = false    # Disallow public access to blobs
+  min_tls_version           = "TLS1_2" # Enforce the latest TLS version
+  enable_https_traffic_only = true     # Ensure HTTPS traffic only
+  shared_access_key_enabled = false    # Disable shared key authorization
 
   network_rules {
     default_action             = "Deny"
@@ -46,12 +46,12 @@ resource "azurerm_storage_account" "example" {
   encryption {
     services {
       blob {
-        enabled           = true
-        key_type          = "Account"
+        enabled  = true
+        key_type = "Account"
       }
       file {
-        enabled           = true
-        key_type          = "Account"
+        enabled  = true
+        key_type = "Account"
       }
     }
     key_vault_key_id = azurerm_key_vault_key.example.id # Replace with your Key Vault Key ID
@@ -120,12 +120,12 @@ resource "azurerm_function_app" "example" {
     application_stack {
       dotnet_version = "6"
     }
-    always_on = true
+    always_on     = true
     http2_enabled = true # Use the latest HTTP version
   }
 
   auth_settings {
-    enabled = true # Enable authentication
+    enabled          = true # Enable authentication
     default_provider = "AzureActiveDirectory"
   }
 
@@ -159,6 +159,8 @@ resource "azurerm_private_endpoint" "example" {
   }
 
   depends_on = [
-    azurerm_storage_account.example
+    azurerm_storage_account.example,
+    azurerm_resource_group.example,
+    azurerm_app_service_plan.example
   ]
 }

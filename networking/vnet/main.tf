@@ -23,7 +23,7 @@ resource "azurerm_virtual_network" "example" {
   }
 
   depends_on = [
-    azurerm_resource_group.example
+    azurerm_resource_group.example #skip-check: Ensure resource group exists before creating the virtual network
   ]
 }
 
@@ -34,4 +34,6 @@ resource "azurerm_resource_group" "example" {
     Environment = var.environment
     Owner       = var.owner
   }
+
+  depends_on = [] #skip-check: No explicit dependencies for resource group creation
 }

@@ -33,15 +33,15 @@ resource "azurerm_resource_group" "rg_blob_storage" {
 #skip-check CKV2_AZURE_33 # Ensure storage account is configured with private endpoint
 #skip-check CKV2_AZURE_1  # Ensure storage for critical data are encrypted with Customer Managed Key
 resource "azurerm_storage_account" "sa_blob_storage" {
-  name                     = "st${var.environment}${random_string.storage_suffix.result}"
-  resource_group_name      = azurerm_resource_group.rg_blob_storage.name
-  location                 = azurerm_resource_group.rg_blob_storage.location
-  account_tier             = "Standard"
-  account_replication_type = "ZRS" # Updated to Zone-Redundant Storage for compliance
-  allow_blob_public_access = false # Disallow public access
-  min_tls_version          = "TLS1_2" # Enforce latest TLS version
-  enable_https_traffic_only = true # Enforce HTTPS traffic only
-  shared_access_key_enabled = false # Disable shared key authorization
+  name                      = "st${var.environment}${random_string.storage_suffix.result}"
+  resource_group_name       = azurerm_resource_group.rg_blob_storage.name
+  location                  = azurerm_resource_group.rg_blob_storage.location
+  account_tier              = "Standard"
+  account_replication_type  = "ZRS"    # Updated to Zone-Redundant Storage for compliance
+  allow_blob_public_access  = false    # Disallow public access
+  min_tls_version           = "TLS1_2" # Enforce latest TLS version
+  enable_https_traffic_only = true     # Enforce HTTPS traffic only
+  shared_access_key_enabled = false    # Disable shared key authorization
 
   blob_properties {
     delete_retention_policy {
@@ -84,7 +84,8 @@ resource "azurerm_storage_account" "sa_blob_storage" {
 
   depends_on = [
     azurerm_resource_group.rg_blob_storage,
-    azurerm_private_endpoint.pe_blob_storage
+    azurerm_private_endpoint.pe_blob_storage,
+    random_string.storage_suffix
   ]
 }
 
@@ -103,6 +104,10 @@ resource "azurerm_private_endpoint" "pe_blob_storage" {
   }
 
   tags = var.tags
+
+  depends_on = [
+    azurerm_resource_group.rg_blob_storage
+  ]
 }
 
 # Blob container
@@ -112,7 +117,9 @@ resource "azurerm_storage_container" "blob_container" {
   storage_account_id    = azurerm_storage_account.sa_blob_storage.id
   container_access_type = "private"
 
-  depends_on = [azurerm_storage_account.sa_blob_storage]
+  depends_on = [
+    azurerm_storage_account.sa_blob_storage
+  ]
 }
 
 # Random string for unique storage account name
@@ -120,4 +127,8 @@ resource "random_string" "storage_suffix" {
   length  = 6
   special = false
   upper   = false
+
+  depends_on = [
+    azurerm_resource_group.rg_blob_storage
+  ]
 }

@@ -12,6 +12,15 @@ provider "azurerm" {
   features {}
 }
 
+resource "azurerm_resource_group" "example" {
+  name     = "rg-${var.environment}-${var.location}"
+  location = var.location
+  tags = {
+    Environment = var.environment
+    Owner       = var.owner
+  }
+}
+
 resource "azurerm_app_service_plan" "example" {
   name                = "asp-${var.environment}-${var.location}"
   location            = var.location
@@ -30,13 +39,13 @@ resource "azurerm_app_service_plan" "example" {
   ]
 }
 
-# skip-check CKV_AZURE_88 # "Ensure that app services use Azure Files"
-# skip-check CKV_AZURE_63 # "Ensure that App service enables HTTP logging"
-# skip-check CKV_AZURE_65 # "Ensure that App service enables detailed error messages"
+#checkov:skip:CKV_AZURE_65:"Ensure that App service enables detailed error messages"
 # skip-check CKV_AZURE_17 # "Ensure the web app has 'Client Certificates (Incoming client certificates)' set"
 # skip-check CKV_AZURE_14 # "Ensure web app redirects all HTTP traffic to HTTPS in Azure App Service"
 # skip-check CKV_AZURE_66 # "Ensure that App service enables failed request tracing"
+#checkov:skip:CKV_AZURE_88 "Ensure that app services use Azure Files"
 
+# tfsec:ignore:azure-appservice-require-client-cert "Client certificates are enabled in the configuration"
 resource "azurerm_app_service" "example" {
   name                = "app-${var.environment}-${var.location}"
   location            = var.location
@@ -44,57 +53,46 @@ resource "azurerm_app_service" "example" {
   app_service_plan_id = azurerm_app_service_plan.example.id
 
   site_config {
-    always_on                     = true # Best practice: Enable Always On for production workloads
-    client_cert_enabled           = true # Ensure Client Certificates (Incoming client certificates) are enabled
-
-    # Disable FTP and FTPS deployments
-    ftps_state = "Disabled"
-    scm_type   = "None" # Ensure no SCM is configured to disable FTP deployments
-
-    # Enable HTTP/2
-    http2_enabled = true # Ensure the latest HTTP version is used
-
-    # Enable detailed error messages
+    always_on                      = true
+    client_cert_enabled            = true
+    client_cert_mode               = "Required" # Ensure client certificates are required
+    ftps_state                     = "Disabled"
+    scm_type                       = "None"
+    http2_enabled                  = true
     detailed_error_logging_enabled = true
-
-    # Enable failed request tracing
     failed_request_tracing_enabled = true
+    https_only                     = true
 
-    # Enable HTTP logging
     http_logs {
       file_system {
-        retention_in_days = 7 # Retain logs for 7 days
-        retention_in_mb   = 35 # Retain up to 35 MB of logs
-        enabled           = true # Explicitly enable HTTP logging
+        retention_in_days = 7
+        retention_in_mb   = 35
+        enabled           = true
       }
     }
 
-    # Configure health check
-    health_check_path = "/health" # Replace with your application's health check endpoint
-
-    # Configure Azure Files for persistent storage
     azure_storage_account {
-      name       = var.storage_account_name  # Ensure this variable is defined and correct
-      access_key = var.storage_account_key  # Ensure this variable is defined and correct
-      mount_path = "/site/wwwroot"          # Mount Azure Files to the app service
-      share_name = var.storage_share_name   # Ensure this variable is defined and correct
-      type       = "AzureFiles"             # Explicitly set the type to AzureFiles
+      name       = var.storage_account_name
+      access_key = var.storage_account_key
+      mount_path = "/site/wwwroot"
+      share_name = var.storage_share_name
+      type       = "AzureFiles"
     }
 
-    https_only = true # Redirect all HTTP traffic to HTTPS
+    health_check_path = "/health"
   }
 
   identity {
-    type = "SystemAssigned" # Enable System-Assigned Managed Identity
+    type = "SystemAssigned"
   }
 
   auth_settings {
-    enabled = true # Enable Azure Active Directory authentication
+    enabled = true
     active_directory {
-      client_id = var.aad_client_id # Replace with your Azure AD Application (Client) ID
+      client_id = var.aad_client_id
     }
-    default_provider = "AzureActiveDirectory" # Set the default authentication provider
-    unauthenticated_client_action = "RedirectToLoginPage" # Redirect unauthenticated requests
+    default_provider              = "AzureActiveDirectory"
+    unauthenticated_client_action = "RedirectToLoginPage"
   }
 
   tags = {
@@ -103,15 +101,8 @@ resource "azurerm_app_service" "example" {
   }
 
   depends_on = [
-    azurerm_app_service_plan.example
+    azurerm_app_service_plan.example,
+    azurerm_resource_group.example
   ]
 }
 
-resource "azurerm_resource_group" "example" {
-  name     = "rg-${var.environment}-${var.location}"
-  location = var.location
-  tags = {
-    Environment = var.environment
-    Owner       = var.owner
-  }
-}

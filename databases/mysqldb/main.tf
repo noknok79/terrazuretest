@@ -26,17 +26,17 @@ resource "azurerm_resource_group" "rg" {
 
 # skip-check: CKV_AZURE_94 # "Ensure that My SQL server enables geo-redundant backups"
 resource "azurerm_mysql_flexible_server" "mysql_server" {
-  name                = "mysql-${var.project_name}-${var.environment}"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  sku_name            = "Standard_D2ds_v4" # Updated SKU to support geo-redundant backups
-  storage_mb          = 51200
-  version             = "8.0"
-  administrator_login = var.admin_username
+  name                   = "mysql-${var.project_name}-${var.environment}"
+  resource_group_name    = azurerm_resource_group.rg.name
+  location               = azurerm_resource_group.rg.location
+  sku_name               = "Standard_D2ds_v4" # Updated SKU to support geo-redundant backups
+  storage_mb             = 51200
+  version                = "8.0"
+  administrator_login    = var.admin_username
   administrator_password = var.admin_password
 
   backup {
-    retention_days              = 7 # Prisma Cloud recommends enabling backups with a minimum retention period
+    retention_days               = 7    # Prisma Cloud recommends enabling backups with a minimum retention period
     geo_redundant_backup_enabled = true # Ensures geo-redundant backups
   }
 
@@ -79,6 +79,8 @@ resource "azurerm_mysql_flexible_database" "mysql_db" {
 resource "azurerm_private_dns_zone" "mysql_private_dns" {
   name                = "privatelink.mysql.database.azure.com"
   resource_group_name = azurerm_resource_group.rg.name
+
+  depends_on = [azurerm_resource_group.rg]
 }
 
 # Virtual Network
@@ -87,6 +89,8 @@ resource "azurerm_virtual_network" "vnet" {
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
+
+  depends_on = [azurerm_resource_group.rg]
 }
 
 # Network Security Group for the Subnet
@@ -106,6 +110,8 @@ resource "azurerm_network_security_group" "private_endpoint_nsg" {
     source_address_prefix      = "10.0.0.0/16" # Restrict to the VNet CIDR range
     destination_address_prefix = "*"
   }
+
+  depends_on = [azurerm_resource_group.rg]
 }
 
 # Subnet for Private Endpoint
@@ -116,7 +122,12 @@ resource "azurerm_subnet" "private_endpoint_subnet" {
   address_prefixes     = ["10.0.1.0/24"]
 
   enforce_private_link_endpoint_network_policies = true
-  network_security_group_id = azurerm_network_security_group.private_endpoint_nsg.id
+  network_security_group_id                      = azurerm_network_security_group.private_endpoint_nsg.id
+
+  depends_on = [
+    azurerm_virtual_network.vnet,
+    azurerm_network_security_group.private_endpoint_nsg
+  ]
 }
 
 # Private Endpoint for MySQL

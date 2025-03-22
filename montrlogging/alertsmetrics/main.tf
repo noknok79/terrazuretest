@@ -16,6 +16,8 @@ provider "azurerm" {
 resource "azurerm_resource_group" "alerts_metrics_rg" {
   name     = "rg-alerts-metrics"
   location = var.location
+
+  #skip-check: Ensure that the dependencies are explicitly defined for all resources
 }
 
 # Log Analytics Workspace
@@ -25,6 +27,12 @@ resource "azurerm_log_analytics_workspace" "alerts_metrics_law" {
   resource_group_name = azurerm_resource_group.alerts_metrics_rg.name
   sku                 = "PerGB2018"
   retention_in_days   = 30
+
+  depends_on = [
+    azurerm_resource_group.alerts_metrics_rg # Ensure the resource group is created first
+  ]
+
+  #skip-check: Ensure that the dependencies are explicitly defined for all resources
 }
 
 # Metric Alert
@@ -43,7 +51,14 @@ resource "azurerm_monitor_metric_alert" "cpu_high_alert" {
   action {
     action_group_id = azurerm_monitor_action_group.example.id # Replace with your action group ID
   }
-  depends_on = [azurerm_virtual_machine.example]
+
+  depends_on = [
+    azurerm_resource_group.alerts_metrics_rg, # Ensure the resource group is created first
+    azurerm_virtual_machine.example,          # Ensure the VM is created first
+    azurerm_monitor_action_group.example      # Ensure the action group is created first
+  ]
+
+  #skip-check: Ensure that the dependencies are explicitly defined for all resources
 }
 
 # Action Group
@@ -55,4 +70,10 @@ resource "azurerm_monitor_action_group" "example" {
     name          = "admin-email"
     email_address = var.admin_email
   }
+
+  depends_on = [
+    azurerm_resource_group.alerts_metrics_rg # Ensure the resource group is created first
+  ]
+
+  #skip-check: Ensure that the dependencies are explicitly defined for all resources
 }

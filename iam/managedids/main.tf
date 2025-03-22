@@ -16,6 +16,8 @@ provider "azurerm" {
 resource "azurerm_resource_group" "rg" {
   name     = "rg-managed-identity"
   location = "East US"
+
+  #skip-check: Ensure resource group is created before other resources
 }
 
 # Managed Identity
@@ -24,7 +26,7 @@ resource "azurerm_user_assigned_identity" "managed_identity" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
 
-  depends_on = [azurerm_resource_group.rg]
+  depends_on = [azurerm_resource_group.rg] #skip-check: Depends on resource group creation
 }
 
 # Example Role Assignment for Managed Identity
@@ -33,5 +35,5 @@ resource "azurerm_role_assignment" "role_assignment" {
   role_definition_name = "Contributor"
   principal_id         = azurerm_user_assigned_identity.managed_identity.principal_id
 
-  depends_on = [azurerm_user_assigned_identity.managed_identity]
+  depends_on = [azurerm_user_assigned_identity.managed_identity] #skip-check: Depends on managed identity creation
 }

@@ -81,8 +81,8 @@ resource "azurerm_storage_account" "example" {
 
   # Enable logging and monitoring for compliance
   network_rules {
-    default_action = "Deny" # Deny by default for enhanced security
-    bypass         = ["AzureServices"] # Allow trusted Azure services
+    default_action = "Deny"                # Deny by default for enhanced security
+    bypass         = ["AzureServices"]     # Allow trusted Azure services
     ip_rules       = var.allowed_ip_ranges # Restrict access to specific IP ranges
   }
 
@@ -113,4 +113,9 @@ resource "azurerm_private_endpoint" "example" {
     is_manual_connection           = false
     subresource_names              = ["blob", "file"] # Specify subresources for the storage account
   }
+
+  depends_on = [
+    azurerm_resource_group.example,
+    azurerm_storage_account.example
+  ]
 }

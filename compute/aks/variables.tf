@@ -36,7 +36,7 @@ variable "authorized_ip_ranges" {
 }
 
 variable "log_analytics_workspace_id" {
-  description = "The ID of the Log Analytics Workspace for OMS Agent"
+  description = "The ID of the Log Analytics Workspace for monitoring"
   type        = string
 }
 
@@ -44,4 +44,18 @@ variable "api_server_authorized_ip_ranges" {
   description = "List of IP ranges allowed to access the AKS API server"
   type        = list(string)
   default     = ["203.0.113.0/24"] # Replace with your specific IP ranges
+}
+
+variable "admin_group_object_ids" {
+  description = "Admin group object IDs for Azure AD RBAC"
+  type        = list(string)
+}
+
+variable "tags" {
+  description = "A map of tags to add to all resources"
+  type        = map(string)
+  default = {
+    Environment = "default-environment" # Replace with a meaningful default value
+    Project     = "default-project"     # Replace with a meaningful default value
+  }
 }

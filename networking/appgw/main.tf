@@ -24,6 +24,10 @@ resource "azurerm_virtual_network" "app_gateway_vnet" {
   location            = azurerm_resource_group.app_gateway_rg.location
   resource_group_name = azurerm_resource_group.app_gateway_rg.name
   address_space       = ["10.0.0.0/16"]
+
+  depends_on = [
+    azurerm_resource_group.app_gateway_rg
+  ]
 }
 
 # Network Security Group for the subnet
@@ -43,15 +47,24 @@ resource "azurerm_network_security_group" "app_gateway_nsg" {
     source_address_prefix      = "10.0.0.0/8" # Restrict to internal traffic or trusted IP range
     destination_address_prefix = "*"
   }
+
+  depends_on = [
+    azurerm_resource_group.app_gateway_rg
+  ]
 }
 
 # Subnet for Application Gateway with NSG
 resource "azurerm_subnet" "app_gateway_subnet" {
-  name                 = "subnet-app-gateway"
-  resource_group_name  = azurerm_resource_group.app_gateway_rg.name
-  virtual_network_name = azurerm_virtual_network.app_gateway_vnet.name
-  address_prefixes     = ["10.0.1.0/24"]
+  name                      = "subnet-app-gateway"
+  resource_group_name       = azurerm_resource_group.app_gateway_rg.name
+  virtual_network_name      = azurerm_virtual_network.app_gateway_vnet.name
+  address_prefixes          = ["10.0.1.0/24"]
   network_security_group_id = azurerm_network_security_group.app_gateway_nsg.id
+
+  depends_on = [
+    azurerm_virtual_network.app_gateway_vnet,
+    azurerm_network_security_group.app_gateway_nsg
+  ]
 }
 
 # Public IP for Application Gateway
@@ -61,6 +74,10 @@ resource "azurerm_public_ip" "app_gateway_pip" {
   resource_group_name = azurerm_resource_group.app_gateway_rg.name
   allocation_method   = "Static"
   sku                 = "Standard"
+
+  depends_on = [
+    azurerm_resource_group.app_gateway_rg
+  ]
 }
 
 # skip-check CKV_AZURE_218 # Secure protocols are intentionally configured for this environment
@@ -102,8 +119,14 @@ resource "azurerm_application_gateway" "app_gateway" {
     password = var.ssl_certificate_password
   }
   ssl_policy {
-    policy_type = "Predefined"
-    policy_name = "AppGwSslPolicy20170401S" # Use a predefined secure SSL policy
+    policy_type          = "Custom"
+    min_protocol_version = "TLSv1_2" # Enforce TLS 1.2 or higher
+    cipher_suites = [
+      "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+      "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+      "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+      "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384"
+    ]
   }
   request_routing_rule {
     name                       = "app-gateway-routing-rule"
@@ -122,10 +145,10 @@ resource "azurerm_application_gateway" "app_gateway" {
 
   # Enable WAF Configuration
   waf_configuration {
-    enabled            = true
-    firewall_mode      = "Prevention" # Use "Detection" for monitoring only
-    rule_set_type      = "OWASP"
-    rule_set_version   = "3.2"
+    enabled          = true
+    firewall_mode    = "Prevention" # Use "Detection" for monitoring only
+    rule_set_type    = "OWASP"
+    rule_set_version = "3.2"
   }
 
   depends_on = [

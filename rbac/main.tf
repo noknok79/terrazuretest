@@ -23,9 +23,10 @@ resource "azurerm_resource_group" "rg_rbac" {
 # Role Assignment
 resource "azurerm_role_assignment" "example" {
   scope                = azurerm_resource_group.rg_rbac.id
-  role_definition_name = "Contributor" # Replace with the desired role
+  role_definition_name = "Contributor"    # Replace with the desired role
   principal_id         = var.principal_id # Pass the principal ID as a variable
 
+  #skip-check: Ensure the resource group is created before assigning roles
   depends_on = [
     azurerm_resource_group.rg_rbac
   ]

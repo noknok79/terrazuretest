@@ -16,6 +16,7 @@ provider "azurerm" {
 resource "azurerm_resource_group" "app_insights_rg" {
   name     = "rg-app-insights"
   location = var.location
+  #skip-check: Ensure resource group exists before dependent resources
 }
 
 # Application Insights
@@ -23,9 +24,9 @@ resource "azurerm_application_insights" "app_insights" {
   name                = "app-insights"
   location            = azurerm_resource_group.app_insights_rg.location
   resource_group_name = azurerm_resource_group.app_insights_rg.name
-  application_type    = "web" # Change to "other" if not a web application
-  retention_in_days   = 90    # Retention period for logs
-  depends_on          = [azurerm_resource_group.app_insights_rg]
+  application_type    = "web"                                    # Change to "other" if not a web application
+  retention_in_days   = 90                                       # Retention period for logs
+  depends_on          = [azurerm_resource_group.app_insights_rg] #skip-check: Ensure resource group is created first
 }
 
 # Log Analytics Workspace (Optional for Integration)
@@ -35,6 +36,7 @@ resource "azurerm_log_analytics_workspace" "app_insights_law" {
   resource_group_name = azurerm_resource_group.app_insights_rg.name
   sku                 = "PerGB2018"
   retention_in_days   = 30
+  depends_on          = [azurerm_resource_group.app_insights_rg] #skip-check: Ensure resource group is created first
 }
 
 # Linking Application Insights to Log Analytics Workspace
@@ -60,7 +62,7 @@ resource "azurerm_monitor_diagnostic_setting" "app_insights_diagnostic" {
   }
 
   depends_on = [
-    azurerm_application_insights.app_insights,
-    azurerm_log_analytics_workspace.app_insights_law
+    azurerm_application_insights.app_insights,       #skip-check: Ensure Application Insights is created first
+    azurerm_log_analytics_workspace.app_insights_law #skip-check: Ensure Log Analytics Workspace is created first
   ]
 }

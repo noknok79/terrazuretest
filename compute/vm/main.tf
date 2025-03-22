@@ -4,43 +4,55 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.74.0" # Use the latest stable version
+      version = ">= 4.0.0" # Use the latest stable version
     }
   }
 }
 
 provider "azurerm" {
   features {}
+  resource_provider_registrations = "none"
+  subscription_id                 = var.subscription_id
 }
+
 
 # Resource Group
 resource "azurerm_resource_group" "rg_vm" {
-  name     = "rg-vm-${var.environment}-${var.location}"
+  name     = "RG-vm-${var.environment}-${replace(var.location, " ", "-")}"
   location = var.location
   tags     = var.tags
 }
 
 # Virtual Network
 resource "azurerm_virtual_network" "vnet_vm" {
-  name                = "vnet-vm-${var.environment}-${var.location}"
+  name                = "vnet-vm-${var.environment}-${replace(var.location, " ", "-")}"
   location            = azurerm_resource_group.rg_vm.location
   resource_group_name = azurerm_resource_group.rg_vm.name
   address_space       = ["10.1.0.0/16"]
-  tags                = var.tags
 }
 
 # Subnet
 resource "azurerm_subnet" "subnet_vm" {
-  name                 = "subnet-vm-${var.environment}-${var.location}"
+  name                 = "subnet-vm-${var.environment}-${replace(var.location, " ", "-")}"
   resource_group_name  = azurerm_resource_group.rg_vm.name
   virtual_network_name = azurerm_virtual_network.vnet_vm.name
   address_prefixes     = ["10.1.1.0/24"]
-  depends_on           = [azurerm_virtual_network.vnet_vm]
+}
+
+# Public IP
+resource "azurerm_public_ip" "vm_ip" {
+  count               = var.vm_count
+  name                = "public-ip-vm-${var.environment}-${replace(var.location, " ", "-")}-${count.index + 1}"
+  location            = azurerm_resource_group.rg_vm.location
+  resource_group_name = azurerm_resource_group.rg_vm.name
+  allocation_method   = "Dynamic"
+  tags                = var.tags
 }
 
 # Network Interface
 resource "azurerm_network_interface" "nic_vm" {
-  name                = "nic-vm-${var.environment}-${var.location}"
+  count               = var.vm_count
+  name                = "nic-vm-${var.environment}-${replace(var.location, " ", "-")}-${count.index + 1}"
   location            = azurerm_resource_group.rg_vm.location
   resource_group_name = azurerm_resource_group.rg_vm.name
 
@@ -48,16 +60,17 @@ resource "azurerm_network_interface" "nic_vm" {
     name                          = "ipconfig1"
     subnet_id                     = azurerm_subnet.subnet_vm.id
     private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = element(azurerm_public_ip.vm_ip.*.id, count.index)
   }
 
   tags = var.tags
 }
 
-
 # skip-check: CKV_AZURE_50 "Ensure that 'Disable VM Agent' is set to 'Yes' for Linux Virtual Machines"
 # Virtual Machine
 resource "azurerm_linux_virtual_machine" "vm" {
-  name                = "vm-${var.environment}-${var.location}"
+  count               = var.vm_count
+  name                = "vm-${var.environment}-${replace(var.location, " ", "-")}-${count.index + 1}"
   location            = azurerm_resource_group.rg_vm.location
   resource_group_name = azurerm_resource_group.rg_vm.name
   size                = "Standard_DS1_v2"
@@ -69,7 +82,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
     public_key = file(var.ssh_public_key_path) # Path to your SSH public key
   }
 
-  network_interface_ids = [azurerm_network_interface.nic_vm.id]
+  network_interface_ids = [element(azurerm_network_interface.nic_vm.*.id, count.index)]
 
   os_disk {
     caching              = "ReadWrite"
@@ -84,8 +97,6 @@ resource "azurerm_linux_virtual_machine" "vm" {
   }
 
   provision_vm_agent = true # Disable VM agent to prevent extensions
-
-  depends_on = [azurerm_network_interface.nic_vm]
 
   tags = var.tags
 }

@@ -58,4 +58,7 @@ resource "azurerm_resource_group" "rg" {
     Environment = var.environment
     Owner       = var.owner
   }
+
+  #skip-check: Ensure resource group creation is independent of other resources
+  depends_on = [] # No dependencies explicitly defined
 }

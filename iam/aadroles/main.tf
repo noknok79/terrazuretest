@@ -29,7 +29,10 @@ resource "azuread_directory_role_assignment" "aad_role_assignment" {
   role_id             = data.azuread_directory_role.aad_role_template.id
 
   # Use depends_on to ensure dependencies are created first
-  depends_on = [azuread_group.aad_role_group]
+  depends_on = [
+    azuread_group.aad_role_group,
+    data.azuread_directory_role.aad_role_template
+  ]
 }
 
 # Data source for the AAD role template

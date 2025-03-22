@@ -28,6 +28,10 @@ resource "azurerm_firewall_policy" "azfw_policy" {
     Environment = var.environment
     Owner       = var.owner
   }
+
+  depends_on = [
+    azurerm_resource_group.rg
+  ]
 }
 
 # skip-check CKV_AZURE_216 #Ensure DenyIntelMode is set to Deny for Azure Firewalls
@@ -50,7 +54,8 @@ resource "azurerm_firewall" "azfw" {
   depends_on = [
     azurerm_resource_group.rg,
     azurerm_subnet.firewall_subnet,
-    azurerm_public_ip.azfw_pip
+    azurerm_public_ip.azfw_pip,
+    azurerm_firewall_policy.azfw_policy
   ]
 
   tags = {
@@ -79,6 +84,10 @@ resource "azurerm_virtual_network" "vnet" {
     Environment = var.environment
     Owner       = var.owner
   }
+
+  depends_on = [
+    azurerm_resource_group.rg
+  ]
 }
 
 resource "azurerm_subnet" "firewall_subnet" {
@@ -88,7 +97,8 @@ resource "azurerm_subnet" "firewall_subnet" {
   address_prefixes     = ["10.0.1.0/24"]
 
   depends_on = [
-    azurerm_virtual_network.vnet
+    azurerm_virtual_network.vnet,
+    azurerm_resource_group.rg
   ]
 }
 
@@ -103,4 +113,8 @@ resource "azurerm_public_ip" "azfw_pip" {
     Environment = var.environment
     Owner       = var.owner
   }
+
+  depends_on = [
+    azurerm_resource_group.rg
+  ]
 }
