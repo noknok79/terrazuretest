@@ -70,10 +70,6 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
   azure_active_directory_role_based_access_control {
     admin_group_object_ids = var.admin_group_object_ids
   }
-  # Enable Role-Based Access Control (RBAC) with Azure Active Directory
-  # azure_active_directory_role_based_access_control {
-  #   admin_group_object_ids = slice(var.admin_group_object_ids, 0, min(length(var.admin_group_object_ids), 3))
-  # }
 
   network_profile {
     network_plugin = "azure"       # Use Azure CNI for advanced networking
