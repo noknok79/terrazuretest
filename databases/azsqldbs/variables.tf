@@ -1,4 +1,21 @@
 # Variables
+variable "project" {
+  description = "The project name"
+  type        = string
+}
+
+variable "subscription_id" {
+  description = "The Azure subscription ID"
+  type        = string
+}
+
+# Add your variable declarations here
+
+variable "resource_group_name" {
+  description = "The name of the resource group for the SQL server."
+  type        = string
+}
+
 variable "environment" {
   description = "The environment name (e.g., dev, staging, prod)"
   type        = string
@@ -12,42 +29,76 @@ variable "location" {
 variable "tags" {
   description = "Tags to apply to resources"
   type        = map(string)
-  default     = {
-    environment = "dev"
-    owner       = "team"
-  }
 }
 
-variable "admin_username" {
-  description = "Admin username for the SQL Server"
+variable "sql_server_name" {
+  description = "The name of the SQL Server"
   type        = string
 }
 
-variable "admin_password" {
-  description = "Admin password for the SQL Server"
+variable "sql_server_admin_username" {
+  description = "The administrator username for the SQL Server"
+  type        = string
+}
+
+variable "sql_server_admin_password" {
+  description = "The administrator password for the SQL Server"
   type        = string
   sensitive   = true
 }
 
-variable "start_ip_address" {
-  description = "Start IP address for the SQL Server firewall rule"
-  type        = string
-  default     = "0.0.0.0"
+variable "database_names" {
+  description = "The list of database names to create"
+  type        = list(string)
 }
 
-variable "end_ip_address" {
-  description = "End IP address for the SQL Server firewall rule"
+variable "sql_database_sku_name" {
+  description = "The SKU name for the Azure SQL Database"
   type        = string
-  default     = "255.255.255.255"
+
+  validation {
+    condition = contains(
+      ["Basic", "S0", "S1", "S2", "P1", "P2", "P3", "GP_S_Gen5_1",
+      "GP_S_Gen5", "BC_Gen5_2", "ElasticPool"],
+      var.sql_database_sku_name
+    )
+    error_message = "Invalid SKU name. Valid values are 'Basic', 'S0', 'S1', 'S2', 'P1', 'P2', 'P3', 'GP_S_Gen5_1', 'BC_Gen5_2', or 'ElasticPool'."
+  }
 }
 
-variable "node_count" {
-  description = "The number of nodes in the default node pool"
+variable "max_size_gb" {
+  description = "The maximum size of the SQL Database in GB"
   type        = number
-  default     = 3 # Adjust as needed
+}
+
+variable "storage_account_name" {
+  description = "The name of the storage account for backups or diagnostics"
+  type        = string
 }
 
 variable "log_analytics_workspace_id" {
-  description = "The ID of the Log Analytics Workspace for OMS Agent"
+  description = "The Log Analytics Workspace ID for monitoring"
   type        = string
 }
+
+variable "tenant_id" {
+  description = "The Azure Active Directory tenant ID"
+  type        = string
+}
+
+variable "aad_admin_object_id" {
+  description = "The Azure AD administrator object ID for the SQL Server"
+  type        = string
+}
+
+variable "admin_username" {
+  description = "The admin username for the SQL Server"
+  type        = string
+}
+
+variable "admin_password" {
+  description = "The admin password for the SQL Server"
+  type        = string
+  sensitive   = true
+}
+
