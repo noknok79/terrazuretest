@@ -39,3 +39,4 @@ output "vmss_sku" {
   description = "The SKU of the Virtual Machine Scale Set."
   value       = azurerm_linux_virtual_machine_scale_set.vmss.sku
 }
+

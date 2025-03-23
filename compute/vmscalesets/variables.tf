@@ -1,3 +1,8 @@
+variable "subscription_id" {
+  description = "The Azure subscription ID"
+  type        = string
+}
+
 
 # Variables
 variable "environment" {
@@ -13,7 +18,7 @@ variable "location" {
 variable "tags" {
   description = "Tags to apply to resources"
   type        = map(string)
-  default     = {
+  default = {
     environment = "dev"
     owner       = "team"
   }

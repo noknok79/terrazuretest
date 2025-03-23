@@ -1,3 +1,6 @@
+#================================================================================================
+# Used by for Backend Configuration 
+#================================================================================================
 variable "backend_resource_group_name" {
   description = "The name of the resource group for the Terraform backend."
   type        = string
@@ -28,52 +31,30 @@ variable "subscription_id" {
   default     = "096534ab-9b99-4153-8505-90d030aa4f08"
 }
 
+#================================================================================================
+# General Configuration
+#================================================================================================
 variable "environment" {
   description = "Environment name"
   type        = string
 }
 
 variable "location" {
-  description = "Azure region"
+  description = "The Azure region where resources will be created"
   type        = string
+  default     = "East US" # Replace with your desired default location
 }
 
-variable "tags" {
-  description = "Tags to apply to resources"
-  type        = map(string)
-  default = {
-    environment = "dev"
-    owner       = "team"
-  }
-}
-
-variable "vm_count" {
-  description = "Number of virtual machines to deploy"
-  type        = number
-  default     = 1
-}
-
-variable "admin_username" {
-  description = "Admin username for the VM"
-  type        = string
-  default     = "azureuser"
-}
-
-variable "admin_password" {
-  description = "The admin password for the virtual machine"
-  type        = string
-  sensitive   = true
-}
-
-variable "ssh_public_key_path" {
-  description = "Path to the SSH public key"
-  type        = string
-  default     = "/root/.ssh/id_rsa.pub"
-}
-
-# Newly added variables to fix the errors
 variable "project" {
   description = "Project name"
+  type        = string
+}
+
+#================================================================================================
+# AKS Cluster Configuration
+#================================================================================================
+variable "kubernetes_version" {
+  description = "The Kubernetes version for the AKS cluster"
   type        = string
 }
 
@@ -87,18 +68,66 @@ variable "vm_size" {
   type        = string
 }
 
+#================================================================================================
+# Linux Node Pool Configuration
+#================================================================================================
+variable "linux_node_count" {
+  description = "The number of Linux nodes"
+  type        = number
+}
+
+variable "linux_vm_size" {
+  description = "The size of the Linux VM nodes"
+  type        = string
+}
+
+#================================================================================================
+# Windows Node Pool Configuration
+#================================================================================================
+variable "windows_node_count" {
+  description = "The number of Windows nodes"
+  type        = number
+}
+
+variable "windows_vm_size" {
+  description = "The size of the Windows VM nodes"
+  type        = string
+}
+
+#================================================================================================
+# Networking Configuration
+#================================================================================================
+variable "api_server_authorized_ip_ranges" {
+  description = "List of IP ranges allowed to access the AKS API server"
+  type        = list(string)
+}
+
+variable "authorized_ip_ranges" {
+  description = "The authorized IP ranges for the API server"
+  type        = list(string)
+}
+
+#================================================================================================
+# Azure AD Configuration
+#================================================================================================
+variable "admin_group_object_ids" {
+  description = "List of Azure AD group object IDs that will have admin access to the AKS cluster"
+  type        = list(string)
+}
+
+#================================================================================================
+# Tags
+#================================================================================================
+variable "tags" {
+  description = "Tags to apply to resources"
+  type        = map(string)
+}
+
+#================================================================================================
+# Monitoring Configuration
+#================================================================================================
 variable "log_analytics_workspace_id" {
   description = "The ID of the Log Analytics Workspace for OMS Agent"
   type        = string
 }
-
-variable "api_server_authorized_ip_ranges" {
-  description = "List of IP ranges allowed to access the AKS API server"
-  type        = list(string)
-  # Replace with your specific IP ranges
-}
-
-variable "admin_group_object_ids" {
-  description = "List of Azure AD group object IDs that will have admin access to the AKS cluster"
-  type        = list(string) # Replace with actual group object IDs
-}
+#================================================================================================

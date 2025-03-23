@@ -1,3 +1,13 @@
+# This Terraform configuration defines resources for a Virtual Machine.
+# These resources have been set in the computevm.plan file.
+# To execute this configuration, use the following command:
+# terraform plan -var-file="compute/vm/vm.tfvars" --out="computevm.plan" --input=false
+# To destroy, use the following command:
+# #1 terraform plan -destroy -var-file="compute/vm/vm.tfvars" --input=false
+# #2 terraform destroy -var-file="compute/vm/vm.tfvars" --input=false
+# If errors occur with locks, use the command:
+# terraform force-unlock -force <lock-id>
+
 terraform {
   required_version = ">= 1.5.0"
 
