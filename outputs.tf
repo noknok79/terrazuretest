@@ -30,6 +30,23 @@ output "log_analytics_workspace_id" {
   value       = var.log_analytics_workspace_id
 }
 
+output "aks_default_node_count" {
+  description = "The number of default nodes in the AKS cluster"
+  value       = module.aks_cluster.default_node_count
+}
+
+output "aks_linux_node_count" {
+  description = "The number of Linux nodes in the AKS cluster"
+  value       = module.aks_cluster.linux_node_count
+}
+
+output "aks_windows_node_count" {
+  description = "The number of Windows nodes in the AKS cluster"
+  value       = module.aks_cluster.windows_node_count
+}
+
+
+
 #================================================================================================
 # Virtual Machine Outputs (Commented Out)
 #================================================================================================

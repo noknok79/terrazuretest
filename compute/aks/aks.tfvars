@@ -5,7 +5,7 @@ project     = "aks-cluster-testing" # Project name
 
 # AKS cluster configuration
 kubernetes_version = "1.30.10"         # Kubernetes version for the AKS cluster and node pools
-node_count         = 3                 # Number of nodes in the default node pool
+node_count         = 1                 # Number of nodes in the default node pool
 vm_size            = "Standard_D2s_v3" # VM size for the default node pool
 
 # Linux node pool configuration

@@ -28,3 +28,22 @@ output "name" {
 output "admin_group_object_ids" {
   value = var.admin_group_object_ids
 }
+
+# Output for the number of nodes in the default node pool
+output "default_node_count" {
+  description = "The number of nodes in the default node pool"
+  value       = azurerm_kubernetes_cluster.aks_cluster.default_node_pool[0].node_count
+}
+
+# Output for the number of nodes in the Linux node pool
+output "linux_node_count" {
+  description = "The number of nodes in the Linux node pool"
+  value       = azurerm_kubernetes_cluster_node_pool.linux_node_pool.node_count
+}
+
+# Output for the number of nodes in the Windows node pool
+output "windows_node_count" {
+  description = "The number of nodes in the Windows node pool"
+  value       = azurerm_kubernetes_cluster_node_pool.windows_node_pool.node_count
+}
+
