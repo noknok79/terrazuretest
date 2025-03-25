@@ -1,33 +1,21 @@
-subscription_id = "096534ab-9b99-4153-8505-90d030aa4f08"
-
-# Environment name
-environment = "dev"
-
-# Azure region
-location = "East US"
-
-# Tags to apply to resources
-tags = {
-  environment = "dev"
-  owner       = "team"
+computevm_config = {
+  general = {
+    subscription_id     = "096534ab-9b99-4153-8505-90d030aa4f08"
+    environment         = "dev"
+    location            = "East US"
+    tags                = { environment = "dev", owner = "team" }
+    project             = "my_project_name"
+    tenant_id           = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
+    resource_group_name = "rg-compute-dev"
+  }
+  virtual_machine = {
+    vm_count            = 1
+    admin_username      = "azureadmin"
+    admin_password      = "xQ3@mP4z!Bk8*wHy"
+    ssh_public_key_path = "/root/.ssh/id_rsa.pub"
+  }
+  monitoring = {
+    log_analytics_workspace_id = "my_workspace_id"
+    storage_account_name       = "mystorageaccount"
+  }
 }
-
-# Admin username for the virtual machine
-admin_username = "azureadmin"
-
-# Admin password for the virtual machine
-admin_password = "xQ3@mP4z!Bk8*wHy"
-
-# Path to the SSH public key file
-ssh_public_key_path = "/root/.ssh/id_rsa.pub"
-
-# Number of virtual machines to create
-vm_count = 1
-
-#FOR AKS FIXING ERROR
-project                         = "my_project_name"
-node_count                      = 3
-vm_size                         = "Standard_DS2_v2"
-log_analytics_workspace_id      = "my_workspace_id"
-api_server_authorized_ip_ranges = ["192.168.1.0/24"]
-admin_group_object_ids          = ["group_object_id_1", "group_object_id_2"]

@@ -14,7 +14,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 4.0.0" # Use the latest stable version
+      version = ">= 4.0.0, < 5.0.0" # Use the latest stable version
     }
   }
 }
@@ -55,7 +55,8 @@ resource "azurerm_public_ip" "vm_ip" {
   name                = "public-ip-vm-${var.environment}-${replace(var.location, " ", "-")}-${count.index + 1}"
   location            = azurerm_resource_group.rg_vm.location
   resource_group_name = azurerm_resource_group.rg_vm.name
-  allocation_method   = "Dynamic"
+  allocation_method   = "Static"
+  sku                 = "Standard" # Ensure SKU is Standard
   tags                = var.tags
 }
 

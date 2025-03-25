@@ -1,18 +1,27 @@
-
+# This Terraform configuration defines resources for a Virtual Machine Scale Set.
+# These resources have been set in the vmscaleset.plan file.
+# To execute this configuration, use the following command:
+# terraform plan -var-file="compute/vmscalesets/vmscalesets.tfvars" --out="vmscaleset.plan" --input=false
+# To destroy, use the following command:
+# #1 terraform plan -destroy -var-file="compute/vmscalesets/vmscalesets.tfvars" --input=false
+# #2 terraform destroy -var-file="compute/vmscalesets/vmscalesets.tfvars" --input=false
+# If errors occur with locks, use the command:
+# terraform force-unlock -force <lock-id>
 terraform {
   required_version = ">= 1.5.0"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 4.0.0" # Use the latest stable version
+      version = ">= 4.0.0, < 5.0.0" # Use the latest stable version
     }
   }
 }
 
 provider "azurerm" {
+
   features {}
-  #skip_provider_registration = true
+  alias                           = "vmssazure"
   resource_provider_registrations = "none"
   subscription_id                 = var.subscription_id
 }

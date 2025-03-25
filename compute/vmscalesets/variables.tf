@@ -10,6 +10,12 @@ variable "environment" {
   type        = string
 }
 
+
+variable "rg_vmss" {
+  description = "The name of the resource group"
+  type        = string
+}
+
 variable "location" {
   description = "The Azure region to deploy resources"
   type        = string

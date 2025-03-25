@@ -9,10 +9,12 @@
 # terraform force-unlock -force <lock-id>
 
 terraform {
+  required_version = ">= 1.4.6"
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.0.0" # Use the latest stable version
+      version = ">= 4.0.0, < 5.0.0" # Ensure consistent version
     }
   }
 }

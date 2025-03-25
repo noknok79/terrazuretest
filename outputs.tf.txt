@@ -1,5 +1,6 @@
 #================================================================================================
 # General Outputs
+# DO NOT REMOVE THIS COMMENT BLOCK
 #================================================================================================
 output "environment" {
   description = "The environment for the deployment"
@@ -13,6 +14,7 @@ output "project" {
 
 #================================================================================================
 # SQL Server and Database Outputs from azsqldbs Module
+# DO NOT REMOVE THIS COMMENT BLOCK
 #================================================================================================
 
 # Output for Resource Group Name

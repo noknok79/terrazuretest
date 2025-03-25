@@ -1,0 +1,134 @@
+# # Variables for akscluster.tf module
+
+# variable "kubernetes_version" {
+#   description = "The Kubernetes version for the AKS cluster"
+#   type        = string
+# }
+
+# variable "node_count" {
+#   description = "Number of nodes in the default node pool"
+#   type        = number
+# }
+
+# variable "vm_size" {
+#   description = "VM size for the default node pool"
+#   type        = string
+# }
+
+# variable "linux_node_count" {
+#   description = "The number of Linux nodes"
+#   type        = number
+# }
+
+# variable "linux_vm_size" {
+#   description = "The size of the Linux VM nodes"
+#   type        = string
+# }
+
+# variable "windows_node_count" {
+#   description = "The number of Windows nodes"
+#   type        = number
+# }
+
+# variable "windows_vm_size" {
+#   description = "The size of the Windows VM nodes"
+#   type        = string
+# }
+
+# variable "api_server_authorized_ip_ranges" {
+#   description = "List of IP ranges allowed to access the AKS API server"
+#   type        = list(string)
+# }
+
+# variable "authorized_ip_ranges" {
+#   description = "The authorized IP ranges for the API server"
+#   type        = list(string)
+# }
+
+# variable "admin_group_object_ids" {
+#   description = "List of Azure AD group object IDs that will have admin access to the AKS cluster"
+#   type        = list(string)
+# }
+
+# variable "log_analytics_workspace_id" {
+#   description = "Log Analytics Workspace ID for monitoring"
+#   type        = string
+#   default     = "your-log-analytics-workspace-id"
+# }
+
+# variable "project" {
+#   description = "The project name or identifier for the AKS cluster"
+#   type        = string
+# }
+
+# variable "location" {
+#   description = "The location/region where the AKS cluster will be deployed"
+#   type        = string
+# }
+
+# variable "environment" {
+#   description = "The environment for the AKS cluster (e.g., dev, staging, prod)"
+#   type        = string
+# }
+
+# # Declare tenant_id variable
+# variable "tenant_id" {
+#   description = "The Tenant ID for the Azure subscription"
+#   type        = string
+# }
+
+# # Corrected outputs referencing the "aks_cluster" module
+
+# # Output the AKS cluster ID
+# output "aks_cluster_id" {
+#   description = "ID of the AKS cluster"
+#   value       = module.aks_cluster.aks_cluster_id
+# }
+
+# # Output the AKS cluster name
+# output "aks_cluster_name" {
+#   description = "The name of the AKS cluster"
+#   value       = module.aks_cluster.aks_cluster_name
+# }
+
+# # Output the AKS cluster FQDN
+# output "aks_cluster_fqdn" {
+#   description = "The FQDN of the AKS cluster"
+#   value       = module.aks_cluster.aks_cluster_fqdn
+# }
+
+# # Output the kubeconfig for the AKS cluster
+# output "kubeconfig" {
+#   description = "The kubeconfig for the AKS cluster"
+#   value       = module.aks_cluster.kubeconfig
+#   sensitive   = true
+# }
+
+# # Output the admin group object IDs
+# output "admin_group_object_ids" {
+#   description = "The admin group object IDs for the AKS cluster"
+#   value       = module.aks_cluster.admin_group_object_ids
+# }
+
+# # Output the number of nodes in the default node pool
+# output "default_node_count" {
+#   description = "The number of nodes in the default node pool"
+#   value       = module.aks_cluster.default_node_count
+# }
+
+# # Output the number of nodes in the Linux node pool
+# output "linux_node_count" {
+#   description = "The number of nodes in the Linux node pool"
+#   value       = module.aks_cluster.linux_node_count
+# }
+
+# # Output the number of nodes in the Windows node pool
+# output "windows_node_count" {
+#   description = "The number of nodes in the Windows node pool"
+#   value       = module.aks_cluster.windows_node_count
+# }
+
+# #================================================================================================================
+
+# #
+

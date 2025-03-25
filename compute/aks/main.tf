@@ -14,9 +14,15 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.74.0" # Use the latest stable version
+      version = ">= 4.0.0, < 5.0.0"
     }
   }
+}
+
+# Configure the AzureRM provider with alias
+provider "azurerm" {
+  features {}
+  alias = "aksazure"
 }
 
 # Define the resource group for AKS
