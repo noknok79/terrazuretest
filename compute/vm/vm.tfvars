@@ -18,4 +18,5 @@ computevm_config = {
     log_analytics_workspace_id = "my_workspace_id"
     storage_account_name       = "mystorageaccount"
   }
+  address_space = ["10.0.0.0/16"]
 }

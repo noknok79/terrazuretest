@@ -1,6 +1,7 @@
 # Local Terraform files
 *.tfstate
 *.tfstate.backup
+.vscode/
 
 # Crash log files
 crash.log

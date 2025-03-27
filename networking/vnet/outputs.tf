@@ -13,6 +13,11 @@ output "vnet_id" {
   value       = azurerm_virtual_network.example.id
 }
 
+output "vnet_resource_id" {
+  description = "The resource ID of the Virtual Network"
+  value       = azurerm_virtual_network.example.id
+}
+
 output "resource_group_name" {
   description = "The name of the Resource Group"
   value       = azurerm_resource_group.example.name
@@ -21,4 +26,14 @@ output "resource_group_name" {
 output "resource_group_location" {
   description = "The location of the Resource Group"
   value       = azurerm_resource_group.example.location
+}
+
+output "subnet_ids" {
+  description = "List of subnet IDs"
+  value       = [for subnet in azurerm_subnet.subnet_vm : subnet.id]
+}
+
+output "subnet_name" {
+  description = "The name of the subnet"
+  value       = var.subnet_configs[0].name
 }

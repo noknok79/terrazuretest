@@ -8,78 +8,152 @@
 # If errors occur with locks, use the command:
 # terraform force-unlock -force <lock-id>
 
+# Define variables for the compute/vm module
+
+variable "vnet_id" {
+  description = "The ID of the virtual network"
+  type        = string
+}
+
+variable "subnet_configs" {
+  description = "A list of subnet configurations for the virtual network"
+  type        = list(object({
+    name           = string
+    address_prefix = string
+  }))
+}
+
+variable "environment" {
+  description = "The environment for the resources (e.g., dev, prod)"
+  type        = string
+}
+
+variable "tags" {
+  description = "A map of tags to assign to resources"
+  type        = map(string)
+}
+
+variable "address_space" {
+  description = "The address space for the virtual network"
+  type        = list(string)
+}
+
+variable "owner" {
+  description = "The owner of the resources"
+  type        = string
+}
+
+variable "subnet_id" {
+  description = "The ID of the subnet where the Virtual Machine will be deployed"
+  type        = string
+}
+
+# Module block to create the networking resources
+
 terraform {
-  required_version = ">= 1.4.6"
+  required_version = ">= 1.3.0"
+
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 3.0.0"
+    }
+  }
+
 }
 
+module "networking" {
+  source                = "./networking/vnet" # Adjust the path to the actual location of the networking module
+  resource_group_name   = var.resource_group_name
+  location              = var.location
+  address_space         = var.address_space
+  vnet_name             = var.vnet_name
+  subscription_id       = var.subscription_id
+  tags                  = var.tags
+  environment           = var.environment
+  owner                 = var.owner
+  subnet_configs        = var.subnet_configs
+  vnet_id               = var.vnet_id
+  virtual_network_name  = var.vnet_name # Add this argument
+}
 
-module "computevm" {
-  # DO NOT REMOVE THIS BLOCK OF CODE
+# Data block to retrieve the virtual network from the networking/vnet module
+data "azurerm_virtual_network" "vnet" {
+  name                = module.networking.vnet_name
+  resource_group_name = module.networking.resource_group_name
+}
+
+# Data block to retrieve the subnet from the networking module
+data "azurerm_subnet" "subnet" {
+  name                 = module.networking.subnet_name
+  virtual_network_name = module.networking.vnet_name
+  resource_group_name  = module.networking.resource_group_name
+}
+
+# Data block to retrieve the existing virtual network
+data "azurerm_virtual_network" "existing_vnet" {
+  name                = var.vnet_name
+  resource_group_name = var.resource_group_name
+}
+
+# Module block to create the Virtual Machine
+module "vm" {
   source              = "./compute/vm"
-  environment         = var.computevm_config.general.environment
-  location            = var.computevm_config.general.location
-  tags                = var.computevm_config.general.tags
-  vm_count            = var.computevm_config.virtual_machine.vm_count
-  admin_username      = var.computevm_config.virtual_machine.admin_username
-  admin_password      = var.computevm_config.virtual_machine.admin_password
-  ssh_public_key_path = var.computevm_config.virtual_machine.ssh_public_key_path
-  subscription_id     = var.computevm_config.general.subscription_id
+  vm_name             = var.vm_name
+  vm_size             = var.vm_size
+  admin_username      = var.admin_username
+  admin_password      = var.admin_password
+  vnet_name           = module.networking.vnet_name
+  subnet_name         = module.networking.subnet_name
+  subnet_id           = data.azurerm_subnet.subnet.id
+  public_ip_enabled   = var.public_ip_enabled
+  resource_group_name = module.networking.resource_group_name
+  location            = var.location
+  virtual_network_name = module.networking.vnet_name
+  subnet_address_prefixes = ["10.0.1.0/24"]
+  custom_script = "echo Hello, World!"
+  subnet_configs = [
+    {
+      name           = "subnet1"
+      address_prefix = "10.0.1.0/24"
+    }
+  ]
+  vnet_id = module.networking.vnet_resource_id
+  address_space = var.address_space
 }
 
-
-# Consolidated Configuration
-variable "computevm_config" {
-  description = "Consolidated configuration for the compute virtual machine module"
-  type = object({
-    general = object({
-      subscription_id     = string
-      environment         = string
-      location            = string
-      tags                = map(string)
-      project             = string
-      tenant_id           = string
-      resource_group_name = string
-    })
-    virtual_machine = object({
-      vm_count            = number
-      admin_username      = string
-      admin_password      = string
-      ssh_public_key_path = string
-    })
-    monitoring = object({
-      log_analytics_workspace_id = string
-      storage_account_name       = string
-    })
-  })
-  default = {
-    general = {
-      subscription_id     = "096534ab-9b99-4153-8505-90d030aa4f08"
-      environment         = "dev"
-      location            = "East US"
-      tags                = { environment = "dev", owner = "team" }
-      project             = "my_project_name"
-      tenant_id           = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
-      resource_group_name = "rg-compute-dev"
-    }
-    virtual_machine = {
-      vm_count            = 1
-      admin_username      = "azureadmin"
-      admin_password      = "xQ3@mP4z!Bk8*wHy"
-      ssh_public_key_path = "/root/.ssh/id_rsa.pub"
-    }
-    monitoring = {
-      log_analytics_workspace_id = "my_workspace_id"
-      storage_account_name       = "mystorageaccount"
-    }
-  }
+# Output block to expose values from the compute/vm module
+output "vm_ids" {
+  description = "The ID of the Virtual Machine"
+  value       = module.vm.vm_ids
 }
 
-# Outputs for the module
-output "vm_config_output" {
-  description = "Virtual machine configuration outputs"
-  value = {
-    vm_count       = var.computevm_config.virtual_machine.vm_count
-    admin_username = var.computevm_config.virtual_machine.admin_username
-  }
+output "vm_public_ip" {
+  description = "The public IP address of the virtual machine"
+  value       = module.vm.vm_public_ip
 }
 
+output "subnet_name" {
+  description = "The name of the subnet from the networking module"
+  value       = module.networking.subnet_name
+}
+
+output "vnet_name" {
+  description = "The name of the virtual network from the networking module"
+  value       = module.networking.vnet_name
+}
+
+output "linux_vm_name" {
+  description = "The name of the Linux Virtual Machine"
+  value       = module.vm.linux_vm_name
+}
+
+output "windows_vm_name" {
+  description = "The name of the Windows Virtual Machine"
+  value       =  module.vm.windows_vm_name
+}
+
+output "vm_name" {
+  description = "The name of the virtual machine"
+  value       = module.vm.vm_name
+}

@@ -39,11 +39,11 @@ variable "backend_key" {
   default     = "terraform.tfstate"
 }
 
-variable "subscription_id" {
-  description = "The Azure subscription ID to use for the provider."
-  type        = string
-  default     = "096534ab-9b99-4153-8505-90d030aa4f08"
-}
+# variable "subscription_id" {
+#   description = "The Azure subscription ID to use for the provider."
+#   type        = string
+#   default     = "096534ab-9b99-4153-8505-90d030aa4f08"
+# }
 
 variable "tenant_id" {
   description = "The Azure tenant ID to use for the provider."
