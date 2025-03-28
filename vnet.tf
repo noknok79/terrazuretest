@@ -20,67 +20,56 @@ terraform {
 }
 
 
+
+module "vnet" {
+  source = "./networking/vnet"
+
+  # Variables for the module
+  resource_group_name = local.resource_group_name
+  location            = local.location
+  vnet_name           = local.vnet_name
+  address_space       = local.address_space
+  subnets             = local.subnets
+  tags                = local.tags
+}
+
+
+
+
 locals {
-  vm_config = {
-    resource_group_name = "rg-example"
-    location            = "eastus"
-    vnet_name           = "vnet-dev-eastus"
-    vnet_address_space  = ["10.0.0.0/16"]
-    subscription_id     = "096534ab-9b99-4153-8505-90d030aa4f08"
-    tenant_id           = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
-    aad_admin_object_id = "394166a3-9a96-4db9-94b7-c970f2c97b27"
+  subscription_id     = "096534ab-9b99-4153-8505-90d030aa4f08"
+  tenant_id           = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
+  aad_admin_object_id = "394166a3-9a96-4db9-94b7-c970f2c97b27"
+  resource_group_name = "rg-example"
+  location            = "eastus"
+  vnet_name           = "vnet-dev-eastus"
+  address_space       = ["10.0.0.0/16"]
 
-    subnets = {
-      subnet3 = {
-        name           = "subnet-akscluster"
-        address_prefix = "10.0.2.0/23"
-      }
-      subnet4 = {
-        name           = "subnet-azsqldbs"
-        address_prefix = "10.0.7.0/24"
-      }
-      subnet5 = {
-        name           = "ubnet-computevm"
-        address_prefix = "10.0.8.0/23"
-      }
-      subnet6 = {
-        name           = "subnet-vmscaleset"
-        address_prefix = "10.0.9.0/2"
-      }
+  subnets = {
+    subnet3 = {
+      name           = "subnet-akscluster"
+      address_prefix = "10.0.2.0/23"
     }
+    subnet4 = {
+      name           = "subnet-azsqldbs"
+      address_prefix = "10.0.7.0/24"
+    }
+    subnet5 = {
+      name           = "ubnet-computevm"
+      address_prefix = "10.0.8.0/23"
+    }
+    subnet6 = {
+      name           = "subnet-vmscaleset"
+      address_prefix = "10.0.9.0/2"
+    }
+  }
 
-    vm_name        = "example-vm"
-    vm_size        = "Standard_DS1_v2"
-    admin_username = "azureuser"
-    admin_password = "P@ssw0rd123!"
-    subnet_name    = "subnet-akscluster"
-
+  tags = {
     environment = "dev"
-
-    tags = {
-      environment = "dev"
-      owner       = "team"
-    }
+    owner       = "team"
   }
 }
 
-module "vnet" {
-  source              = "./networking/vnet"
-
-  resource_group_name = local.vm_config.resource_group_name
-  location            = local.vm_config.location
-  vnet_name           = local.vm_config.vnet_name
-  address_space       = local.vm_config.vnet_address_space
-
-  subscription_id = local.vm_config.subscription_id
-  vm_name         = local.vm_config.vm_name
-  vm_size         = local.vm_config.vm_size
-  admin_username  = local.vm_config.admin_username
-  admin_password  = local.vm_config.admin_password
-  subnet_name     = local.vm_config.subnet_name
-  tags            = local.vm_config.tags
-  subnets         = local.vm_config.subnets
-}
 
 
 

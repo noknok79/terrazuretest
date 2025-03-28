@@ -1,10 +1,10 @@
-resource_group_name = "rg-example"
-location            = "eastus"
-vnet_name           = "vnet-dev-eastus"
-vnet_address_space  = ["10.0.0.0/16"]
 subscription_id     = "096534ab-9b99-4153-8505-90d030aa4f08"
 tenant_id           = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
 aad_admin_object_id = "394166a3-9a96-4db9-94b7-c970f2c97b27"
+resource_group_name = "rg-example"
+location            = "eastus"
+vnet_name           = "vnet-dev-eastus"
+address_space       = ["10.0.0.0/16"]
 
 subnets = {
   subnet3 = {
@@ -25,15 +25,17 @@ subnets = {
   }
 }
 
-vm_name        = "example-vm"
-vm_size        = "Standard_DS1_v2"
-admin_username = "azureuser"
-admin_password = "P@ssw0rd123!"
-subnet_name    = "subnet-akscluster"
-
-environment = "dev"
-
 tags = {
   environment = "dev"
   owner       = "team"
+}
+
+output "vnet_id" {
+  description = "The ID of the Virtual Network"
+  value       = module.vnet.vnet_id
+}
+
+output "subnet_ids" {
+  description = "The IDs of the subnets"
+  value       = module.vnet.subnet_ids
 }
