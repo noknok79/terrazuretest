@@ -51,7 +51,7 @@ resource "azurerm_subnet" "subnet_vm" {
 }
 
 resource "azurerm_resource_group" "example" {
-  name     = "RG-vnet-${var.environment}-${var.location}"
+  name     = "RG-vnet-${replace(var.environment, "/[^a-zA-Z0-9_-]/", "")}-${replace(var.location, "/[^a-zA-Z0-9_-]/", "")}"
   location = var.location
   tags = {
     Environment = var.environment

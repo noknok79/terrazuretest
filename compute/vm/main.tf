@@ -7,15 +7,30 @@
 # #2 terraform destroy -var-file="compute/vm/vm.tfvars" --input=false
 # If errors occur with locks, use the command:
 # terraform force-unlock -force <lock-id>
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 3.0.0"
+    }
+  }
+}
 
 provider "azurerm" {
   features {}
+  alias = "computevm"
 }
 
 # Resource Group
 resource "azurerm_resource_group" "rg" {
-  name     = var.resource_group_name
+  name     = "RG-vnet-${replace(var.environment, "/[^a-zA-Z0-9_-]/", "")}-${replace(var.location, "/[^a-zA-Z0-9_-]/", "")}"
   location = var.location
+}
+
+resource "azurerm_resource_group" "example" {
+  name     = "RG-vnet-${replace(var.environment, "/[^a-zA-Z0-9_-]/", "")}-${replace(var.location, "/[^a-zA-Z0-9_-]/", "")}"
+  location = var.location
+  tags     = var.tags
 }
 
 # Virtual Network

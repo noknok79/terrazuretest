@@ -18,6 +18,12 @@ provider "azurerm" {
   features {}
 }
 
+resource "azurerm_resource_group" "example" {
+  name     = "RG-vnet-${replace(var.environment, "/[^a-zA-Z0-9_-]/", "")}-${replace(var.location, "/[^a-zA-Z0-9_-]/", "")}"
+  location = var.location
+  tags     = var.tags
+}
+
 module "vnet" {
   source = "./networking/vnet"
 
