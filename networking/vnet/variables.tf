@@ -1,67 +1,62 @@
-# Variables for reusability and best practices
-variable "environment" {
-  description = "The environment for the virtual network (e.g., dev, staging, prod)."
+variable "resource_group_name" {
+  description = "Name of the resource group"
   type        = string
 }
 
 variable "location" {
-  description = "The Azure region where the virtual network will be created."
+  description = "Azure region for resources"
   type        = string
 }
 
-variable "owner" {
-  description = "The owner of the virtual network."
+variable "vm_name" {
+  description = "Name of the virtual machine"
+  type        = string
+}
+
+variable "vm_size" {
+  description = "Size of the virtual machine"
+  type        = string
+}
+
+variable "admin_username" {
+  description = "Admin username for the VM"
+  type        = string
+}
+
+variable "admin_password" {
+  description = "Admin password for the VM"
+  type        = string
+}
+
+variable "subscription_id" {
+  description = "Azure subscription ID"
   type        = string
 }
 
 variable "vnet_name" {
-  description = "The name of the virtual network."
+  description = "Name of the virtual network"
   type        = string
 }
 
-variable "resource_group_name" {
-  description = "The name of the resource group where the virtual network will be created."
+variable "subnet_name" {
+  description = "Name of the subnet"
   type        = string
+}
+
+variable "tags" {
+  description = "Tags to associate with resources"
+  type        = map(string)
 }
 
 variable "address_space" {
-  description = "The address space for the virtual network."
+  description = "The address space for the virtual network"
   type        = list(string)
 }
 
 variable "subnets" {
-  description = "A list of subnets to create within the virtual network."
-  type = list(object({
+  description = "A map of subnets to create, with each subnet containing a name and address prefix"
+  type = map(object({
     name           = string
     address_prefix = string
   }))
-  default = [] # Provide an empty list as the default value to make it optional
-}
-
-variable "tags" {
-  description = "Tags to apply to the virtual network and its subnets."
-  type        = map(string)
-}
-
-variable "subscription_id" {
-  description = "The Azure subscription ID."
-  type        = string
-}
-
-variable "vnet_id" {
-  description = "The ID of the Virtual Network"
-  type        = string
-}
-
-variable "subnet_configs" {
-  description = "Configuration for the subnets"
-  type = list(object({
-    name           = string
-    address_prefix = string
-  }))
-}
-
-variable "virtual_network_name" {
-  description = "The name of the virtual network"
-  type        = string
 }

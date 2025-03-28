@@ -1,39 +1,9 @@
-output "vnet_name" {
-  description = "The name of the Virtual Network"
-  value       = azurerm_virtual_network.example.name
-}
-
-output "vnet_address_space" {
-  description = "The address space of the Virtual Network"
-  value       = azurerm_virtual_network.example.address_space
-}
-
 output "vnet_id" {
   description = "The ID of the Virtual Network"
-  value       = azurerm_virtual_network.example.id
-}
-
-output "vnet_resource_id" {
-  description = "The resource ID of the Virtual Network"
-  value       = azurerm_virtual_network.example.id
-}
-
-output "resource_group_name" {
-  description = "The name of the Resource Group"
-  value       = azurerm_resource_group.example.name
-}
-
-output "resource_group_location" {
-  description = "The location of the Resource Group"
-  value       = azurerm_resource_group.example.location
+  value       = azurerm_virtual_network.vnet.id
 }
 
 output "subnet_ids" {
-  description = "List of subnet IDs"
-  value       = [for subnet in azurerm_subnet.subnet_vm : subnet.id]
-}
-
-output "subnet_name" {
-  description = "The name of the subnet"
-  value       = var.subnet_configs[0].name
+  description = "The IDs of the subnets"
+  value       = { for subnet in azurerm_subnet.subnets : subnet.name => subnet.id }
 }

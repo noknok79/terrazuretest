@@ -4,57 +4,43 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 4.0.0, < 5.0.0" # Ensure consistent version
+      version = ">= 3.64.0"
     }
   }
 }
 
 provider "azurerm" {
   features {}
-  alias           = "vnet"
   subscription_id = var.subscription_id
-  tenant_id       = var.tenant_id
 }
 
-resource "azurerm_virtual_network" "example" {
-  name                = var.virtual_network_name
-  location            = var.location
-  resource_group_name = var.resource_group_name
+# Resource Group
+resource "azurerm_resource_group" "vnet" {
+  name     = var.resource_group_name
+  location = var.location
+  tags     = var.tags
+}
+
+# Virtual Network
+resource "azurerm_virtual_network" "vnet" {
+  name                = var.vnet_name
+  location            = azurerm_resource_group.vnet.location
+  resource_group_name = azurerm_resource_group.vnet.name
   address_space       = var.address_space
   tags                = var.tags
 
-  depends_on = [
-    azurerm_resource_group.example # Ensure the resource group exists before creating the virtual network
-  ]
+  # Ensure the virtual network depends on the resource group
+  depends_on = [azurerm_resource_group.vnet]
 }
 
-resource "azurerm_subnet" "example" {
-  for_each = { for subnet in var.subnets : subnet.name => subnet }
+# Subnets
+resource "azurerm_subnet" "subnets" {
+  for_each            = var.subnets
+  name                = each.value.name
+  resource_group_name = azurerm_resource_group.vnet.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes    = [each.value.address_prefix]
 
-  name                 = each.value.name
-  resource_group_name  = azurerm_resource_group.example.name
-  virtual_network_name = azurerm_virtual_network.example.name
-  address_prefixes     = [each.value.address_prefix]
-
-  depends_on = [
-    azurerm_virtual_network.example, # Ensure the virtual network exists before creating the subnets
-    azurerm_resource_group.example   # Ensure the resource group exists before creating the subnets
-  ]
-}
-
-resource "azurerm_subnet" "subnet_vm" {
-  count                = length(var.subnet_configs)
-  name                 = var.subnet_configs[count.index].name
-  resource_group_name  = var.resource_group_name
-  virtual_network_name = var.virtual_network_name
-  address_prefixes     = [var.subnet_configs[count.index].address_prefix]
-}
-
-resource "azurerm_resource_group" "example" {
-  name     = "RG-vnet-${replace(var.environment, "/[^a-zA-Z0-9_-]/", "")}-${replace(var.location, "/[^a-zA-Z0-9_-]/", "")}"
-  location = var.location
-  tags = {
-    Environment = var.environment
-    Owner       = var.owner
-  }
+  # Ensure subnets depend on the virtual network
+  depends_on = [azurerm_virtual_network.vnet]
 }
