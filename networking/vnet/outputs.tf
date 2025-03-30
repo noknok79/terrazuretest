@@ -3,7 +3,32 @@ output "vnet_id" {
   value       = azurerm_virtual_network.vnet.id
 }
 
+output "vnet_name" {
+  description = "The name of the Virtual Network"
+  value       = azurerm_virtual_network.vnet.name
+}
+
+output "address_space" {
+  description = "The address space of the Virtual Network"
+  value       = azurerm_virtual_network.vnet.address_space
+}
+
 output "subnet_ids" {
-  description = "The IDs of the subnets"
-  value       = { for subnet in azurerm_subnet.subnets : subnet.name => subnet.id }
+  description = "A map of subnet names to their IDs"
+  value       = { for name, subnet in azurerm_subnet.vnet_subnets : name => subnet.id }
+}
+
+# output "subnets" {
+#   description = "The subnets in the Virtual Network"
+#   value       = [for subnet in azurerm_subnet.vnet_subnets : subnet.id]
+# }
+
+output "vnet_subnets" {
+  description = "A list of subnets with their details"
+  value = [
+    for subnet_key, subnet in azurerm_subnet.vnet_subnets : {
+      name           = subnet.name
+      address_prefix = subnet.address_prefixes[0]
+    }
+  ]
 }

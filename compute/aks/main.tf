@@ -19,6 +19,14 @@ terraform {
   }
 }
 
+# Configure the AzureRM provider
+provider "azurerm" {
+  features {}
+
+  subscription_id = var.subscription_id
+  tenant_id       = var.tenant_id
+}
+
 # Configure the AzureRM provider with alias
 provider "azurerm" {
   features {}

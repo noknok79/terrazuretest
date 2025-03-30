@@ -1,12 +1,3 @@
-# This Terraform configuration defines resources for a Virtual Machine.
-# These resources have been set in the computevm.plan file.
-# To execute this configuration, use the following command:
-# terraform plan -var-file="compute/vm/vm.tfvars" --out="computevm.plan" --input=false
-# To destroy, use the following command:
-# #1 terraform plan -destroy -var-file="compute/vm/vm.tfvars" --input=false
-# #2 terraform destroy -var-file="compute/vm/vm.tfvars" --input=false
-# If errors occur with locks, use the command:
-# terraform force-unlock -force <lock-id>
 terraform {
   required_providers {
     azurerm = {
@@ -16,199 +7,120 @@ terraform {
   }
 }
 
-provider "azurerm" {
-  features {}
-  alias = "computevm"
-}
 
 # Resource Group
-resource "azurerm_resource_group" "rg" {
-  name     = "RG-vnet-${replace(var.environment, "/[^a-zA-Z0-9_-]/", "")}-${replace(var.location, "/[^a-zA-Z0-9_-]/", "")}"
+resource "azurerm_resource_group" "vm_rg" {
+  name     = var.resource_group_name
   location = var.location
-}
-
-resource "azurerm_resource_group" "example" {
-  name     = "RG-vnet-${replace(var.environment, "/[^a-zA-Z0-9_-]/", "")}-${replace(var.location, "/[^a-zA-Z0-9_-]/", "")}"
-  location = var.location
-  tags     = var.tags
 }
 
 # Virtual Network
 resource "azurerm_virtual_network" "vnet" {
-  name                = "example-vnet"
-  address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-}
-
-resource "azurerm_virtual_network" "vnet_vm" {
-  name                = var.vnet_name
+  name                = var.virtual_network_name
+  resource_group_name = azurerm_resource_group.vm_rg.name
   location            = var.location
-  resource_group_name = var.resource_group_name
   address_space       = var.address_space
 }
 
 # Subnet
 resource "azurerm_subnet" "subnet" {
-  name                 = "example-subnet"
-  resource_group_name  = azurerm_resource_group.rg.name
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.0.1.0/24"]
-}
-
-resource "azurerm_subnet" "subnet_vm" {
   name                 = var.subnet_name
-  resource_group_name  = var.resource_group_name
-  virtual_network_name = var.virtual_network_name
-  address_prefixes     = var.subnet_address_prefixes
+  resource_group_name  = azurerm_resource_group.vm_rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = [var.subnet_address_prefix]
 }
 
 # Network Interface
-resource "azurerm_network_interface" "vm_nic" {
-  name                = "${var.vm_name}-nic"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = var.subnet_id
-    private_ip_address_allocation = "Dynamic"
-  }
-}
-
 resource "azurerm_network_interface" "nic" {
-  name                = "${var.vm_name}-nic"
+  name                = "${var.prefix}-nic"
   location            = var.location
-  resource_group_name = var.resource_group_name
+  resource_group_name = azurerm_resource_group.vm_rg.name
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = var.subnet_id
+    subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Dynamic"
   }
 }
 
-resource "azurerm_network_interface" "nic_vm" {
-  name                = "${var.vm_name}-nic-vm"
+# Public IP
+resource "azurerm_public_ip" "public_ip" {
+  name                = "${var.prefix}-public-ip"
   location            = var.location
-  resource_group_name = var.resource_group_name
-
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = var.subnet_id
-    private_ip_address_allocation = "Dynamic"
-  }
-}
-
-resource "azurerm_public_ip" "vm_ip" {
-  name                = "${var.vm_name}-public-ip"
-  location            = var.location
-  resource_group_name = var.resource_group_name
+  resource_group_name = azurerm_resource_group.vm_rg.name
   allocation_method   = "Dynamic"
+  sku                 = "Basic"
 }
 
 # Virtual Machine
-resource "azurerm_windows_virtual_machine" "vm" {
-  name                  = var.vm_name
-  resource_group_name   = azurerm_resource_group.rg.name
-  location              = azurerm_resource_group.rg.location
-  size                  = "Standard_DS1_v2"
-  admin_username        = var.admin_username
-  admin_password        = var.admin_password
+resource "azurerm_virtual_machine" "vm" {
+  name                  = "${var.prefix}-vm"
+  location              = var.location
+  resource_group_name   = var.resource_group_name
   network_interface_ids = [azurerm_network_interface.nic.id]
+  vm_size               = var.vm_size
 
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
+  # OS Profile
+  os_profile {
+    computer_name  = "${var.prefix}-vm"
+    admin_username = var.admin_username
+    admin_password = var.admin_password
   }
 
-  source_image_reference {
-    publisher = "MicrosoftWindowsServer"
-    offer     = "WindowsServer"
-    sku       = "2019-Datacenter"
-    version   = "latest"
-  }
-}
-
-# Custom Script Extension for Windows
-resource "azurerm_virtual_machine_extension" "windows_custom_script" {
-  name                 = "windows-custom-script"
-  virtual_machine_id   = azurerm_windows_virtual_machine.vm.id
-  publisher            = "Microsoft.Compute"
-  type                 = "CustomScriptExtension"
-  type_handler_version = "1.10"
-
-  settings = <<SETTINGS
-  {
-    "commandToExecute": "${var.custom_script}"
-  }
-  SETTINGS
-}
-
-# Linux Virtual Machine
-resource "azurerm_linux_virtual_machine" "linux_vm" {
-  name                  = "${var.vm_name}-linux"
-  resource_group_name   = azurerm_resource_group.rg.name
-  location              = azurerm_resource_group.rg.location
-  size                  = "Standard_DS1_v2"
-  admin_username        = var.admin_username
-  admin_ssh_key {
-    username   = var.admin_username
-    public_key = file("~/.ssh/id_rsa.pub")
-  }
-  network_interface_ids = [azurerm_network_interface.nic.id]
-
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
+  # OS Profile for Linux
+  os_profile_linux_config {
+    disable_password_authentication = false # Enable password authentication
   }
 
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
-    version   = "latest"
+  # OS Disk
+  storage_os_disk {
+    name              = "${var.prefix}-osdisk"
+    caching           = "ReadWrite"
+    create_option     = "FromImage"
+    managed_disk_type = var.os_disk_storage_account_type
   }
+
+  # Image Reference
+  storage_image_reference {
+    publisher = var.image_reference.publisher
+    offer     = var.image_reference.offer
+    sku       = var.image_reference.sku
+    version   = var.image_reference.version
+  }
+
+  tags = var.tags
 }
 
 # Custom Script Extension for Linux
 resource "azurerm_virtual_machine_extension" "linux_custom_script" {
-  name                 = "linux-custom-script"
-  virtual_machine_id   = azurerm_linux_virtual_machine.linux_vm.id
+  count                = var.os_type == "Linux" ? 1 : 0
+  name                 = "${var.prefix}-linux-script"
+  virtual_machine_id   = azurerm_virtual_machine.vm.id
   publisher            = "Microsoft.Azure.Extensions"
   type                 = "CustomScript"
   type_handler_version = "2.0"
 
   settings = <<SETTINGS
-  {
-    "commandToExecute": "${var.custom_script}"
-  }
+    {
+      "commandToExecute": "${var.linux_custom_script_command}"
+    }
+  SETTINGS
+
+  tags = var.tags
+}
+
+# Custom Script Extension for Windows
+resource "azurerm_virtual_machine_extension" "windows_custom_script" {
+  count                = var.os_type == "Windows" ? 1 : 0
+  name                 = "${var.prefix}-windows-script"
+  virtual_machine_id   = azurerm_virtual_machine.vm.id
+  publisher            = "Microsoft.Compute"
+  type                 = "CustomScriptExtension"
+  type_handler_version = "1.10"
+
+  settings = <<SETTINGS
+    {
+      "commandToExecute": "${var.windows_custom_script_command}"
+    }
   SETTINGS
 }
-
-resource "azurerm_linux_virtual_machine" "vm" {
-  name                  = var.vm_name
-  resource_group_name   = var.resource_group_name
-  location              = var.location
-  size                  = var.vm_size
-  admin_username        = var.admin_username
-  admin_ssh_key {
-    username   = var.admin_username
-    public_key = file(var.ssh_public_key_path)
-  }
-  network_interface_ids = [azurerm_network_interface.nic_vm.id]
-
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-  }
-
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
-    version   = "latest"
-  }
-}
-
-

@@ -63,21 +63,5 @@ variable "subnets" {
     address_prefix = string
   }))
   default = {
-    subnet3 = {
-      name           = "subnet-akscluster"
-      address_prefix = "10.0.2.0/23"
-    }
-    subnet4 = {
-      name           = "subnet-azsqldbs"
-      address_prefix = "10.0.7.0/24"
-    }
-    subnet5 = {
-      name           = "ubnet-computevm"
-      address_prefix = "10.0.8.0/23"
-    }
-    subnet6 = {
-      name           = "subnet-vmscaleset"
-      address_prefix = "10.0.9.0/2"
-    }
   }
 }
