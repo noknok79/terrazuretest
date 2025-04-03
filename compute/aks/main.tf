@@ -26,7 +26,8 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "rg_aks" {
-  name     = "rg-aks-${var.environment}"
+  name = var.resource_group_name
+  #name     = "rg-aks-${var.environment}"
   location = var.location
   tags = {
     Environment = var.environment
@@ -38,7 +39,7 @@ resource "azurerm_virtual_network" "vnet_aks" {
   name                = "vnet-aks-${var.environment}"
   address_space       = ["10.0.0.0/16"] # Changed to avoid overlap
   location            = azurerm_resource_group.rg_aks.location
-  resource_group_name = azurerm_resource_group.rg_aks.name
+  resource_group_name = var.resource_group_name
   tags = {
     Environment = var.environment
     Project     = var.project
@@ -47,7 +48,7 @@ resource "azurerm_virtual_network" "vnet_aks" {
 
 resource "azurerm_subnet" "subnet_aks" {
   name                 = "subnet-aks-${var.environment}"
-  resource_group_name  = azurerm_resource_group.rg_aks.name
+  resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet_aks.name
   address_prefixes     = ["10.0.2.0/23"] # Adjusted to fit within new VNet range
   depends_on           = [azurerm_virtual_network.vnet_aks]
@@ -55,14 +56,15 @@ resource "azurerm_subnet" "subnet_aks" {
 
 resource "azurerm_subnet" "subnet_linux" {
   name                 = "subnet-linux-${var.environment}"
-  resource_group_name  = azurerm_resource_group.rg_aks.name
+  resource_group_name  = var.resource_group_name
+
   virtual_network_name = azurerm_virtual_network.vnet_aks.name
   address_prefixes     = ["10.0.4.0/23"] # Adjusted to fit within new VNet range
 }
 
 resource "azurerm_subnet" "subnet_windows" {
   name                 = "subnet-windows-${var.environment}"
-  resource_group_name  = azurerm_resource_group.rg_aks.name
+  resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet_aks.name
   address_prefixes     = ["10.0.6.0/24"] # Adjusted to fit within new VNet range
 }

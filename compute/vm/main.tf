@@ -16,7 +16,8 @@ provider "azurerm" {
 
 
 resource "azurerm_resource_group" "vm_rg" {
-  name     = "rg-vm-${var.environment}"
+  name =  var.resource_group_name
+  #name     = "rg-vm-${var.environment}"
   location = var.location
   tags = {
     Environment = var.environment
@@ -28,7 +29,7 @@ resource "azurerm_resource_group" "vm_rg" {
 # Virtual Network
 resource "azurerm_virtual_network" "vnet" {
   name                = var.virtual_network_name
-  resource_group_name = azurerm_resource_group.vm_rg.name
+  resource_group_name = var.resource_group_name
   location            = var.location
   address_space       = var.address_space
 }
@@ -36,8 +37,8 @@ resource "azurerm_virtual_network" "vnet" {
 # Subnet
 resource "azurerm_subnet" "subnet" {
   name                 = var.subnet_name
-  resource_group_name  = azurerm_resource_group.vm_rg.name
-  virtual_network_name = azurerm_virtual_network.vnet.name
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = var.virtual_network_name
   address_prefixes     = [var.subnet_address_prefix]
 }
 
@@ -45,7 +46,7 @@ resource "azurerm_subnet" "subnet" {
 resource "azurerm_network_interface" "nic" {
   name                = "${var.prefix}-nic"
   location            = var.location
-  resource_group_name = azurerm_resource_group.vm_rg.name
+  resource_group_name = var.resource_group_name
 
   ip_configuration {
     name                          = "internal"
@@ -57,17 +58,20 @@ resource "azurerm_network_interface" "nic" {
 # Public IP
 resource "azurerm_public_ip" "public_ip" {
   name                = "${var.prefix}-public-ip"
+  resource_group_name = var.resource_group_name
   location            = var.location
-  resource_group_name = azurerm_resource_group.vm_rg.name
   allocation_method   = "Dynamic"
   sku                 = "Basic"
+  depends_on = [
+    azurerm_resource_group.vm_rg
+  ]
 }
 
 # Virtual Machine
 resource "azurerm_virtual_machine" "vm" {
   name                  = "${var.prefix}-vm"
   location              = var.location
-  resource_group_name   = var.resource_group_name
+  resource_group_name   = var.resource_group_name  
   network_interface_ids = [azurerm_network_interface.nic.id]
   vm_size               = var.vm_size
 

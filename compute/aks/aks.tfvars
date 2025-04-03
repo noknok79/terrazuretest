@@ -1,3 +1,4 @@
+resource_group_name = "RG-AKSCLUSTER"
 environment       = "dev"
 location          = "eastus"
 project           = "myproject"
@@ -27,4 +28,4 @@ admin_group_object_ids = [
       "743472b6-0f67-4f53-bd45-a3b34a2e9fe2",
       "cecfb3fd-7113-401a-b3d2-216522cb3202"
     ] # Replace with actual Azure AD group object IDs
-vnet_name = "vnet-aks-dev"
+vnet_name = ""

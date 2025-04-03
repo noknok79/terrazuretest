@@ -17,7 +17,8 @@ provider "azurerm" {
 
 # Resource Group
 resource "azurerm_resource_group" "vnet_rg" {
-  name     = "rg-vnet-${var.environment}"
+  name = var.resource_group_name
+  #name     = "rg-vnet-${var.environment}"
   location = var.location
   tags = {
     Environment = var.environment
@@ -28,7 +29,7 @@ resource "azurerm_resource_group" "vnet_rg" {
 # Virtual Network
 resource "azurerm_virtual_network" "vnet" {
   name                = var.vnet_name
-  resource_group_name = azurerm_resource_group.vnet_rg.name
+  resource_group_name = var.resource_group_name
   location            = var.location
   address_space       = var.address_space
   tags                = var.tags
@@ -40,7 +41,7 @@ resource "azurerm_virtual_network" "vnet" {
 resource "azurerm_subnet" "vnet_subnets" {
   for_each             = var.subnets
   name                 = each.value.name
-  resource_group_name  = azurerm_resource_group.vnet_rg.name
+  resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = [each.value.address_prefix]
 }

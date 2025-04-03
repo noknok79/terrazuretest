@@ -1,5 +1,5 @@
 # Resource Group and Location
-resource_group_name = "RG-vnet-dev-eastus"
+resource_group_name = "rg-vm-dev"
 location            = "East US"
 
 # Virtual Machine Configuration

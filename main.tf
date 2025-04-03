@@ -39,29 +39,29 @@ provider "azurerm" {
   subscription_id = var.subscription_id
 }
 
-# Resource group for VNet
-resource "azurerm_resource_group" "rg_vnet" {
-  provider = azurerm.vnet
-  name     = var.vnet_config_group.resource_group_name
-  location = var.vnet_config_group.location
-  tags     = var.vnet_config_group.tags
-}
+# # Resource group for VNet
+# resource "azurerm_resource_group" "rg_vnet" {
+#   provider = azurerm.vnet
+#   name     = var.vnet_config_group.resource_group_name
+#   location = var.vnet_config_group.location
+#   tags     = var.vnet_config_group.tags
+# }
 
-# Resource group for Compute VM
-resource "azurerm_resource_group" "rg_compute" {
-  provider = azurerm.compute
-  name     = var.vm_config.resource_group_name
-  location = var.vm_config.location
-  tags     = var.vm_config.tags
-}
+# # Resource group for Compute VM
+# resource "azurerm_resource_group" "rg_compute" {
+#   provider = azurerm.compute
+#   name     = var.vm_config.resource_group_name
+#   location = var.vm_config.location
+#   tags     = var.vm_config.tags
+# }
 
-# Resource group for AKS
-resource "azurerm_resource_group" "rg_akscluster" {
-  provider = azurerm.aksazure
-  name     = var.aks_config.resource_group_name
-  location = var.aks_config.location
-  tags     = var.aks_config.tags
-}
+# # Resource group for AKS
+# resource "azurerm_resource_group" "rg_akscluster" {
+#   provider = azurerm.aksazure
+#   name     = var.aks_config.resource_group_name
+#   location = var.aks_config.location
+#   tags     = var.aks_config.tags
+# }
 
 # VNet Module
 module "vnet" {
@@ -71,7 +71,7 @@ module "vnet" {
     azurerm = azurerm.vnet
   }
 
-  resource_group_name = azurerm_resource_group.rg_vnet.name
+  resource_group_name = var.vnet_config_group.resource_group_name
   location            = var.vnet_config_group.location
   vnet_name           = var.vnet_config_group.vnet_name
   address_space       = var.vnet_config_group.address_space
@@ -116,7 +116,7 @@ module "compute_vm" {
     azurerm = azurerm.compute
   }
 
-  resource_group_name           = azurerm_resource_group.rg_compute.name
+  resource_group_name           = var.vm_config.resource_group_name
  
   location                      = var.vm_config.location
   prefix                        = var.vm_config.prefix
@@ -173,7 +173,7 @@ module "aks" {
 
   subscription_id     = var.subscription_id
   tenant_id           = var.tenant_id
-  resource_group_name = azurerm_resource_group.rg_akscluster.name
+  resource_group_name = var.aks_config.resource_group_name
   location            = var.aks_config.location
   dns_prefix          = var.aks_config.dns_prefix
   vnet_name           = module.vnet.vnet_name
