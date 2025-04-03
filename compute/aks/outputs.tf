@@ -1,5 +1,5 @@
 output "aks_cluster_id" {
-  description = "ID of the AKS cluster"
+  description = "The ID of the AKS cluster"
   value       = azurerm_kubernetes_cluster.aks_cluster.id
 }
 
@@ -18,11 +18,6 @@ output "kubeconfig" {
   description = "The kubeconfig for the AKS cluster"
   value       = azurerm_kubernetes_cluster.aks_cluster.kube_config_raw
   sensitive   = true
-}
-
-output "name" {
-  description = "The name of the AKS cluster"
-  value       = azurerm_kubernetes_cluster.aks_cluster.name
 }
 
 output "admin_group_object_ids" {

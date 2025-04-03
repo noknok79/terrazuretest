@@ -7,7 +7,6 @@
 # #2 terraform destroy -var-file="compute/aks/aks.tfvars" --input=false
 # If errors occur with locks, use the command:
 # terraform force-unlock -force <lock-id>
-
 terraform {
   required_version = ">= 1.5.0"
 
@@ -19,22 +18,13 @@ terraform {
   }
 }
 
-# Configure the AzureRM provider
 provider "azurerm" {
+  alias = "aksazure"
   features {}
-
   subscription_id = var.subscription_id
   tenant_id       = var.tenant_id
 }
 
-# Configure the AzureRM provider with alias
-provider "azurerm" {
-  features {}
-  alias = "aksazure"
-}
-
-# Define the resource group for AKS
-# This resource has been created in akscluster.plan
 resource "azurerm_resource_group" "rg_aks" {
   name     = "rg-aks-${var.environment}"
   location = var.location
@@ -44,11 +34,9 @@ resource "azurerm_resource_group" "rg_aks" {
   }
 }
 
-# Define the virtual network for AKS
-# This resource has been created in akscluster.plan
 resource "azurerm_virtual_network" "vnet_aks" {
   name                = "vnet-aks-${var.environment}"
-  address_space       = ["10.0.0.0/16"] # Ensure this is large enough to accommodate subnets
+  address_space       = ["10.0.0.0/16"] # Changed to avoid overlap
   location            = azurerm_resource_group.rg_aks.location
   resource_group_name = azurerm_resource_group.rg_aks.name
   tags = {
@@ -57,13 +45,11 @@ resource "azurerm_virtual_network" "vnet_aks" {
   }
 }
 
-# Define the subnet for AKS
-# This resource has been created in akscluster.plan
 resource "azurerm_subnet" "subnet_aks" {
   name                 = "subnet-aks-${var.environment}"
   resource_group_name  = azurerm_resource_group.rg_aks.name
   virtual_network_name = azurerm_virtual_network.vnet_aks.name
-  address_prefixes     = ["10.0.2.0/23"] # Corrected to align with /22 boundary
+  address_prefixes     = ["10.0.2.0/23"] # Adjusted to fit within new VNet range
   depends_on           = [azurerm_virtual_network.vnet_aks]
 }
 
@@ -71,64 +57,41 @@ resource "azurerm_subnet" "subnet_linux" {
   name                 = "subnet-linux-${var.environment}"
   resource_group_name  = azurerm_resource_group.rg_aks.name
   virtual_network_name = azurerm_virtual_network.vnet_aks.name
-  address_prefixes     = ["10.0.4.0/23"] # New subnet for Linux node pool
+  address_prefixes     = ["10.0.4.0/23"] # Adjusted to fit within new VNet range
 }
 
 resource "azurerm_subnet" "subnet_windows" {
   name                 = "subnet-windows-${var.environment}"
   resource_group_name  = azurerm_resource_group.rg_aks.name
   virtual_network_name = azurerm_virtual_network.vnet_aks.name
-  address_prefixes     = ["10.0.6.0/24"] # New subnet for Windows node pool
+  address_prefixes     = ["10.0.6.0/24"] # Adjusted to fit within new VNet range
 }
 
-# Define the AKS cluster
-# This resource has been created in akscluster.plan
 resource "azurerm_kubernetes_cluster" "aks_cluster" {
-  name                = "aks-${var.environment}"
-  location            = azurerm_resource_group.rg_aks.location
-  resource_group_name = azurerm_resource_group.rg_aks.name
-  dns_prefix          = "aks-${var.environment}"
-
+  name                = var.cluster_name
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  dns_prefix          = var.dns_prefix
   default_node_pool {
-    name           = "default"
-    node_count     = var.node_count
-    vm_size        = var.vm_size
+    name            = "default"
+    vm_size         = var.vm_size
+    node_count      = var.node_count
     vnet_subnet_id = azurerm_subnet.subnet_aks.id
+    #vnet_subnet_id  = var.subnet_id
   }
 
-  # Additional Linux node pool
-
+  network_profile {
+    network_plugin = "azure"
+    service_cidr   = "10.1.0.0/16" # Changed to avoid overlap with VNet
+    dns_service_ip = "10.1.0.10"
+    # Removed invalid attribute docker_bridge_cidr
+  }
 
   identity {
     type = "SystemAssigned"
   }
 
-  azure_active_directory_role_based_access_control {
-    admin_group_object_ids = var.admin_group_object_ids
-  }
-
-  network_profile {
-    network_plugin = "azure"         # Use Azure CNI for advanced networking
-    network_policy = "calico"        # Set the network policy to Calico
-    service_cidr   = "10.0.253.0/24" # Ensure this does not overlap with the subnet
-    dns_service_ip = "10.0.253.10"   # Ensure this is within the servi  ce CIDR
-    #docker_bridge_cidr = "172.17.0.1/16" # Ensure this does not overlap with the virtual network
-  }
-
-  api_server_access_profile {
-    authorized_ip_ranges = var.api_server_authorized_ip_ranges
-  }
-
-  tags = {
-    Environment = var.environment
-    Project     = var.project
-  }
-
-  depends_on = [
-    azurerm_resource_group.rg_aks,
-    azurerm_virtual_network.vnet_aks,
-    azurerm_subnet.subnet_aks
-  ]
+  tags = var.tags
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "linux_node_pool" {
@@ -143,9 +106,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "linux_node_pool" {
   orchestrator_version  = var.kubernetes_version
 }
 
-# Additional Windows node pool
 resource "azurerm_kubernetes_cluster_node_pool" "windows_node_pool" {
-  name                  = "winpl" # Shortened to meet the 6-character limit
+  name                  = "winpl"
   kubernetes_cluster_id = azurerm_kubernetes_cluster.aks_cluster.id
   vm_size               = var.windows_vm_size
   node_count            = var.windows_node_count

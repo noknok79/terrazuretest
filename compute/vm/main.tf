@@ -7,12 +7,23 @@ terraform {
   }
 }
 
-
-# Resource Group
-resource "azurerm_resource_group" "vm_rg" {
-  name     = var.resource_group_name
-  location = var.location
+provider "azurerm" {
+  alias = "compute"
+  features        {}
+  subscription_id = var.subscription_id
 }
+
+
+
+resource "azurerm_resource_group" "vm_rg" {
+  name     = "rg-vm-${var.environment}"
+  location = var.location
+  tags = {
+    Environment = var.environment
+    Project     = var.project
+  }
+}
+
 
 # Virtual Network
 resource "azurerm_virtual_network" "vnet" {

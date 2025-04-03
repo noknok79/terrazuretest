@@ -13,12 +13,16 @@ variable "vnet_config_group" {
       address_prefix = string
     }))
     tags = map(string)
+        environment  = string
+    project      = string
   })
   default = {
     subscription_id     = "096534ab-9b99-4153-8505-90d030aa4f08"
-    resource_group_name = "RG-VNET-dev-eastus"
+    resource_group_name = "RG-VNET"
     location            = "eastus"
     vnet_name           = "vnet-dev-eastus"
+    environment         = "dev"
+    project             = "vnet-project"
     address_space       = ["10.0.0.0/16"]
     subnets = {
       subnet3 = {
@@ -43,8 +47,8 @@ variable "vnet_config_group" {
       }
     }
     tags = {
-      environment = "dev"
-      owner       = "team"
+      environment   = "dev"
+      project       = "vnet-project-testing"
     }
   }
 }

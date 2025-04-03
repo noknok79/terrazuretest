@@ -20,13 +20,15 @@ variable "vm_config" {
     subnet_name                   = string
     address_space                 = list(string)
     subnet_address_prefix         = string
-    subnet_id                   = string
+    subnet_id                     = string
     tags                          = map(string)
+    environment                 = string
+    project                      = string 
     os_type                       = string
     ssh_public_key                = string # Added SSH public key variable
   })
   default = {
-    resource_group_name          = "RG-VM-dev-eastus"
+    resource_group_name          = "RG-COMPUTE"
     location                     = "East US"
     prefix                       = "compute-dev"
     vm_size                      = "Standard_DS1_v2"
@@ -45,14 +47,16 @@ variable "vm_config" {
     subnet_name                   = "subnet-computevm"
     address_space                 = ["10.0.0.0/16"]
     subnet_address_prefix         = "10.0.1.0/24"
-    subnet_id = ""
+    subnet_id                     = ""
     tags = {
       environment = "dev"
       owner       = "team"
     }
+    environment = "dev"
+    project     = "compute-project-testing"
     os_type        = "Linux"
     ssh_public_key = "" # Leave this empty; it will be set dynamically
- # Reads the SSH public key from the file
+    # Reads the SSH public key from the file
   }
 }
 

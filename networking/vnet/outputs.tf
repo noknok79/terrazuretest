@@ -26,9 +26,11 @@ output "subnet_ids" {
 output "vnet_subnets" {
   description = "A list of subnets with their details"
   value = [
-    for subnet_key, subnet in azurerm_subnet.vnet_subnets : {
+    for subnet in azurerm_subnet.vnet_subnets :
+    {
       name           = subnet.name
-      address_prefix = subnet.address_prefixes[0]
+      id             = subnet.id
+      address_prefix = subnet.address_prefixes[0] # Use the first address prefix
     }
   ]
 }
