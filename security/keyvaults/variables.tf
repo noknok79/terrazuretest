@@ -3,7 +3,6 @@ variable "owner" {
   type        = string
 }
 
-
 # Subscription ID
 variable "subscription_id" {
   description = "The subscription ID for the Azure Key Vault"
@@ -36,7 +35,19 @@ variable "rg_keyvault" {
 
 # Key Vault Name
 variable "keyvault_name" {
-  description = "The name of the Key Vault"
+  description = "The name of the Azure Key Vault"
+  type        = string
+}
+
+# Resource Group Name
+variable "resource_group_name" {
+  description = "The name of the resource group"
+  type        = string
+}
+
+# Key Vault Name Alias
+variable "keyvault_name_alias" {
+  description = "The alias name of the Key Vault"
   type        = string
 }
 
@@ -85,30 +96,26 @@ variable "network_acls_virtual_network_ids" {
   type        = list(string)
 }
 
-# Access Policies - Individual Variables
-variable "access_policies_tenant_ids" {
-  description = "A list of tenant IDs for the access policies"
-  type        = list(string)
+# Access Policies
+variable "access_policies" {
+  description = "Access policies for the Key Vault"
+  type = list(object({
+    object_id               = string
+    tenant_id               = string
+    key_permissions         = list(string)
+    secret_permissions      = list(string)
+    certificate_permissions = list(string)
+  }))
 }
 
 variable "access_policies_object_ids" {
-  description = "A list of object IDs for the access policies"
+  description = "List of object IDs for access policies"
   type        = list(string)
 }
 
-variable "access_policies_key_permissions" {
-  description = "A list of key permissions for the access policies"
-  type        = list(list(string))
-}
-
-variable "access_policies_secret_permissions" {
-  description = "A list of secret permissions for the access policies"
-  type        = list(list(string))
-}
-
-variable "access_policies_certificate_permissions" {
-  description = "A list of certificate permissions for the access policies"
-  type        = list(list(string))
+variable "access_policies_tenant_ids" {
+  description = "List of tenant IDs for access policies"
+  type        = list(string)
 }
 
 # Key Vault Key ID

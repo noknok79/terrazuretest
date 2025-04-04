@@ -39,30 +39,38 @@ provider "azurerm" {
   subscription_id = var.subscription_id
 }
 
-# # Resource group for VNet
-# resource "azurerm_resource_group" "rg_vnet" {
-#   provider = azurerm.vnet
-#   name     = var.vnet_config_group.resource_group_name
-#   location = var.vnet_config_group.location
-#   tags     = var.vnet_config_group.tags
-# }
+# Resource Group for VNet
+resource "azurerm_resource_group" "vnet_rg" {
+  name     = var.vnet_config_group.resource_group_name
+  location = var.vnet_config_group.location
+  tags = {
+    Environment = var.vnet_config_group.environment
+    Project     = var.vnet_config_group.project
+  }
+}
 
-# # Resource group for Compute VM
-# resource "azurerm_resource_group" "rg_compute" {
-#   provider = azurerm.compute
-#   name     = var.vm_config.resource_group_name
-#   location = var.vm_config.location
-#   tags     = var.vm_config.tags
-# }
+# Resource Group for AKS
+resource "azurerm_resource_group" "aks_rg" {
+  name     = var.aks_config.resource_group_name
+  location = var.aks_config.location
+  tags = {
+    Environment = var.aks_config.environment
+    Project     = var.aks_config.project
+  }
+}
 
-# # Resource group for AKS
-# resource "azurerm_resource_group" "rg_akscluster" {
-#   provider = azurerm.aksazure
-#   name     = var.aks_config.resource_group_name
-#   location = var.aks_config.location
-#   tags     = var.aks_config.tags
-# }
+# Resource Group for VM
+resource "azurerm_resource_group" "vm_rg" {
+  name     = var.vm_config.resource_group_name
+  location = var.vm_config.location
+  tags = {
+    Environment = var.vm_config.environment
+    Project     = var.vm_config.project
+  }
+}
 
+
+#
 # VNet Module
 module "vnet" {
   source = "./networking/vnet"

@@ -42,3 +42,8 @@ output "keyvault_uri" {
   description = "The URI of the Azure Key Vault"
   value       = azurerm_key_vault.kv.vault_uri
 }
+
+output "subnet_id" {
+  description = "The ID of the subnet for the Key Vault"
+  value       = azurerm_subnet.subnet.id
+}

@@ -34,10 +34,7 @@ variable "log_analytics_workspace_id" {
   type        = string
 }
 
-variable "api_server_authorized_ip_ranges" {
-  description = "The authorized IP ranges for the AKS API server"
-  type        = list(string)
-}
+
 
 variable "admin_group_object_ids" {
   description = "Admin group object IDs for Azure AD RBAC"
@@ -107,4 +104,9 @@ variable "subnet_id" {
 variable "cluster_name" {
   description = "The name of the AKS cluster."
   type        = string
+}
+
+variable "api_server_authorized_ip_ranges" {
+  description = "A list of authorized IP ranges for the Kubernetes API server."
+  type        = list(string)
 }

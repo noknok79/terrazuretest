@@ -29,3 +29,8 @@ admin_group_object_ids = [
       "cecfb3fd-7113-401a-b3d2-216522cb3202"
     ] # Replace with actual Azure AD group object IDs
 vnet_name = ""
+
+api_server_authorized_ip_ranges = [
+  "203.0.113.0/24", # Replace with your trusted IP ranges
+  "198.51.100.0/24"
+]

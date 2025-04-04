@@ -10,10 +10,10 @@
 terraform {
   required_version = ">= 1.5.0"
 
-  required_providers {
+required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 4.0.0, < 5.0.0"
+      version = ">= 3.0.0"
     }
   }
 }
@@ -92,6 +92,8 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
   identity {
     type = "SystemAssigned"
   }
+
+  #api_server_authorized_ip_ranges = var.api_server_authorized_ip_ranges
 
   tags = var.tags
 }
