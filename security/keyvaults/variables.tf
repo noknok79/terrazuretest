@@ -1,155 +1,178 @@
-variable "owner" {
-  description = "The owner of the resources"
-  type        = string
-}
-
-# Subscription ID
-variable "subscription_id" {
-  description = "The subscription ID for the Azure Key Vault"
-  type        = string
-}
-
-# Environment
-variable "environment" {
-  description = "The environment (e.g., dev, prod)"
-  type        = string
-}
-
-# Location
+# Variables
 variable "location" {
-  description = "The Azure region where resources will be deployed"
+  description = "The Azure region where resources will be deployed."
   type        = string
 }
 
-# Tags
-variable "tags" {
-  description = "Tags to apply to resources"
-  type        = map(string)
-}
-
-# Resource Group for Key Vault
-variable "rg_keyvault" {
-  description = "The name of the resource group for the Key Vault"
+variable "environment" {
+  description = "The environment for the deployment."
   type        = string
 }
 
-# Key Vault Name
-variable "keyvault_name" {
-  description = "The name of the Azure Key Vault"
+variable "owner" {
+  description = "The owner of the resources."
   type        = string
 }
 
-# Resource Group Name
-variable "resource_group_name" {
-  description = "The name of the resource group"
-  type        = string
-}
-
-# Key Vault Name Alias
-variable "keyvault_name_alias" {
-  description = "The alias name of the Key Vault"
-  type        = string
-}
-
-# SKU Name
-variable "sku_name" {
-  description = "The SKU name for the Key Vault"
-  type        = string
-}
-
-# Tenant ID
-variable "tenant_id" {
-  description = "The Azure Active Directory tenant ID"
-  type        = string
-}
-
-# Enable RBAC Authorization
-variable "enable_rbac_authorization" {
-  description = "Enable RBAC authorization for the Key Vault"
-  type        = bool
-}
-
-# Subnet ID
-variable "subnet_id" {
-  description = "The subnet ID for the private endpoint"
-  type        = string
-}
-
-# Network ACLs - Individual Variables
-variable "network_acls_bypass" {
-  description = "Specifies which traffic can bypass the network rules"
-  type        = string
-}
-
-variable "network_acls_default_action" {
-  description = "The default action for network rules"
+variable "project" {
+  description = "The project associated with the resources."
   type        = string
 }
 
 variable "network_acls_ip_rules" {
-  description = "A list of IP rules for the Key Vault"
+  description = "The IP rules for network ACLs."
   type        = list(string)
 }
 
 variable "network_acls_virtual_network_ids" {
-  description = "A list of virtual network IDs for the Key Vault"
+  description = "The virtual network IDs for network ACLs."
   type        = list(string)
 }
 
-# Access Policies
 variable "access_policies" {
-  description = "Access policies for the Key Vault"
-  type = list(object({
-    object_id               = string
+  description = "The access policies for the Key Vault."
+  type        = map(object({
     tenant_id               = string
-    key_permissions         = list(string)
+    object_id               = string
     secret_permissions      = list(string)
+    key_permissions         = list(string)
     certificate_permissions = list(string)
   }))
 }
 
-variable "access_policies_object_ids" {
-  description = "List of object IDs for access policies"
-  type        = list(string)
-}
-
-variable "access_policies_tenant_ids" {
-  description = "List of tenant IDs for access policies"
-  type        = list(string)
-}
-
-# Key Vault Key ID
-variable "key_vault_key_id" {
-  description = "The Key Vault key identifier for Cosmos DB"
+variable "subscription_id" {
+  description = "The subscription ID for the Azure account."
   type        = string
 }
 
-# Key Name
-variable "key_name" {
-  description = "The name of the Key Vault key"
+variable "tenant_id" {
+  description = "The tenant ID for the Azure account."
   type        = string
 }
 
-# Enable Soft Delete
-variable "enable_soft_delete" {
-  description = "Enable soft delete for the Azure Key Vault"
+variable "resource_group_name" {
+  description = "The name of the resource group."
+  type        = string
+}
+
+variable "keyvault_name" {
+  description = "The name of the Key Vault."
+  type        = string
+}
+
+variable "admin_object_id" {
+  description = "The object ID of the Key Vault administrator."
+  type        = string
+}
+
+variable "keyvault_secret_value" {
+  description = "The value of the Key Vault secret."
+  type        = string
+}
+
+variable "sku_name" {
+  description = "The SKU name for the Key Vault."
+  type        = string
+}
+
+variable "enable_rbac_authorization" {
+  description = "Whether to enable RBAC authorization for the Key Vault."
   type        = bool
 }
 
-# Soft Delete Retention Days
 variable "soft_delete_retention_days" {
-  description = "Number of days to retain soft-deleted Key Vaults"
+  description = "The number of days to retain soft-deleted Key Vaults."
   type        = number
 }
 
-# Enable Purge Protection
 variable "enable_purge_protection" {
-  description = "Enable purge protection for the Key Vault"
+  description = "Whether to enable purge protection for the Key Vault."
   type        = bool
 }
 
-# Consistency Level
-variable "consistency_level" {
-  description = "The consistency level for Cosmos DB"
+variable "public_network_access_enabled" {
+  description = "Whether public network access is enabled for the Key Vault."
+  type        = bool
+}
+
+variable "key_name" {
+  description = "The name of the Key Vault key."
   type        = string
+}
+
+variable "vnet_address_space" {
+  description = "The address space for the virtual network."
+  type        = list(string)
+}
+
+variable "subnet_address_prefixes" {
+  description = "The address prefixes for the subnet."
+  type        = list(string)
+}
+
+variable "subnet_service_endpoints" {
+  description = "The service endpoints for the subnet."
+  type        = list(string)
+}
+
+variable "private_endpoint_subnet_address_prefixes" {
+  description = "The address prefixes for the private endpoint subnet."
+  type        = list(string)
+}
+
+variable "private_endpoint_service_endpoints" {
+  description = "The service endpoints for the private endpoint."
+  type        = list(string)
+}
+
+variable "subnet_id" {
+  description = "The ID of the subnet."
+  type        = string
+}
+
+variable "storage_account_id" {
+  description = "The ID of the storage account."
+  type        = string
+}
+
+variable "log_analytics_workspace_id" {
+  description = "The ID of the Log Analytics workspace."
+  type        = string
+}
+
+variable "tags" {
+  description = "Tags to apply to the resources."
+  type        = map(string)
+}
+
+variable "cost_center" {
+  description = "The cost center for the resources."
+  type        = string
+}
+
+variable "client_ip" {
+  description = "The client IP address for network ACLs."
+  type        = string
+}
+
+variable "network_acls_bypass" {
+  description = "The bypass setting for network ACLs."
+  type        = string
+}
+
+variable "network_acls_default_action" {
+  description = "The default action for network ACLs."
+  type        = string
+}
+
+variable "ip_rules" {
+  description = "List of IP addresses allowed to access the Key Vault"
+  type        = list(string)
+  default     = [] # Provide an empty list as default
+}
+
+variable "virtual_network_subnet_ids" {
+  description = "List of subnet IDs allowed to access the Key Vault"
+  type        = list(string)
+  default     = [] # Provide an empty list as default
 }

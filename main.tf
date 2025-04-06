@@ -11,63 +11,46 @@ terraform {
 
 provider "azurerm" {
   alias = "vnet"
+  subscription_id = var.subscription_id
   features {
     resource_group {
       prevent_deletion_if_contains_resources = false
     }
   }
-  subscription_id = var.subscription_id
 }
 
 provider "azurerm" {
   alias = "aksazure"
+  subscription_id = var.subscription_id
   features {
     resource_group {
       prevent_deletion_if_contains_resources = false
     }
   }
-  subscription_id = var.subscription_id
+  
 }
 
 provider "azurerm" {
   alias = "compute"
+  subscription_id = var.subscription_id
   features {
     resource_group {
       prevent_deletion_if_contains_resources = false
     }
   }
+}
+
+provider "azurerm" {
+  alias = "keyvault"
   subscription_id = var.subscription_id
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+  
 }
-
 # Resource Group for VNet
-resource "azurerm_resource_group" "vnet_rg" {
-  name     = var.vnet_config_group.resource_group_name
-  location = var.vnet_config_group.location
-  tags = {
-    Environment = var.vnet_config_group.environment
-    Project     = var.vnet_config_group.project
-  }
-}
-
-# Resource Group for AKS
-resource "azurerm_resource_group" "aks_rg" {
-  name     = var.aks_config.resource_group_name
-  location = var.aks_config.location
-  tags = {
-    Environment = var.aks_config.environment
-    Project     = var.aks_config.project
-  }
-}
-
-# Resource Group for VM
-resource "azurerm_resource_group" "vm_rg" {
-  name     = var.vm_config.resource_group_name
-  location = var.vm_config.location
-  tags = {
-    Environment = var.vm_config.environment
-    Project     = var.vm_config.project
-  }
-}
 
 
 #
@@ -215,4 +198,64 @@ output "aks_cluster_name" {
   description = "The name of the AKS cluster"
   value       = module.aks.aks_cluster_name
 }
+
+# Key Vault Module
+module "keyvault" {
+  source = "./security/keyvaults"
+
+  providers = {
+    azurerm = azurerm.keyvault
+  }
+
+  # Required arguments
+  resource_group_name = var.keyvault_config.resource_group_name
+  keyvault_name       = var.keyvault_config.keyvault_name
+  tenant_id           = var.keyvault_config.tenant_id
+  access_policies     = var.keyvault_config.access_policies
+  location            = var.keyvault_config.location
+  key_name            = var.keyvault_config.key_name
+    object_id           = var.keyvault_config.object_id # Add this line
+
+
+  # Optional arguments
+  enable_purge_protection         = var.keyvault_config.enable_purge_protection
+  enable_rbac_authorization       = var.keyvault_config.enable_rbac_authorization
+  network_acls_bypass             = var.keyvault_config.network_acls_bypass
+  access_policies_object_ids      = var.keyvault_config.access_policies_object_ids
+  access_policies_tenant_ids      = var.keyvault_config.access_policies_tenant_ids
+  consistency_level               = var.keyvault_config.consistency_level
+  soft_delete_retention_days      = var.keyvault_config.soft_delete_retention_days
+  owner                           = var.keyvault_config.owner
+  subscription_id                 = var.subscription_id
+  keyvault_name_alias             = var.keyvault_config.keyvault_name_alias
+  sku_name                        = var.keyvault_config.sku_name
+  network_acls_default_action     = var.keyvault_config.network_acls_default_action
+  network_acls_ip_rules           = var.keyvault_config.network_acls_ip_rules
+  network_acls_virtual_network_ids = var.keyvault_config.network_acls_virtual_network_ids
+  key_vault_key_id                = var.keyvault_config.key_vault_key_id
+  enable_soft_delete              = var.keyvault_config.enable_soft_delete
+
+  # VNet and Subnet Integration
+  vnet_name = module.vnet.vnet_name
+  subnet_id = lookup(
+    { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.id },
+    "subnet-keyvault"
+  )
+
+  # Tags for resource organization
+  tags        = var.keyvault_config.tags
+  environment = var.keyvault_config.environment
+}
+
+output "keyvault_id" {
+  description = "The ID of the Key Vault"
+  value       = module.keyvault.keyvault_id
+}
+
+output "keyvault_name" {
+  description = "The name of the Key Vault"
+  value       = module.keyvault.keyvault_name
+}
+
+
 

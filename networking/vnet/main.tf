@@ -10,9 +10,10 @@ terraform {
 }
 
 provider "azurerm" {
-  alias = "vnet"
   features        {}
+  alias = "vnet"
   subscription_id = var.subscription_id
+  tenant_id       = var.tenant_id
 }
 
 # Resource Group
@@ -44,5 +45,24 @@ resource "azurerm_subnet" "vnet_subnets" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = [each.value.address_prefix]
+}
+
+resource "azurerm_subnet" "subnet" {
+  name                 = "subnet-keyvault-${var.environment}"
+  resource_group_name  = azurerm_resource_group.vnet_rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.6.0/24"]
+
+  # Ensure the service endpoint for Microsoft.KeyVault is configured
+  service_endpoints = ["Microsoft.KeyVault"]
+
+  delegation {
+    name = "sql-delegation"
+    service_delegation {
+      name = "Microsoft.Sql/managedInstances"
+    }
+  }
+
+  depends_on = [azurerm_virtual_network.vnet]
 }
 

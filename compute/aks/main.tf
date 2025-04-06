@@ -19,8 +19,8 @@ required_providers {
 }
 
 provider "azurerm" {
-  alias = "aksazure"
   features {}
+  alias = "aksazure"
   subscription_id = var.subscription_id
   tenant_id       = var.tenant_id
 }
@@ -37,7 +37,7 @@ resource "azurerm_resource_group" "rg_aks" {
 
 resource "azurerm_virtual_network" "vnet_aks" {
   name                = "vnet-aks-${var.environment}"
-  address_space       = ["10.0.0.0/16"] # Changed to avoid overlap
+  address_space       = ["10.1.0.0/16"] # Changed to avoid overlap
   location            = azurerm_resource_group.rg_aks.location
   resource_group_name = var.resource_group_name
   tags = {
@@ -50,7 +50,7 @@ resource "azurerm_subnet" "subnet_aks" {
   name                 = "subnet-aks-${var.environment}"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet_aks.name
-  address_prefixes     = ["10.0.2.0/23"] # Adjusted to fit within new VNet range
+  address_prefixes     = ["10.1.2.0/23"] # Adjusted to fit within new VNet range
   depends_on           = [azurerm_virtual_network.vnet_aks]
 }
 
@@ -59,14 +59,14 @@ resource "azurerm_subnet" "subnet_linux" {
   resource_group_name  = var.resource_group_name
 
   virtual_network_name = azurerm_virtual_network.vnet_aks.name
-  address_prefixes     = ["10.0.4.0/23"] # Adjusted to fit within new VNet range
+  address_prefixes     = ["10.1.4.0/23"] # Adjusted to fit within new VNet range
 }
 
 resource "azurerm_subnet" "subnet_windows" {
   name                 = "subnet-windows-${var.environment}"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet_aks.name
-  address_prefixes     = ["10.0.6.0/24"] # Adjusted to fit within new VNet range
+  address_prefixes     = ["10.1.6.0/24"] # Adjusted to fit within new VNet range
 }
 
 resource "azurerm_kubernetes_cluster" "aks_cluster" {
@@ -84,8 +84,8 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
 
   network_profile {
     network_plugin = "azure"
-    service_cidr   = "10.1.0.0/16" # Changed to avoid overlap with VNet
-    dns_service_ip = "10.1.0.10"
+    service_cidr   = "10.2.0.0/16" # Changed to avoid overlap with VNet
+    dns_service_ip = "10.2.0.10"
     # Removed invalid attribute docker_bridge_cidr
   }
 
