@@ -1,35 +1,59 @@
-# Output the resource group name
+# Output the Resource Group name
 output "resource_group_name" {
-  description = "The name of the resource group where the Key Vault is deployed"
+  description = "The name of the resource group"
   value       = azurerm_resource_group.keyvault_rg.name
 }
 
+# Output the Resource Group location
+output "resource_group_location" {
+  description = "The location of the resource group"
+  value       = azurerm_resource_group.keyvault_rg.location
+}
+
+# Output the Random String Suffix
+output "keyvault_suffix" {
+  description = "The random string suffix for the Key Vault"
+  value       = random_string.keyvault_suffix.result
+}
+
+# Output the Virtual Network name
+output "virtual_network_name" {
+  description = "The name of the virtual network"
+  value       = azurerm_virtual_network.keyvault_vnet.name
+}
+
+# Output the Virtual Network ID
+output "virtual_network_id" {
+  description = "The ID of the virtual network"
+  value       = azurerm_virtual_network.keyvault_vnet.id
+}
+
+# Output the Subnet name
+output "subnet_name" {
+  description = "The name of the subnet"
+  value       = azurerm_subnet.keyvault_subnet.name
+}
+
+# Output the Subnet ID
+output "subnet_id" {
+  description = "The ID of the subnet"
+  value       = azurerm_subnet.keyvault_subnet.id
+}
+
 # Output the Key Vault name
-output "key_vault_name" {
-  description = "The name of the Azure Key Vault"
+output "keyvault_name" {
+  description = "The name of the Key Vault"
   value       = azurerm_key_vault.keyvault.name
 }
 
-# Output the Key Vault URI
-output "key_vault_uri" {
-  description = "The URI of the Azure Key Vault"
-  value       = azurerm_key_vault.keyvault.vault_uri
-}
-
-# Output the Key Vault location
-output "key_vault_location" {
-  description = "The location of the Azure Key Vault"
-  value       = azurerm_key_vault.keyvault.location
-}
-
-# Output the Key Vault resource ID
-output "key_vault_id" {
-  description = "The resource ID of the Azure Key Vault"
+# Output the Key Vault ID
+output "keyvault_id" {
+  description = "The ID of the Key Vault"
   value       = azurerm_key_vault.keyvault.id
 }
 
-# Remove subnet output if no subnet resource exists
-# output "subnet_id" {
-#   description = "The ID of the subnet for the Key Vault"
-#   value       = azurerm_subnet.subnet.id
-# }
+# Output the Key Vault Tenant ID
+output "keyvault_tenant_id" {
+  description = "The tenant ID of the Key Vault"
+  value       = azurerm_key_vault.keyvault.tenant_id
+}
