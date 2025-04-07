@@ -35,8 +35,11 @@ admin_username = "adminuser"
 admin_password = "xQ3@mP4z!Bk8*wHy" # Replace with a secure password
 
 # Resource Group
-resource_group_name = "rg-sql-dev-eastus"
 
 # Networking Configuration
 vnet_address_space    = ["10.0.0.0/16"]
 subnet_address_prefix = ["10.0.1.0/24"]
+vnet_name             = "vnet-sql-dev" # Add the required vnet_name variable
+subnet_id             = "placehoder" # Add the required subnet_id variable
+subnet_name = "subnet-azsqldbs"
+resource_group_name = "rg-sql-dev-eastus" # Add the required resource_group_name variable

@@ -9,8 +9,6 @@ variable "subscription_id" {
   type        = string
 }
 
-# Add your variable declarations here
-
 variable "resource_group_name" {
   description = "The name of the resource group for the SQL server."
   type        = string
@@ -105,12 +103,24 @@ variable "admin_password" {
 variable "vnet_address_space" {
   description = "Address space for the Virtual Network"
   type        = list(string)
-  default     = ["10.0.0.0/16"]
 }
 
 variable "subnet_address_prefix" {
   description = "Address prefix for the Subnet"
   type        = list(string)
-  default     = ["10.0.1.0/24"]
 }
 
+variable "vnet_name" {
+  description = "The name of the Virtual Network"
+  type        = string
+}
+
+variable "subnet_id" {
+  description = "The ID of the Subnet for Azure SQL"
+  type        = string
+}
+
+variable "subnet_name" {
+  description = "The name of the Subnet for Azure SQL"
+  type        = string
+}

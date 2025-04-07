@@ -324,3 +324,66 @@ output "vmss_instance_count" {
   value       = module.vmss.instance_count
 }
 
+# Azure SQL Module
+module "azsql" {
+  source = "./databases/azsqldbs"
+
+  # General Configuration
+  project         = var.config.project
+  subscription_id = var.config.subscription_id
+  environment     = var.config.environment
+  location        = var.config.location
+
+  # Tags
+  tags = var.config.tags
+
+  # SQL Server Configuration
+  sql_server_name           = var.config.sql_server_name
+  sql_server_admin_username = var.config.sql_server_admin_username
+  sql_server_admin_password = var.config.sql_server_admin_password
+
+  # SQL Database Configuration
+  database_names        = var.config.database_names
+  sql_database_sku_name = var.config.sql_database_sku_name
+  max_size_gb           = var.config.max_size_gb
+
+  # Storage Account Configuration
+  storage_account_name = var.config.storage_account_name
+
+  # Monitoring Configuration
+  log_analytics_workspace_id = var.config.log_analytics_workspace_id
+
+  # Azure Active Directory Configuration
+  tenant_id           = var.config.tenant_id
+  aad_admin_object_id = var.config.aad_admin_object_id
+
+  # Admin Credentials
+  admin_username = var.config.admin_username
+  admin_password = var.config.admin_password
+
+  # Resource Group
+  resource_group_name = var.config.resource_group_name
+
+  # Networking Configuration
+  vnet_name = module.vnet.vnet_name
+  subnet_id = lookup(
+    { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.id },
+    "subnet-azsqldbs"
+  )
+}
+
+output "sql_server_name" {
+  description = "The name of the Azure SQL Server"
+  value       = module.azsql.sql_server_name
+}
+
+output "sql_database_names" {
+  description = "The names of the Azure SQL Databases"
+  value       = module.azsql.sql_database_names
+}
+
+output "sql_private_endpoint_ip" {
+  description = "The private IP address of the private endpoint for the Azure SQL Server"
+  value       = module.azsql.sql_private_endpoint_ip
+}
+

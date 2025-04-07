@@ -34,37 +34,39 @@ resource "azurerm_resource_group" "rg_sql" {
 
 # Random String for Unique Suffix
 resource "random_string" "random_suffix" {
-  length  = 6
+  length  = 10
   upper   = false
   special = false
 }
 
-# Virtual Network
+# Create Virtual Network
 resource "azurerm_virtual_network" "vnet" {
-  name                = "vnet-${var.environment}-${var.location}-${random_string.random_suffix.result}"
-  location            = azurerm_resource_group.rg_sql.location
+  name                = var.vnet_name
+  location            = var.location
   resource_group_name = azurerm_resource_group.rg_sql.name
   address_space       = var.vnet_address_space
 
   tags = var.tags
 
-  depends_on = [azurerm_resource_group.rg_sql] # Ensure resource group is created first
+  depends_on = [
+    azurerm_resource_group.rg_sql
+  ] # Ensure the resource group is created first
 }
 
-# Subnet
-resource "azurerm_subnet" "subnet_azsql" {
-  name                 = "subnet-${var.environment}-${var.location}-${random_string.random_suffix.result}"
-  resource_group_name  = azurerm_resource_group.rg_sql.name
+# Create Subnet
+resource "azurerm_subnet" "subnet" {
+  name                 = "sql-subnet"
+  resource_group_name  = azurerm_resource_group.rg_sql.name # Use the resource group created by Terraform
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = var.subnet_address_prefix
 
   depends_on = [azurerm_resource_group.rg_sql,
-  azurerm_virtual_network.vnet] # Ensure VNet is created first
+    azurerm_virtual_network.vnet] # Ensure the virtual network and resource group are created first
 }
 
 # Storage Account for SQL Auditing
 resource "azurerm_storage_account" "sql_storage" {
-  name                     = "sqlstorage${random_string.random_suffix.result}"
+  name                     = "sqlstoragetest${random_string.random_suffix.result}"
   resource_group_name      = azurerm_resource_group.rg_sql.name
   location                 = azurerm_resource_group.rg_sql.location
   account_tier             = "Standard"
@@ -78,7 +80,7 @@ resource "azurerm_storage_account" "sql_storage" {
 
 # Updated Storage Container for SQL Vulnerability Assessment
 resource "azurerm_storage_container" "sql_va_container" {
-  name                  = "sqlvulnerabilityassessment"
+  name                  = "sqlvulnerability${random_string.random_suffix.result}"
   storage_account_id    = azurerm_storage_account.sql_storage.id # Updated to use storage_account_id
   container_access_type = "private"
 
@@ -139,6 +141,16 @@ resource "azurerm_mssql_firewall_rule" "deny_azure_services" {
   depends_on = [azurerm_mssql_server.sql_server] # Ensure SQL Server is created first
 }
 
+# SQL Firewall Rule - AllowAllAzureIPs
+resource "azurerm_mssql_firewall_rule" "sql_firewall_rule" {
+  name             = "AllowAllAzureIPs"
+  server_id        = azurerm_mssql_server.sql_server.id
+  start_ip_address = "0.0.0.0"
+  end_ip_address   = "0.0.0.0"
+
+  depends_on = [azurerm_mssql_server.sql_server] # Ensure SQL Server is created first
+}
+
 # SQL Server Vulnerability Assessment
 resource "azurerm_mssql_server_vulnerability_assessment" "sql_va" {
   server_security_alert_policy_id = azurerm_mssql_server_security_alert_policy.sql_security_alert_policy.id
@@ -180,6 +192,31 @@ resource "azurerm_mssql_server_security_alert_policy" "sql_security_alert_policy
   email_account_admins       = true
   retention_days             = 90
 
-  depends_on = [azurerm_storage_account.sql_storage, azurerm_mssql_server.sql_server] # Ensure dependencies are created first
+  depends_on = [
+    azurerm_storage_account.sql_storage,
+    azurerm_mssql_server.sql_server,
+    azurerm_resource_group.rg_sql
+  ] # Ensure dependencies are created first
+}
+
+# Private Endpoint for SQL Server
+resource "azurerm_private_endpoint" "sql_private_endpoint" {
+  name                = "sql-private-endpoint"
+  resource_group_name = azurerm_resource_group.rg_sql.name
+  location            = var.location
+  subnet_id           = azurerm_subnet.subnet.id
+
+  private_service_connection {
+    name                           = "sql-connection"
+    private_connection_resource_id = azurerm_mssql_server.sql_server.id
+    subresource_names              = ["sqlServer"] # Correct way to specify the subresource
+    is_manual_connection           = false
+  }
+
+  depends_on = [
+    azurerm_subnet.subnet,
+    azurerm_virtual_network.vnet,
+    azurerm_mssql_server.sql_server
+  ] # Ensure dependencies are created first
 }
 
