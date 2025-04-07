@@ -1,6 +1,4 @@
-subscription_id                        = "096534ab-9b99-4153-8505-90d030aa4f08" // Azure subscription ID
-client_id                              = "1f75e76c-daab-4eae-81e6-3e94138bd16a"           // Azure service principal client ID
-client_secret                          = "X-O8Q~BzuZOHqZQD.fvRxuwYZl4ysGmGCikI7cc6"       // Azure service principal client secret
+subscription_id                        = "096534ab-9b99-4153-8505-90d030aa4f08" // Azure subscription ID // Azure service principal client secret
 tenant_id                              = "0e4b57cd-89d9-4dac-853b-200a412f9d3c" // Azure Active Directory tenant ID
 
 environment                            = "dev"                                  // Environment name
