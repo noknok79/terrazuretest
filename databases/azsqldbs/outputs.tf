@@ -48,6 +48,7 @@ output "log_analytics_workspace_id" {
 
 output "primary_access_key" {
   value = azurerm_storage_account.sql_storage.primary_access_key
+  sensitive  = true
 }
 
 output "primary_blob_endpoint" {

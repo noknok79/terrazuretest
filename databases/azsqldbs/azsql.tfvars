@@ -1,4 +1,3 @@
-azsqldbs_config = {
   # General Configuration
   environment = "dev"
   location    = "westus"
@@ -37,4 +36,3 @@ azsqldbs_config = {
   # Resource Group
   resource_group_name = "rg-sql-dev-eastus"
   project             = "mssql-server-project"
-}
