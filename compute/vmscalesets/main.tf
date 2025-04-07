@@ -1,128 +1,137 @@
-# This Terraform configuration defines resources for a Virtual Machine Scale Set.
-# These resources have been set in the vmscaleset.plan file.
-# To execute this configuration, use the following command:
-# terraform plan -var-file="compute/vmscalesets/vmscalesets.tfvars" --out="vmscaleset.plan" --input=false
-# To destroy, use the following command:
-# #1 terraform plan -destroy -var-file="compute/vmscalesets/vmscalesets.tfvars" --input=false
-# #2 terraform destroy -var-file="compute/vmscalesets/vmscalesets.tfvars" --input=false
-# If errors occur with locks, use the command:
-# terraform force-unlock -force <lock-id>
-terraform {
-  required_version = ">= 1.5.0"
-
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = ">= 4.0.0, < 5.0.0" # Use the latest stable version
-    }
-  }
-}
-
+# Provider Configuration
 provider "azurerm" {
-
   features {}
-  alias                           = "vmssazure"
-  resource_provider_registrations = "none"
-  subscription_id                 = var.subscription_id
+
+  subscription_id = var.subscription_id
+  client_id       = var.client_id
+  client_secret   = var.client_secret
+  tenant_id       = var.tenant_id
 }
 
 # Resource Group
-resource "azurerm_resource_group" "rg_vmss" {
-  name     = "RG-vmss-${var.environment}-${replace(var.location, " ", "-")}"
+resource "azurerm_resource_group" "rg" {
+  name     = var.rg_vmss
   location = var.location
-  tags     = var.tags
+
+  tags = {
+    environment = var.environment
+    owner       = "team-name"
+  }
 }
 
 # Virtual Network
-resource "azurerm_virtual_network" "vnet_vmss" {
-  name                = "vnet-vmss-${var.environment}-${replace(var.location, " ", "-")}"
-  location            = azurerm_resource_group.rg_vmss.location
-  resource_group_name = azurerm_resource_group.rg_vmss.name
-  address_space       = ["10.2.0.0/16"]
-  tags                = var.tags
+resource "azurerm_virtual_network" "vnet" {
+  name                = "vnet-vmscaleset"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  tags = {
+    environment = "production"
+    owner       = "team-name"
+  }
 }
 
 # Subnet
-resource "azurerm_subnet" "subnet_vmss" {
-  name                 = "subnet-vmss-${var.environment}-${replace(var.location, " ", "-")}"
-  resource_group_name  = azurerm_resource_group.rg_vmss.name
-  virtual_network_name = azurerm_virtual_network.vnet_vmss.name
-  address_prefixes     = ["10.2.1.0/24"]
-  depends_on           = [azurerm_virtual_network.vnet_vmss] # Ensures the virtual network is created first
+resource "azurerm_subnet" "subnet" {
+  name                 = "subnet-vmscaleset"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.1.0/24"]
 }
 
-# Load Balancer
-resource "azurerm_lb" "lb_vmss" {
-  name                = "lb-vmss-${var.environment}-${replace(var.location, " ", "-")}"
-  location            = azurerm_resource_group.rg_vmss.location
-  resource_group_name = azurerm_resource_group.rg_vmss.name
-  sku                 = "Standard"
+# Network Security Group
+resource "azurerm_network_security_group" "nsg" {
+  name                = "nsg-vmscaleset"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
 
-  frontend_ip_configuration {
-    name                          = "frontend"
-    private_ip_address_allocation = "Dynamic"
-    subnet_id                     = azurerm_subnet.subnet_vmss.id
+  security_rule {
+    name                       = "Allow-SSH"
+    priority                   = 1001
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
   }
 
-  tags = var.tags
-
-  depends_on = [azurerm_subnet.subnet_vmss] # Ensures the subnet is created first
+  tags = {
+    environment = "production"
+    owner       = "team-name"
+  }
 }
 
-# Define the backend address pool for the load balancer
-resource "azurerm_lb_backend_address_pool" "lb_backend_pool_vmss" {
-  name            = "backend-pool-vmss"
-  loadbalancer_id = azurerm_lb.lb_vmss.id
+# Network Interface
+resource "azurerm_network_interface" "nic" {
+  name                = "nic-vmscaleset"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  ip_configuration {
+    name                          = "ipconfig-vmscaleset"
+    subnet_id                     = azurerm_subnet.subnet.id
+    private_ip_address_allocation = "Dynamic"
+  }
+
+  tags = {
+    environment = "production"
+    owner       = "team-name"
+  }
 }
 
 # Virtual Machine Scale Set
-# skip-check: CKV_AZURE_49 # "Ensure Azure linux scale set does not use basic authentication(Use SSH Key Instead)"
 resource "azurerm_linux_virtual_machine_scale_set" "vmss" {
-  name                = "vmss-${var.environment}-${replace(var.location, " ", "-")}"
-  location            = azurerm_resource_group.rg_vmss.location
-  resource_group_name = azurerm_resource_group.rg_vmss.name
-  sku                 = "Standard_DS1_v2"
-  instances           = 2
-  admin_username      = var.admin_username
+  name                = var.vmss_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  sku                 = var.vmss_sku
+  instances           = var.vmss_instances
 
-  // Use SSH key instead of password
+  admin_username = var.admin_username
+
+  # Configure SSH authentication
   admin_ssh_key {
     username   = var.admin_username
     public_key = file(var.ssh_public_key_path)
   }
 
-  network_interface {
-    name    = "nic-vmss"
-    primary = true
+  source_image_reference {
+    publisher = var.vmss_image_publisher
+    offer     = var.vmss_image_offer
+    sku       = var.vmss_image_sku
+    version   = var.vmss_image_version
+  }
 
+  network_interface {
+    name    = var.nic_name
+    primary = true # Mark this network interface as primary
     ip_configuration {
-      name                                   = "ipconfig1"
-      subnet_id                              = azurerm_subnet.subnet_vmss.id
-      load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.lb_backend_pool_vmss.id]
+      name      = var.nic_ip_config_name
+      primary   = true # Mark this IP configuration as primary
+      subnet_id = azurerm_subnet.subnet.id
     }
   }
 
   os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
+    caching              = var.vmss_os_disk_caching
+    storage_account_type = var.vmss_os_disk_storage_account_type
   }
 
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
-    version   = "latest"
-  }
+  tags = var.tags
 
-  // Enable encryption at host
-  # encryption_at_host_enabled = true
+  # Explicit dependencies
+  depends_on = [
+    azurerm_resource_group.rg,
+    azurerm_virtual_network.vnet,
+    azurerm_subnet.subnet,
+    azurerm_network_security_group.nsg
+  ]
+}
 
-  # Skip CKV_AZURE_49 check
-  lifecycle {
-    ignore_changes = [tags]
-  }
-
-  tags = merge(var.tags, { "skip_check" = "CKV_AZURE_49" })
-
-  # depends_on = [azurerm_lb.lb_vmss, azurerm_subnet.subnet_vmss] # Ensures the load balancer and subnet are created first
+# Output
+output "vmss_name" {
+  value = azurerm_linux_virtual_machine_scale_set.vmss.name
 }
