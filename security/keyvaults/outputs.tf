@@ -29,22 +29,9 @@ output "virtual_network_id" {
 }
 
 # Output the Subnet name
-output "subnet_name" {
-  description = "The name of the subnet"
-  value       = azurerm_subnet.keyvault_subnet.name
-}
 
-# Output the Subnet ID
-output "subnet_id" {
-  description = "The ID of the subnet"
-  value       = azurerm_subnet.keyvault_subnet.id
-}
 
-# Output the Key Vault name
-output "keyvault_name" {
-  description = "The name of the Key Vault"
-  value       = azurerm_key_vault.keyvault.name
-}
+
 
 # Output the Key Vault ID
 output "keyvault_id" {
@@ -56,4 +43,27 @@ output "keyvault_id" {
 output "keyvault_tenant_id" {
   description = "The tenant ID of the Key Vault"
   value       = azurerm_key_vault.keyvault.tenant_id
+}
+
+output "subnet_name" {
+  description = "The name of the subnet"
+  value       = azurerm_subnet.keyvault_subnet.name
+}
+
+# Output the Subnet ID
+output "subnet_id" {
+  description = "The ID of the subnet"
+  value       = azurerm_subnet.keyvault_subnet.id
+}
+
+
+
+output "keyvault_name" {
+  description = "The name of the Key Vault"
+  value       = azurerm_key_vault.keyvault.name
+}
+
+output "keyvault_uri" {
+  description = "The URI of the Key Vault"
+  value       = azurerm_key_vault.keyvault.vault_uri
 }

@@ -3,7 +3,6 @@ tenant_id       = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
 resource_group_name = "RG-KEYVAULT"
 location            = "East US"
 
-keyvault_name            = "my-keyvault"
 admin_object_id          = "ac2a3d05-eff3-4e60-baa6-4e15c08ddc4d"
 keyvault_secret_value    = ">ha.16mGCKKj/RL5Oj(I%T,Bc49}S'"
 sku_name                 = "standard"
@@ -11,7 +10,7 @@ enable_rbac_authorization = true
 soft_delete_retention_days = 90
 enable_purge_protection  = true
 public_network_access_enabled = true
-
+keyvault_name            = "keyvault-dev-eastust"
 key_name = "key-dev-eastust"
 virtual_network_name = "vnet-keyvault"
 vnet_address_space                = ["10.0.0.0/16"]
@@ -19,8 +18,8 @@ subnet_address_prefixes           = ["10.0.1.0/24"]
 subnet_service_endpoints          = ["Microsoft.KeyVault"]
 private_endpoint_subnet_address_prefixes = ["10.0.2.0/24"]
 private_endpoint_service_endpoints = ["Microsoft.Storage"]
-subnet_id                         = "/subscriptions/096534ab-9b99-4153-8505-90d030aa4f08/resourceGroups/RG-NETWORK/providers/Microsoft.Network/virtualNetworks/vnet-keyvault/subnets/subnet1"
-
+#subnet_id                         = "/subscriptions/096534ab-9b99-4153-8505-90d030aa4f08/resourceGroups/RG-NETWORK/providers/Microsoft.Network/virtualNetworks/vnet-keyvault/subnets/subnet1"
+subnet_id = ""
 storage_account_id = "/subscriptions/096534ab-9b99-4153-8505-90d030aa4f08/resourceGroups/RG-STORAGE/providers/Microsoft.Storage/storageAccounts/mystorageaccount"
 
 log_analytics_workspace_id = "/subscriptions/096534ab-9b99-4153-8505-90d030aa4f08/resourceGroups/RG-LOG/providers/Microsoft.OperationalInsights/workspaces/my-log-analytics"

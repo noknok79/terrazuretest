@@ -1,7 +1,27 @@
-# Provider configuration
+terraform {
+  required_version = ">= 1.4.6"
+
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 3.64.0"
+    }
+  }
+}
+
 provider "azurerm" {
   features {}
+
   subscription_id = var.subscription_id
+  tenant_id       = var.tenant_id
+}
+
+provider "azurerm" {
+  alias           = "keyvault"
+  features {}
+
+  subscription_id = var.subscription_id
+  tenant_id       = var.tenant_id
 }
 
 # Resource Group
@@ -42,8 +62,8 @@ resource "azurerm_virtual_network" "keyvault_vnet" {
 # Subnet
 resource "azurerm_subnet" "keyvault_subnet" {
   name                 = var.subnet_name
-  resource_group_name  = var.resource_group_name
-  virtual_network_name = var.virtual_network_name
+  resource_group_name  = azurerm_resource_group.keyvault_rg.name # Ensure this matches the Key Vault's resource group
+  virtual_network_name = azurerm_virtual_network.keyvault_vnet.name
   address_prefixes     = var.subnet_address_prefixes
 
   service_endpoints = var.subnet_service_endpoints
@@ -55,7 +75,7 @@ resource "azurerm_subnet" "keyvault_subnet" {
 resource "azurerm_key_vault" "keyvault" {
   name                        = "kv-${var.project}-${var.environment}-${random_string.keyvault_suffix.result}"
   location                    = var.location
-  resource_group_name         = var.resource_group_name
+  resource_group_name         = azurerm_resource_group.keyvault_rg.name
   tenant_id                   = data.azurerm_client_config.current.tenant_id
   sku_name                    = var.key_vault_sku_name
   purge_protection_enabled    = var.key_vault_purge_protection_enabled
@@ -71,7 +91,7 @@ resource "azurerm_key_vault" "keyvault" {
     default_action             = var.key_vault_default_action
     bypass                     = var.key_vault_bypass
     ip_rules                   = var.ip_rules
-    virtual_network_subnet_ids = [azurerm_subnet.keyvault_subnet.id]
+    virtual_network_subnet_ids = [azurerm_subnet.keyvault_subnet.id] # Reference the correct subnet ID
   }
 
   depends_on = [azurerm_virtual_network.keyvault_vnet, azurerm_subnet.keyvault_subnet]

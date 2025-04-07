@@ -1,85 +1,79 @@
+# Variable group configuration block
+
 variable "keyvault_config" {
-  description = "Configuration for the Azure Key Vault"
+  description = "Configuration for Key Vault and related resources"
   type = object({
-    resource_group_name = string
-    keyvault_name       = string
-    key_name            = string
-    tenant_id           = string
-    object_id           = string
-    access_policies     = list(object({
+    subscription_id                        = string
+    tenant_id                              = string
+    resource_group_name                    = string
+    location                               = string
+    environment                            = string
+    keyvault_name                          = string
+    owner                                  = string
+    project                                = string
+    virtual_network_name                   = string
+    virtual_network_address_space          = list(string)
+    subnet_name                            = string
+    subnet_address_prefixes                = list(string)
+    subnet_service_endpoints               = list(string)
+        subnet_id                              = string # Added subnet_id variable
+
+    key_vault_sku_name                     = string
+    key_vault_purge_protection_enabled     = bool
+    key_vault_public_network_access_enabled = bool
+    key_vault_default_action               = string
+    key_vault_bypass                       = string
+    ip_rules                               = list(string)
+    access_policies                        = map(object({
       tenant_id               = string
       object_id               = string
-      key_permissions         = list(string)
       secret_permissions      = list(string)
+      key_permissions         = list(string)
       certificate_permissions = list(string)
     }))
-    location            = string
-    enable_purge_protection = bool
-    enable_rbac_authorization = bool
-    network_acls_bypass = string
-    access_policies_object_ids = list(string)
-    access_policies_tenant_ids = list(string)
-    consistency_level   = string
-    subnet_id           = string
-    soft_delete_retention_days = number
-    owner               = string
-    keyvault_name_alias = string
-    sku_name            = string
-    network_acls_default_action = string
-    network_acls_ip_rules = list(string)
-    network_acls_virtual_network_ids = list(string)
-    key_vault_key_id    = string
-    enable_soft_delete  = bool
-    tags                = map(string)
-    environment         = string
-    project             = string
+    network_acls_virtual_network_ids       = list(string)
+    tags                                   = map(string)
+    sku_name                               = string
+    cost_center                            = string
   })
   default = {
-    resource_group_name = "RG-KEYVAULT"
-    keyvault_name       = "keyvault-dev-eastus"
-    key_name            = "keyvault-key-dev-eastus"
-    tenant_id           = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
-    object_id           = "394166a3-9a96-4db9-94b7-c970f2c97b27"
+    subscription_id                        = "096534ab-9b99-4153-8505-90d030aa4f08"
+    tenant_id                              = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
+    resource_group_name                    = "RG-KEYVAULT"
+    location                               = "East US"
+    environment                            = "dev"
+    keyvault_name                           = "keyvault-dev-eastust"
+    owner                                  = "John Doe"
+    project                                = "my-project"
+    virtual_network_name                   = "vnet-keyvault"
+    virtual_network_address_space          = ["10.0.0.0/16"]
+    subnet_name                            = "subnet-keyvault"
+    subnet_address_prefixes                = ["10.0.1.0/24"]
+    subnet_service_endpoints               = ["Microsoft.KeyVault"]
+    subnet_id                              = "subnet-id-placeholder" # Default value for subnet_id
 
-    access_policies     = [
-      {
+    key_vault_sku_name                     = "standard"
+    key_vault_purge_protection_enabled     = true
+    key_vault_public_network_access_enabled = false
+    key_vault_default_action               = "Deny"
+    key_vault_bypass                       = "AzureServices"
+    ip_rules                               = ["136.158.30.104", "136.158.30.105"]
+    access_policies = {
+      admin_policy = {
         tenant_id               = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
-        object_id               = "394166a3-9a96-4db9-94b7-c970f2c97b27"
-        key_permissions         = [
-    "Get", "List", "Create", "Delete", "Update", "Import", "Recover", "Backup", "Restore", "Getrotationpolicy", "Setrotationpolicy",
-    "Rotate"]
-        secret_permissions      = [
-    "Get", "List", "Set", "Delete", "Recover", "Backup", "Restore"
-  ]
-        certificate_permissions = [
-    "Get", "List", "Create", "Delete", "Import", "Update", "ManageContacts", "GetIssuers", "ListIssuers", "SetIssuers", "DeleteIssuers", "ManageIssuers", "Recover", "Backup", "Restore"
-  ]
+        object_id               = "ac2a3d05-eff3-4e60-baa6-4e15c08ddc4d"
+        secret_permissions      = ["Get", "List"]
+        key_permissions         = ["Get", "List"]
+        certificate_permissions = ["Get", "List"]
       }
-    ]
-    location            = "East US"
-    enable_purge_protection = true
-    enable_rbac_authorization = true
-    network_acls_bypass = "AzureServices"
-    access_policies_object_ids = []
-    access_policies_tenant_ids = []
-    consistency_level   = ""
-    subnet_id           = ""
-    soft_delete_retention_days = 90
-    owner               = "John Doe"
-    keyvault_name_alias = ""
-    sku_name            = "standard"
-    network_acls_default_action = "Deny"
-    network_acls_ip_rules = ["136.158.57.203", "136.158.57.204"]
-    network_acls_virtual_network_ids = []
-    key_vault_key_id    = ""
-    enable_soft_delete  = true
-    tags                = {
-      Environment = "dev"
-      Owner       = "John Doe"
-      ManagedBy   = "Terraform"
     }
-    environment         = "dev"
-    project             = "my-project"
+    network_acls_virtual_network_ids       = []
+    tags = {
+      environment = "dev"
+      owner       = "default_owner"
+      project     = "default_project"
+    }
+    sku_name                               = "standard"
+    cost_center                            = "IT-001"
   }
 }
-

@@ -1,7 +1,7 @@
 # Copilot Instructions
 
 - **@azure Rule - Use Azure Best Practices**: When generating code for Azure, running terminal commands for Azure, or performing operations related to Azure, invoke your `get_azure_best_practices` tool if available.
-- **@workspace /fix**: Ensure that any fixes or updates provided align with the workspace's context and follow the specified coding standards and best practices. When using **@workspace /fix**, refer to the resources linked below for guidance and best practices.
+- **@workspace /fix**: Ensure that all fixes or updates align with the workspace's context, adhering to the specified coding standards and best practices. When using **@workspace /fix**, automatically refer to the resources linked below for guidance and best practices.
 
 ## Resources
 

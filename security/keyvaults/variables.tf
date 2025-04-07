@@ -3,11 +3,13 @@ variable "subscription_id" {
 }
 
 variable "resource_group_name" {
-  description = "Name of the resource group"
+  description = "The name of the resource group"
+  type        = string
 }
 
 variable "location" {
-  description = "Azure region for the resources"
+  description = "The location of the Key Vault"
+  type        = string
 }
 
 variable "environment" {
@@ -33,7 +35,7 @@ variable "virtual_network_address_space" {
 
 variable "subnet_name" {
   description = "Name of the subnet"
-  default     = "keyvault-subnet"
+  default     = "subnet-keyvault"
 }
 
 variable "subnet_address_prefixes" {
@@ -94,23 +96,37 @@ variable "network_acls_virtual_network_ids" {
 }
 
 variable "tags" {
-  description = "Tags to apply to all resources"
+  description = "Tags to apply to the Key Vault"
   type        = map(string)
-  default     = {
-    environment = "dev"
-    owner       = "default_owner"
-    project     = "default_project"
-  }
 }
 
 variable "sku_name" {
-  description = "SKU name for the Key Vault"
+  description = "The SKU name for the Key Vault"
   type        = string
-  default     = "standard" # Adjust the default value if needed
 }
 
 variable "cost_center" {
   description = "Cost center for resource tracking"
   type        = string
   default     = "IT-001" # Adjust the default value if needed
+}
+
+
+
+variable "tenant_id" {
+  description = "The tenant ID for the Key Vault"
+  type        = string
+}
+
+variable "keyvault_name" {
+  description = "The name of the Key Vault"
+  type        = string
+  
+}
+
+# Add your variable declarations here
+
+variable "subnet_id" {
+  description = "The ID of the subnet to associate with the Key Vault network ACLs"
+  type        = string
 }
