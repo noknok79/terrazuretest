@@ -13,10 +13,10 @@ admin_password                         = "A*m0]pEB,m#F]h#~<^S-4/Bc,Zp;Qa"       
 ssh_public_key_path                    = "/root/.ssh/id_rsa.pub"     // Path to the SSH public key file
 
 rg_vmss                                = "rg-vmss-dev"                          // Resource group name
-vnet_name                              = "vnet-vmss-dev"                        // Virtual network name
+vnet_name                              = "vnet-dev-eastus"                        // Virtual network name
 vnet_address_space                     = ["10.0.0.0/16"]                        // Virtual network address space
 
-subnet_name                            = "subnet-vmss-dev"                      // Subnet name
+subnet_name                            = "subnet-vmscaleset"                   // Subnet name
 subnet_address_prefixes                = ["10.0.1.0/24"]                        // Subnet address prefixes
 subnet_id                              = "place-holder-for-subnet-id"           // Subnet ID (replace with actual value)
 

@@ -51,7 +51,15 @@ provider "azurerm" {
   
 }
 # Resource Group for VNet
-
+provider "azurerm" {
+  alias           = "vmss"
+  subscription_id = var.subscription_id
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+}
 
 #
 # VNet Module
@@ -239,5 +247,80 @@ output "keyvault_name" {
 output "keyvault_uri" {
   description = "The URI of the Key Vault"
   value       = module.keyvault.keyvault_uri
+}
+
+# VMSS Module
+module "vmss" {
+  source = "./compute/vmscalesets"
+
+  providers = {
+    azurerm = azurerm.vmss
+  }
+
+  # Azure Configuration
+  subscription_id                  = var.vmss_azure.subscription_id
+  tenant_id                        = var.vmss_azure.tenant_id
+  location                         = var.vmss_azure.location
+  rg_vmss                          = var.vmss_azure.resource_group
+  tags                             = var.vmss_azure.tags
+  environment                      = var.vmss_azure.environment
+
+  # VM Scale Set Configuration
+  vmss_name                        = var.vmss_config.name
+  vmss_sku                         = var.vmss_config.sku
+  vmss_instances                   = var.vmss_config.instances
+  vmss_image_publisher             = var.vmss_config.image.publisher
+  vmss_image_offer                 = var.vmss_config.image.offer
+  vmss_image_sku                   = var.vmss_config.image.sku
+  vmss_image_version               = var.vmss_config.image.version
+  vmss_os_disk_storage_account_type = var.vmss_config.os_disk.storage_account_type
+  vmss_os_disk_caching             = var.vmss_config.os_disk.caching
+  vmss_ip_config_name              = var.vmss_config.ip_config_name
+  nic_name                         = var.vmss_config.nic_name
+  load_balancer_id                 = var.vmss_config.load_balancer_id
+  backend_pool_id                  = var.vmss_config.backend_pool_id
+  log_analytics_workspace_id       = var.vmss_config.log_analytics_workspace_id
+
+  # Networking Configuration
+  admin_username                   = var.vmss_network.admin_username
+  admin_password                   = var.vmss_network.admin_password
+  ssh_public_key_path              = var.vmss_network.ssh_public_key_path
+  vnet_name                        = module.vnet.vnet_name
+  vnet_address_space               = module.vnet.address_space
+  subnet_name                      = module.vnet.vnet_subnets[2].name # Assuming subnet5 is the third element
+  subnet_id                        = lookup(
+    { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.id },
+    "subnet-vmscaleset"
+  )
+  subnet_address_prefixes          = [module.vnet.vnet_subnets[2].address_prefix] # Assuming subnet5 is the third element
+  public_ip_enabled                = var.vmss_network.public_ip_enabled
+  nic_ip_config_name               = var.vmss_network.nic_ip_config_name
+  nic_ip_allocation                = var.vmss_network.nic_ip_allocation
+  nsg_name                         = var.vmss_network.nsg_name
+  nsg_rule_name                    = var.vmss_network.nsg_rule.name
+  nsg_rule_priority                = var.vmss_network.nsg_rule.priority
+  nsg_rule_protocol                = var.vmss_network.nsg_rule.protocol
+  nsg_rule_direction               = var.vmss_network.nsg_rule.direction
+  nsg_rule_access                  = var.vmss_network.nsg_rule.access
+  nsg_rule_source_address_prefix   = var.vmss_network.nsg_rule.source_address_prefix
+  nsg_rule_source_port_range       = var.vmss_network.nsg_rule.source_port_range
+  nsg_rule_destination_address_prefix = var.vmss_network.nsg_rule.destination_address_prefix
+  nsg_rule_destination_port_range  = var.vmss_network.nsg_rule.destination_port_range
+}
+
+# Outputs for VMSS
+output "vmss_id" {
+  description = "The ID of the Virtual Machine Scale Set"
+  value       = module.vmss.vmss_id
+}
+
+output "vmss_name" {
+  description = "The name of the Virtual Machine Scale Set"
+  value       = module.vmss.vmss_name
+}
+
+output "vmss_instance_count" {
+  description = "The current instance count of the Virtual Machine Scale Set"
+  value       = module.vmss.instance_count
 }
 

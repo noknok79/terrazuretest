@@ -15,22 +15,34 @@ output "subnet_name" {
 
 # Output for Virtual Machine Scale Set Instances
 output "vmss_instances" {
-  description = "The number of instances in the Virtual Machine Scale Set."
-  value       = azurerm_linux_virtual_machine_scale_set.vmss.instances
+  description = "The number of instances in the VM Scale Set"
+  value       = azurerm_virtual_machine_scale_set.vmss.sku[0].capacity
 }
 
 # Output for Virtual Machine Scale Set SKU
 output "vmss_sku" {
-  description = "The SKU of the Virtual Machine Scale Set."
-  value       = azurerm_linux_virtual_machine_scale_set.vmss.sku
+  description = "The SKU of the VM Scale Set"
+  value       = azurerm_virtual_machine_scale_set.vmss.sku[0].name
 }
 
 # Output for Virtual Machine Scale Set ID
 output "vmss_id" {
-  value = azurerm_linux_virtual_machine_scale_set.vmss.id
+  description = "The ID of the VM Scale Set"
+  value       = azurerm_virtual_machine_scale_set.vmss.id
 }
 
 # Output for Virtual Machine Scale Set Public IP
 output "vmss_public_ip" {
   value = azurerm_network_interface.nic.ip_configuration[0].private_ip_address
+}
+
+output "instance_count" {
+  description = "The current instance count of the Virtual Machine Scale Set"
+  value       = azurerm_virtual_machine_scale_set.vmss.sku[0].capacity
+}
+
+# Output for Virtual Machine Scale Set Name
+output "vmss_name" {
+  description = "The name of the VM Scale Set"
+  value       = azurerm_virtual_machine_scale_set.vmss.name
 }

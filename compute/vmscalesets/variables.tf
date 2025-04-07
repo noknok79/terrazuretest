@@ -218,3 +218,11 @@ variable "vmss_nic_name" {
   type        = string
   default     = "vmss-nic"
 }
+
+# Add your variable declarations here
+
+variable "vmss_network_profile_name" {
+  description = "The name of the network profile for the VM scale set."
+  type        = string
+  default     = "vmss-network-profile"
+}
