@@ -82,6 +82,53 @@ resource "azurerm_network_interface" "nic" {
   }
 }
 
+# Load Balancer
+resource "azurerm_lb" "lb" {
+  name                = "lb-vmscaleset"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  sku                 = "Standard"
+
+  frontend_ip_configuration {
+    name                 = "lb-frontend"
+    subnet_id            = azurerm_subnet.subnet.id
+    private_ip_address_allocation = "Dynamic"
+  }
+
+  tags = {
+    environment = var.environment
+    owner       = "team-name"
+  }
+}
+
+# Load Balancer Backend Address Pool
+resource "azurerm_lb_backend_address_pool" "lb_backend_pool" {
+  name            = "lb-backend-pool"
+  loadbalancer_id = azurerm_lb.lb.id
+}
+
+# Load Balancer Probe
+resource "azurerm_lb_probe" "lb_probe" {
+  name            = "lb-probe"
+  loadbalancer_id = azurerm_lb.lb.id
+  protocol        = "Tcp"
+  port            = 80
+  interval_in_seconds = 5
+  number_of_probes    = 2
+}
+
+# Load Balancer Rule
+resource "azurerm_lb_rule" "lb_rule" {
+  name                           = "lb-rule"
+  loadbalancer_id                = azurerm_lb.lb.id
+  protocol                       = "Tcp"
+  frontend_port                  = 80
+  backend_port                   = 80
+  frontend_ip_configuration_name = azurerm_lb.lb.frontend_ip_configuration[0].name
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.lb_backend_pool.id]
+  probe_id                       = azurerm_lb_probe.lb_probe.id
+}
+
 # Virtual Machine Scale Set
 resource "azurerm_linux_virtual_machine_scale_set" "vmss" {
   name                = var.vmss_name
@@ -107,11 +154,14 @@ resource "azurerm_linux_virtual_machine_scale_set" "vmss" {
 
   network_interface {
     name    = var.nic_name
-    primary = true # Mark this network interface as primary
+    primary = true
     ip_configuration {
-      name      = var.nic_ip_config_name
-      primary   = true # Mark this IP configuration as primary
-      subnet_id = azurerm_subnet.subnet.id
+      name                          = var.nic_ip_config_name
+      primary                       = true
+      subnet_id                     = azurerm_subnet.subnet.id
+      load_balancer_backend_address_pool_ids = [
+        azurerm_lb_backend_address_pool.lb_backend_pool.id
+      ]
     }
   }
 
@@ -127,7 +177,9 @@ resource "azurerm_linux_virtual_machine_scale_set" "vmss" {
     azurerm_resource_group.rg,
     azurerm_virtual_network.vnet,
     azurerm_subnet.subnet,
-    azurerm_network_security_group.nsg
+    azurerm_network_security_group.nsg,
+    azurerm_lb.lb,
+    azurerm_lb_backend_address_pool.lb_backend_pool
   ]
 }
 
