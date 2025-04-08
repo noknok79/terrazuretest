@@ -92,7 +92,6 @@ module "compute_vm" {
   }
 
   resource_group_name           = var.vm_config.resource_group_name
- 
   location                      = var.vm_config.location
   prefix                        = var.vm_config.prefix
   vm_size                       = var.vm_config.vm_size
@@ -103,17 +102,24 @@ module "compute_vm" {
   linux_custom_script_command   = var.vm_config.linux_custom_script_command
   windows_custom_script_command = var.vm_config.windows_custom_script_command
   tags                          = var.vm_config.tags
-  environment         = var.vm_config.environment
-  project             = var.vm_config.project
+  environment                   = var.vm_config.environment
+  project                       = var.vm_config.project
   os_type                       = var.vm_config.os_type
   ssh_public_key                = file("/root/.ssh/id_rsa.pub")
 
+  # Networking Configuration
   virtual_network_name  = module.vnet.vnet_name
-  subnet_name           = module.vnet.vnet_subnets[2].name # Assuming subnet5 is the third element
   address_space         = module.vnet.address_space
-  subnet_address_prefix = module.vnet.vnet_subnets[2].address_prefix # Assuming subnet5 is the third element
-  subnet_id = lookup(
+  subnet_id             = lookup(
     { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.id },
+    "subnet-computevm"
+  )
+  subnet_name           = lookup(
+    { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.name },
+    "subnet-computevm"
+  )
+  subnet_address_prefix = lookup(
+    { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.address_prefix },
     "subnet-computevm"
   )
 }
@@ -132,8 +138,8 @@ module "aks" {
   resource_group_name = var.aks_config.resource_group_name
   location            = var.aks_config.location
   dns_prefix          = var.aks_config.dns_prefix
-  vnet_name           = module.vnet.vnet_name
-  subnet_id = lookup(
+  vnet_name  = module.vnet.vnet_name
+  subnet_id  = lookup(
     { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.id },
     "subnet-akscluster"
   )
@@ -165,11 +171,22 @@ module "keyvault" {
   sku_name              = var.keyvault_config.sku_name
   tenant_id             = var.tenant_id
   subscription_id       = var.subscription_id
+
+  # Networking Configuration
   virtual_network_name  = module.vnet.vnet_name
   subnet_id             = lookup(
     { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.id },
     "subnet-keyvault"
   )
+  subnet_name           = lookup(
+    { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.name },
+    "subnet-keyvault"
+  )
+  subnet_address_prefixes = [lookup(
+    { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.address_prefix },
+    "subnet-keyvault"
+  )]
+
   owner                 = var.keyvault_config.owner
 
   # Access Policies
