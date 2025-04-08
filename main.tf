@@ -365,11 +365,20 @@ module "azsql" {
   resource_group_name = var.config.resource_group_name
 
   # Networking Configuration
-  vnet_name = module.vnet.vnet_name
-  subnet_id = lookup(
+  vnet_name             = module.vnet.vnet_name
+  vnet_address_space    = module.vnet.address_space
+  subnet_id             = lookup(
     { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.id },
     "subnet-azsqldbs"
   )
+  subnet_name           = lookup(
+    { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.name },
+    "subnet-azsqldbs"
+  )
+  subnet_address_prefix = [lookup(
+    { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.address_prefix },
+    "subnet-azsqldbs"
+  )]
 }
 
 output "sql_server_name" {
@@ -385,5 +394,14 @@ output "sql_database_names" {
 output "sql_private_endpoint_ip" {
   description = "The private IP address of the private endpoint for the Azure SQL Server"
   value       = module.azsql.sql_private_endpoint_ip
+}
+
+output "azsql_subnet_name" {
+  description = "The name of the subnet for the Azure SQL Server"
+  value       = module.azsql.subnet_name
+}
+output "azsql_vnet_name" {
+  description = "The name of the virtual network for the Azure SQL Server"
+  value       = module.azsql.vnet_name
 }
 

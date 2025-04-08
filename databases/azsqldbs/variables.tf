@@ -121,6 +121,6 @@ variable "subnet_id" {
 }
 
 variable "subnet_name" {
-  description = "The name of the Subnet for Azure SQL"
+  description = "The name of the subnet for the Azure SQL Server"
   type        = string
 }

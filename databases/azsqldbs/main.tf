@@ -55,7 +55,7 @@ resource "azurerm_virtual_network" "vnet" {
 
 # Create Subnet
 resource "azurerm_subnet" "subnet" {
-  name                 = "sql-subnet"
+  name                 = var.subnet_name
   resource_group_name  = azurerm_resource_group.rg_sql.name # Use the resource group created by Terraform
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = var.subnet_address_prefix
@@ -80,7 +80,7 @@ resource "azurerm_storage_account" "sql_storage" {
 
 # Updated Storage Container for SQL Vulnerability Assessment
 resource "azurerm_storage_container" "sql_va_container" {
-  name                  = "sqlvulnerability${random_string.random_suffix.result}"
+  name                  = "sql${random_string.random_suffix.result}vulnerability"
   storage_account_id    = azurerm_storage_account.sql_storage.id # Updated to use storage_account_id
   container_access_type = "private"
 

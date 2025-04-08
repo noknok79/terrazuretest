@@ -118,3 +118,8 @@ output "vnet_name" {
 output "subnet_id" {
   value = azurerm_subnet.subnet.id
 }
+
+output "subnet_name" {
+  description = "The name of the subnet used by the Azure SQL Server"
+  value       = var.subnet_name
+}

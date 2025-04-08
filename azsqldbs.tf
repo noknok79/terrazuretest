@@ -21,6 +21,7 @@ variable "config" {
     admin_password              = string
     vnet_address_space          = list(string)
     subnet_address_prefix       = list(string)
+    subnet_name                 = string
   })
 
   default = {
@@ -47,5 +48,6 @@ variable "config" {
     resource_group_name       = "rg-sql-dev-eastus"
     vnet_address_space        = ["10.0.0.0/16"]
     subnet_address_prefix     = ["10.0.1.0/24"]
+    subnet_name               = "subnet-azsqldbs"
   }
 }
