@@ -45,9 +45,35 @@ variable "config" {
     aad_admin_object_id       = "394166a3-9a96-4db9-94b7-c970f2c97b27"
     admin_username            = "adminuser"
     admin_password            = "xQ3@mP4z!Bk8*wHy" # Replace with a secure password
-    resource_group_name       = "rg-sql-dev-eastus"
+    resource_group_name       = "RG-AZSQLDBS"
     vnet_address_space        = ["10.0.0.0/16"]
     subnet_address_prefix     = ["10.0.1.0/24"]
     subnet_name               = "subnet-azsqldbs"
   }
 }
+
+
+output "sql_server_name" {
+  description = "The name of the Azure SQL Server"
+  value       = module.azsql.sql_server_name
+}
+
+output "sql_database_names" {
+  description = "The names of the Azure SQL Databases"
+  value       = module.azsql.sql_database_names
+}
+
+output "sql_private_endpoint_ip" {
+  description = "The private IP address of the private endpoint for the Azure SQL Server"
+  value       = module.azsql.sql_private_endpoint_ip
+}
+
+output "azsql_subnet_name" {
+  description = "The name of the subnet for the Azure SQL Server"
+  value       = module.azsql.subnet_name
+}
+output "azsql_vnet_name" {
+  description = "The name of the virtual network for the Azure SQL Server"
+  value       = module.azsql.vnet_name
+}
+

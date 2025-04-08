@@ -62,10 +62,28 @@ variable "vnet_config_group" {
 
 
 
-# output "subnet_name" {
-#   description = "The name of the subnet"
-#   value       = module.vnet.subnets[2] # Assuming subnet5 is the third element
+output "vnet_name" {
+  description = "The name of the existing virtual network"
+  value       = module.vnet.vnet_name
+}
 
-# }
+output "vnet_address_space" {
+  description = "The address space of the virtual network"
+  value       = module.vnet.address_space
+}
 
+output "vnet_subnets" {
+  description = "A list of subnets with their details"
+  value       = module.vnet.vnet_subnets
+}
+
+output "subnet_name" {
+  description = "The name of a specific subnet (e.g., subnet5)"
+  value       = module.vnet.vnet_subnets[2].name # Assuming subnet5 is the third element
+}
+
+output "subnet_address_prefix" {
+  description = "The address prefix of a specific subnet (e.g., subnet5)"
+  value       = module.vnet.vnet_subnets[2].address_prefix # Assuming subnet5 is the third element
+}
 

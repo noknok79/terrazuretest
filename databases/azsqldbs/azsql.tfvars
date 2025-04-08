@@ -42,4 +42,4 @@ subnet_address_prefix = ["10.0.1.0/24"]
 vnet_name             = "vnet-sql-dev" # Add the required vnet_name variable
 subnet_id             = "placehoder" # Add the required subnet_id variable
 subnet_name = "subnet-azsqldbs"
-resource_group_name = "rg-sql-dev-eastus" # Add the required resource_group_name variable
+resource_group_name = "RG-AZSQLDBS" # Add the required resource_group_name variable

@@ -73,6 +73,27 @@ variable "vm_config" {
 #   value       = module.vnet.vnet_subnets[2].address_prefix # Assuming subnet5 is the third element
 # }
 
+
+output "vm_id" {
+  description = "The ID of the created virtual machine"
+  value       = module.compute_vm.vm_id
+}
+
+output "vm_name" {
+  description = "The name of the created virtual machine"
+  value       = module.compute_vm.vm_name
+}
+
+output "vm_private_ip" {
+  description = "The private IP address of the virtual machine"
+  value       = module.compute_vm.private_ip
+}
+
+output "vm_public_ip" {
+  description = "The public IP address of the virtual machine (if applicable)"
+  value       = module.compute_vm.public_ip
+}
+
 output "vm_subnet_address_prefixes" {
   description = "A map of subnet names to their address prefixes"
   value = {
@@ -86,3 +107,4 @@ output "vm_subnet_names" {
     for subnet in module.vnet.vnet_subnets : subnet.name => subnet.name
   }
 }
+

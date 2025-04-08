@@ -124,3 +124,20 @@ variable "vmss_config" {
     log_analytics_workspace_id  = "place-holder-for-log-analytics-workspace-id"
   }
 }
+
+
+# Outputs for VMSS
+output "vmss_id" {
+  description = "The ID of the Virtual Machine Scale Set"
+  value       = module.vmss.vmss_id
+}
+
+output "vmss_name" {
+  description = "The name of the Virtual Machine Scale Set"
+  value       = module.vmss.vmss_name
+}
+
+output "vmss_instance_count" {
+  description = "The current instance count of the Virtual Machine Scale Set"
+  value       = module.vmss.instance_count
+}

@@ -77,3 +77,20 @@ variable "keyvault_config" {
     cost_center                            = "IT-001"
   }
 }
+
+
+# Outputs for Key Vault
+output "keyvault_id" {
+  description = "The ID of the Key Vault"
+  value       = module.keyvault.keyvault_id
+}
+
+output "keyvault_name" {
+  description = "The name of the Key Vault"
+  value       = module.keyvault.keyvault_name
+}
+
+output "keyvault_uri" {
+  description = "The URI of the Key Vault"
+  value       = module.keyvault.keyvault_uri
+}

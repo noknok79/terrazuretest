@@ -82,30 +82,6 @@ module "vnet" {
   project             = var.vnet_config_group.project
 }
 
-output "vnet_name" {
-  description = "The name of the existing virtual network"
-  value       = module.vnet.vnet_name
-}
-
-output "vnet_address_space" {
-  description = "The address space of the virtual network"
-  value       = module.vnet.address_space
-}
-
-output "vnet_subnets" {
-  description = "A list of subnets with their details"
-  value       = module.vnet.vnet_subnets
-}
-
-output "subnet_name" {
-  description = "The name of a specific subnet (e.g., subnet5)"
-  value       = module.vnet.vnet_subnets[2].name # Assuming subnet5 is the third element
-}
-
-output "subnet_address_prefix" {
-  description = "The address prefix of a specific subnet (e.g., subnet5)"
-  value       = module.vnet.vnet_subnets[2].address_prefix # Assuming subnet5 is the third element
-}
 
 # Compute VM Module
 module "compute_vm" {
@@ -142,25 +118,6 @@ module "compute_vm" {
   )
 }
 
-output "vm_id" {
-  description = "The ID of the created virtual machine"
-  value       = module.compute_vm.vm_id
-}
-
-output "vm_name" {
-  description = "The name of the created virtual machine"
-  value       = module.compute_vm.vm_name
-}
-
-output "vm_private_ip" {
-  description = "The private IP address of the virtual machine"
-  value       = module.compute_vm.private_ip
-}
-
-output "vm_public_ip" {
-  description = "The public IP address of the virtual machine (if applicable)"
-  value       = module.compute_vm.public_ip
-}
 
 # AKS Module
 module "aks" {
@@ -197,15 +154,6 @@ module "aks" {
   project                         = var.aks_config.project
 }
 
-output "aks_cluster_id" {
-  description = "The ID of the AKS cluster"
-  value       = module.aks.aks_cluster_id
-}
-
-output "aks_cluster_name" {
-  description = "The name of the AKS cluster"
-  value       = module.aks.aks_cluster_name
-}
 
 # Key Vault Module
 module "keyvault" {
@@ -231,22 +179,6 @@ module "keyvault" {
   tags        = var.keyvault_config.tags
   environment = var.keyvault_config.environment
   project     = var.keyvault_config.project
-}
-
-# Outputs for Key Vault
-output "keyvault_id" {
-  description = "The ID of the Key Vault"
-  value       = module.keyvault.keyvault_id
-}
-
-output "keyvault_name" {
-  description = "The name of the Key Vault"
-  value       = module.keyvault.keyvault_name
-}
-
-output "keyvault_uri" {
-  description = "The URI of the Key Vault"
-  value       = module.keyvault.keyvault_uri
 }
 
 # VMSS Module
@@ -308,22 +240,6 @@ module "vmss" {
   nsg_rule_destination_port_range  = var.vmss_network.nsg_rule.destination_port_range
 }
 
-# Outputs for VMSS
-output "vmss_id" {
-  description = "The ID of the Virtual Machine Scale Set"
-  value       = module.vmss.vmss_id
-}
-
-output "vmss_name" {
-  description = "The name of the Virtual Machine Scale Set"
-  value       = module.vmss.vmss_name
-}
-
-output "vmss_instance_count" {
-  description = "The current instance count of the Virtual Machine Scale Set"
-  value       = module.vmss.instance_count
-}
-
 # Azure SQL Module
 module "azsql" {
   source = "./databases/azsqldbs"
@@ -380,28 +296,3 @@ module "azsql" {
     "subnet-azsqldbs"
   )]
 }
-
-output "sql_server_name" {
-  description = "The name of the Azure SQL Server"
-  value       = module.azsql.sql_server_name
-}
-
-output "sql_database_names" {
-  description = "The names of the Azure SQL Databases"
-  value       = module.azsql.sql_database_names
-}
-
-output "sql_private_endpoint_ip" {
-  description = "The private IP address of the private endpoint for the Azure SQL Server"
-  value       = module.azsql.sql_private_endpoint_ip
-}
-
-output "azsql_subnet_name" {
-  description = "The name of the subnet for the Azure SQL Server"
-  value       = module.azsql.subnet_name
-}
-output "azsql_vnet_name" {
-  description = "The name of the virtual network for the Azure SQL Server"
-  value       = module.azsql.vnet_name
-}
-
