@@ -51,6 +51,10 @@ variable "vnet_config_group" {
         name           = "subnet-private-endpoint"
         address_prefix = "10.0.7.0/24"  # Adjusted to avoid overlap
       }
+        subnet9 = {
+        name           = "subnet-cosmosdb"
+        address_prefix = "10.0.8.0/24"  # Adjusted to avoid overlap
+      }
 
     }
     tags = {

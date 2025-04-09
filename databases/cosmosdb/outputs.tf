@@ -1,59 +1,88 @@
 # Output the Resource Group name
 output "resource_group_name" {
-  description = "The name of the Resource Group hosting the Cosmos DB resources"
-  value       = var.resource_group_name
+  description = "The name of the resource group"
+  value       = azurerm_resource_group.keyvault_rg.name
 }
 
-# Output the Cosmos DB Account name
-output "account_name" {
-  description = "The name of the Cosmos DB Account"
-  value       = var.account_name
+# Output the Resource Group location
+output "resource_group_location" {
+  description = "The location of the resource group"
+  value       = azurerm_resource_group.keyvault_rg.location
 }
 
-# Output the Cosmos DB Account location
-output "location" {
-  description = "The location of the Cosmos DB Account"
-  value       = var.location
+# Output the Random String Suffix
+output "keyvault_suffix" {
+  description = "The random string suffix for the Key Vault"
+  value       = random_string.unique_suffix.result
 }
 
-# Output the Cosmos DB Account consistency level
-output "consistency_level" {
-  description = "The consistency level of the Cosmos DB Account"
-  value       = var.consistency_level
+# Output the Virtual Network name
+output "virtual_network_name" {
+  description = "The name of the virtual network"
+  value       = azurerm_virtual_network.keyvault_vnet.name
 }
 
-# Output the Cosmos DB Account throughput
-output "throughput" {
-  description = "The throughput of the Cosmos DB Account"
-  value       = var.throughput
+# Output the Virtual Network ID
+output "virtual_network_id" {
+  description = "The ID of the virtual network"
+  value       = azurerm_virtual_network.keyvault_vnet.id
 }
 
-# Output the subscription ID
-output "subscription_id" {
-  description = "The subscription ID for the Cosmos DB Account"
-  value       = var.subscription_id
+# Output the Subnet name
+
+
+
+
+# Output the Key Vault ID
+output "keyvault_id" {
+  description = "The ID of the Key Vault"
+  value       = azurerm_key_vault.keyvault.id
 }
 
-# Output the Cosmos DB Account endpoint
-output "cosmosdb_account_endpoint" {
-  description = "The endpoint of the Cosmos DB Account"
-  value       = azurerm_cosmosdb_account.cosmosdb.endpoint
+# Output the Key Vault Tenant ID
+output "keyvault_tenant_id" {
+  description = "The tenant ID of the Key Vault"
+  value       = azurerm_key_vault.keyvault.tenant_id
 }
 
-# Output the Cosmos DB SQL Database name
-output "cosmosdb_sql_database_name" {
-  description = "The name of the Cosmos DB SQL Database"
-  value       = azurerm_cosmosdb_sql_database.database.name
+output "subnet_name" {
+  description = "The name of the subnet"
+  value       = azurerm_subnet.keyvault_subnet.name
 }
 
-# Output the Cosmos DB SQL Container name
-output "cosmosdb_sql_container_name" {
-  description = "The name of the Cosmos DB SQL Container"
-  value       = azurerm_cosmosdb_sql_container.container.name
+# Output the Subnet ID
+output "subnet_id" {
+  description = "The ID of the subnet"
+  value       = azurerm_subnet.keyvault_subnet.id
 }
 
-# Output the Cosmos DB SQL Container partition key paths
-output "cosmosdb_sql_container_partition_key_paths" {
-  description = "The partition key paths of the Cosmos DB SQL Container"
-  value       = azurerm_cosmosdb_sql_container.container.partition_key_paths
+
+
+output "keyvault_name" {
+  description = "The name of the Key Vault"
+  value       = azurerm_key_vault.keyvault.name
+}
+
+output "keyvault_uri" {
+  description = "The URI of the Key Vault"
+  value       = azurerm_key_vault.keyvault.vault_uri
+}
+
+
+
+# Output for Cosmos DB Account Endpoint
+output "cosmosdb_endpoint" {
+  value = azurerm_cosmosdb_account.cosmosdb.endpoint
+}
+
+# Output for Cosmos DB Primary Key
+output "cosmosdb_primary_key" {
+  value      = data.azurerm_cosmosdb_account.cosmosdb.primary_key
+  sensitive  = true
+}
+
+# Output for Cosmos DB Secondary Key
+output "cosmosdb_secondary_key" {
+  value      = data.azurerm_cosmosdb_account.cosmosdb.secondary_key
+  sensitive  = true
 }
