@@ -86,3 +86,8 @@ output "cosmosdb_secondary_key" {
   value      = data.azurerm_cosmosdb_account.cosmosdb.secondary_key
   sensitive  = true
 }
+
+output "keyvault_subnet_id" {
+  description = "The ID of the Key Vault subnet"
+  value       = azurerm_subnet.keyvault_subnet.id
+}

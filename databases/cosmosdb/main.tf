@@ -66,20 +66,7 @@ resource "azurerm_subnet" "keyvault_subnet" {
   depends_on = [azurerm_virtual_network.keyvault_vnet] # Ensure the virtual network is created first
 }
 
-# Role Assignment for Subnet Join
-# resource "azurerm_role_assignment" "subnet_join" {
-#   scope                = azurerm_subnet.keyvault_subnet.id
-#   role_definition_name = "Network Contributor"
-#   principal_id         = data.azurerm_client_config.current.client_id
 
-#   depends_on = [azurerm_subnet.keyvault_subnet]
-# }
-
-# Output for Subnet ID
-output "keyvault_subnet_id" {
-  description = "The ID of the Key Vault subnet"
-  value       = azurerm_subnet.keyvault_subnet.id
-}
 
 # Key Vault
 resource "azurerm_key_vault" "keyvault" {
@@ -186,3 +173,5 @@ data "azurerm_cosmosdb_account" "cosmosdb" {
 data "azurerm_client_config" "current" {}
 
 
+
+# Output for Subnet ID

@@ -184,7 +184,8 @@ module "keyvault" {
   )
   subnet_address_prefixes = [lookup(
     { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.address_prefix },
-    "subnet-keyvault"
+    "subnet-keyvault",
+    "10.0.6.0/24" # Updated to a non-overlapping range
   )]
 
   owner                 = var.keyvault_config.owner
@@ -313,3 +314,59 @@ module "azsql" {
     "subnet-azsqldbs"
   )]
 }
+
+# Cosmos DB Module
+module "cosmosdb" {
+  source = "./databases/cosmosdb"
+
+  # General Configuration
+  subscription_id     = var.cosmosdb_config.subscription_id
+  resource_group_name = var.cosmosdb_config.resource_group_name
+  location            = var.cosmosdb_config.location
+  environment         = var.cosmosdb_config.environment
+  owner               = var.cosmosdb_config.owner
+  project             = var.cosmosdb_config.project
+
+  # Required Arguments
+  keyvault_name                = module.keyvault.keyvault_name
+  tenant_id                    = var.tenant_id
+  cosmosdb_partition_key_path  = var.cosmosdb_config.partition_key_path
+  access_policies = tomap({
+    for policy in var.cosmosdb_config.access_policies : 
+    policy.tenant_id => {
+      tenant_id              = policy.tenant_id
+      object_id              = policy.object_id
+      certificate_permissions = policy.permissions.certificates
+      key_permissions         = policy.permissions.keys
+      secret_permissions      = policy.permissions.secrets
+    }
+  })
+  subnet_id                    = lookup(
+    { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.id },
+    var.cosmosdb_config.subnet_name,
+    ""
+  )
+  cosmosdb_sql_container_name  = var.cosmosdb_config.sql_container_name
+  cosmosdb_sql_database_name   = var.cosmosdb_config.sql_database_name
+  sku_name                     = var.cosmosdb_config.sku_name
+
+  # Networking Configuration
+  virtual_network_name           = module.vnet.vnet_name
+  virtual_network_address_space  = module.vnet.address_space
+  subnet_name           = lookup(
+    { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.name },
+    "subnet-cosmosdb"
+  )
+
+  subnet_address_prefixes        = [
+    lookup(
+      { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.address_prefix },
+      var.cosmosdb_config.subnet_name,
+      "10.0.8.0/24" # Default value to avoid null
+    )
+  ]
+
+  # Tags
+  tags = var.cosmosdb_config.tags
+}
+

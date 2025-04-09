@@ -18,6 +18,7 @@
 - [Checkov Documentation](https://spacelift.io/blog/what-is-checkov)
 - [Checkov Docs](https://github.com/bridgecrewio/checkov)
 - [Checkov Azure Documentations](https://www.checkov.io/5.Policy%20Index/terraform.html)
+- [Terraform Community for Azure](https://discuss.hashicorp.com/c/terraform-providers/tf-azure/34)
 
 ## General Best Practices
 - **Resource Naming Conventions**: Use consistent and descriptive names for Azure resources to improve manageability and readability.

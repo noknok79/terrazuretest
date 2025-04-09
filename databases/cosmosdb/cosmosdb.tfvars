@@ -24,15 +24,17 @@ storage_account_id = "/subscriptions/096534ab-9b99-4153-8505-90d030aa4f08/resour
 
 log_analytics_workspace_id = "/subscriptions/096534ab-9b99-4153-8505-90d030aa4f08/resourceGroups/RG-LOG/providers/Microsoft.OperationalInsights/workspaces/my-log-analytics"
 
-access_policies = {
-  admin_policy = {
+access_policies = [
+  {
     tenant_id = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
     object_id = "ac2a3d05-eff3-4e60-baa6-4e15c08ddc4d"
-    secret_permissions = ["Get", "List"]
-    key_permissions = ["Get", "List"]
-    certificate_permissions = ["Get", "List"]
+    permissions = {
+      keys         = ["Get", "List"]
+      secrets      = ["Get", "List"]
+      certificates = ["Get", "List"]
+    }
   }
-}
+]
 
 tags = {
   environment = "dev"
@@ -64,13 +66,13 @@ key_vault_public_network_access_enabled = false
 key_vault_default_action = "Deny"
 key_vault_bypass = "AzureServices"
 
-cosmosdb_consistency_level = "BoundedStaleness"
-cosmosdb_enable_automatic_failover = true
-cosmosdb_enable_multiple_write_locations = true
-cosmosdb_is_virtual_network_filter_enabled = true
-cosmosdb_sql_database_name = "my-cosmosdb-sql-database"
-cosmosdb_sql_container_name = "my-cosmosdb-sql-container"
-cosmosdb_partition_key_path = "/partitionKey"
-cosmosdb_virtual_network_subnet_ids = [
+consistency_level = "BoundedStaleness"
+enable_automatic_failover = true
+enable_multiple_write_locations = true
+is_virtual_network_filter_enabled = true
+sql_database_name = "my-cosmosdb-sql-database"
+sql_container_name = "my-cosmosdb-sql-container"
+partition_key_path = "/partitionKey"
+virtual_network_subnet_ids = [
   "/subscriptions/12345678-1234-9876-4563-123456789012/resourceGroups/example-rg/providers/Microsoft.Network/virtualNetworks/vnet-keyvault/subnets/example-subnet"
 ]

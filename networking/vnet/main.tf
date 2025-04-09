@@ -48,7 +48,7 @@ resource "azurerm_subnet" "vnet_subnets" {
 }
 
 resource "azurerm_subnet" "subnet" {
-  name                 = "subnet-keyvault-${var.environment}"
+  name                 = "subnet-keyvault"
   resource_group_name  = azurerm_resource_group.vnet_rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.6.0/24"]
