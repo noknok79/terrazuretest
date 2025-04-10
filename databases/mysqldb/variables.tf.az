@@ -1,0 +1,5 @@
+variable "mysql_flexible_server_sku" {
+  type        = string
+  default     = "Standard_D2ds_v4" # Valid SKU name
+  description = "SKU for the MySQL Flexible Server."
+}

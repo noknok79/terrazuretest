@@ -55,6 +55,10 @@ variable "vnet_config_group" {
         name           = "subnet-cosmosdb"
         address_prefix = "10.0.8.0/24"  # Adjusted to avoid overlap
       }
+        subnet10 = {
+        name           = "subnet-mysqldb"
+        address_prefix = "10.0.9.0/24"  # Adjusted to avoid overlap
+      }
 
     }
     tags = {

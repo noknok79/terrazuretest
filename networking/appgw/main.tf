@@ -53,17 +53,26 @@ resource "azurerm_network_security_group" "app_gateway_nsg" {
   ]
 }
 
-# Subnet for Application Gateway with NSG
+# Subnet for Application Gateway
 resource "azurerm_subnet" "app_gateway_subnet" {
-  name                      = "subnet-app-gateway"
-  resource_group_name       = azurerm_resource_group.app_gateway_rg.name
-  virtual_network_name      = azurerm_virtual_network.app_gateway_vnet.name
-  address_prefixes          = ["10.0.1.0/24"]
+  name                = "subnet-app-gateway"
+  resource_group_name = azurerm_resource_group.app_gateway_rg.name
+  virtual_network_name = azurerm_virtual_network.app_gateway_vnet.name
+  address_prefixes    = ["10.0.1.0/24"]
+
+  depends_on = [
+    azurerm_virtual_network.app_gateway_vnet
+  ]
+}
+
+# Associate NSG with the Subnet
+resource "azurerm_subnet_network_security_group_association" "app_gateway_subnet_nsg_association" {
+  subnet_id                 = azurerm_subnet.app_gateway_subnet.id
   network_security_group_id = azurerm_network_security_group.app_gateway_nsg.id
 
   depends_on = [
-    azurerm_virtual_network.app_gateway_vnet,
-    azurerm_network_security_group.app_gateway_nsg
+    azurerm_network_security_group.app_gateway_nsg,
+    azurerm_subnet.app_gateway_subnet
   ]
 }
 

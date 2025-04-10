@@ -1,13 +1,14 @@
 # Copilot Instructions
 
 - **@azure Rule - Use Azure Best Practices**: When generating code for Azure, running terminal commands for Azure, or performing operations related to Azure, invoke your `get_azure_best_practices` tool if available.
-- **@workspace /fix**: Ensure that all fixes or updates align with the workspace's context, adhering to the specified coding standards and best practices. When using **@workspace /fix**, automatically refer to the resources linked below for guidance and best practices.
+- **@workspace /fix**, automatically refer to the resources linked on these links https://registry.terraform.io/providers/hashicorp/azurerm/latest
+
 
 ## Resources
-
+- [Github Repository](https://github.com)
+- [AzureRM Terraform Provider Documentation](https://registry.terraform.io/providers/hashicorp/azurerm/latest)
 - [Azure Terraform Developer Guide](https://learn.microsoft.com/en-us/azure/developer/terraform/)
 - [Azure Terraform Overview](https://learn.microsoft.com/en-us/azure/developer/terraform/overview)
-- [AzureRM Terraform Provider Documentation](https://registry.terraform.io/providers/hashicorp/azurerm/latest)
 - [Azure Terraform GitHub Repository](https://github.com/Azure-Terraform)
 - [Terraform on Azure - February 2024 Update](https://techcommunity.microsoft.com/blog/azuretoolsblog/terraform-on-azure-february-2024-update/4070567)
 - [Terraform Questions on DevOps Stack Exchange](https://devops.stackexchange.com/questions/tagged/terraform?updated=true)

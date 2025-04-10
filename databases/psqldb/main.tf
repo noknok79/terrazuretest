@@ -23,15 +23,13 @@ resource "azurerm_postgresql_flexible_server" "psql_server" {
   name                   = "psql-${var.project_name}-${var.environment}"
   resource_group_name    = azurerm_resource_group.rg.name
   location               = azurerm_resource_group.rg.location
-  sku_name               = "Standard_D2s_v3" # Updated SKU to support geo-redundant backups
+  sku_name               = "Standard_D2s_v2" # Valid SKU for PostgreSQL Flexible Server
   storage_mb             = 32768
   version                = "14" # Use the latest stable PostgreSQL version
   administrator_login    = var.admin_username
   administrator_password = var.admin_password
 
-  backup {
-    geo_redundant_backup_enabled = true # Enable geo-redundant backups
-  }
+  geo_redundant_backup_enabled = true # Enable geo-redundant backups
 
   depends_on = [azurerm_resource_group.rg]
 
