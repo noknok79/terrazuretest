@@ -1,39 +1,76 @@
-# Variables
-variable "location" {
-  description = "Azure region where resources will be created"
+# Subscription and Tenant Information
+variable "subscription_id" {
+  description = "The subscription ID for the Azure account"
   type        = string
-  default     = "East US"
+}
+
+variable "tenant_id" {
+  description = "The tenant ID for the Azure account"
+  type        = string
+}
+
+# Resource Group
+variable "resource_group_name" {
+  description = "The name of the resource group"
+  type        = string
+}
+
+variable "location" {
+  description = "The Azure region where resources will be deployed"
+  type        = string
+}
+
+# Project and Environment
+variable "project_name" {
+  description = "The name of the project"
+  type        = string
 }
 
 variable "environment" {
-  description = "Environment name (e.g., dev, staging, prod)"
+  description = "The environment (e.g., dev, staging, prod)"
   type        = string
 }
 
-variable "project_name" {
-  description = "Project name for resource naming"
+variable "owner" {
+  description = "The owner of the resources"
+  type        = string
+}
+
+# Virtual Network
+variable "vnet_name" {
+  description = "The name of the virtual network"
+  type        = string
+}
+
+# PostgreSQL Flexible Server
+variable "psql_server_name" {
+  description = "The name of the PostgreSQL Flexible Server"
+  type        = string
+}
+
+variable "sku_name" {
+  description = "The SKU name for the PostgreSQL Flexible Server (e.g., GP_Standard_D2s_v2)"
   type        = string
 }
 
 variable "admin_username" {
-  description = "Administrator username for PostgreSQL server"
+  description = "The administrator username for the PostgreSQL Flexible Server"
   type        = string
 }
 
 variable "admin_password" {
-  description = "Administrator password for PostgreSQL server"
+  description = "The administrator password for the PostgreSQL Flexible Server"
   type        = string
   sensitive   = true
 }
 
-variable "trusted_start_ip" {
-  description = "Start of the trusted IP range"
+# Storage Account
+variable "storage_account_name" {
+  description = "The base name of the storage account. A unique suffix will be appended."
   type        = string
-  default     = "192.168.1.1" # Replace with your trusted IP
 }
 
-variable "trusted_end_ip" {
-  description = "End of the trusted IP range"
+variable "storage_container_name" {
+  description = "The base name of the storage container. A unique suffix will be appended."
   type        = string
-  default     = "192.168.1.255" # Replace with your trusted IP
 }

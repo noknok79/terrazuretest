@@ -1,99 +1,173 @@
 terraform {
-  required_version = ">= 1.5.0" # Ensure compatibility with the latest stable Terraform version
+  required_version = ">= 1.5.6"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.75.0" # Upgraded to the latest stable version
+      version = "~> 3.80.0"
     }
   }
 }
 
 provider "azurerm" {
   features {}
+
+  subscription_id           = var.subscription_id
+  tenant_id                 = var.tenant_id
+  skip_provider_registration = true
 }
 
-# Resource group
+resource "random_string" "unique_suffix" {
+  length  = 6
+  special = false
+  upper   = false
+}
+
+# Resource Group
 resource "azurerm_resource_group" "rg" {
-  name     = "rg-${var.project_name}-${var.environment}"
+  name     = var.resource_group_name
   location = var.location
-}
-
-# skip-check CKV_AZURE_136 # Geo-redundant backups are intentionally enabled for this environment
-resource "azurerm_postgresql_flexible_server" "psql_server" {
-  name                   = "psql-${var.project_name}-${var.environment}"
-  resource_group_name    = azurerm_resource_group.rg.name
-  location               = azurerm_resource_group.rg.location
-  sku_name               = "Standard_D2s_v2" # Valid SKU for PostgreSQL Flexible Server
-  storage_mb             = 32768
-  version                = "14" # Use the latest stable PostgreSQL version
-  administrator_login    = var.admin_username
-  administrator_password = var.admin_password
-
-  geo_redundant_backup_enabled = true # Enable geo-redundant backups
-
-  depends_on = [azurerm_resource_group.rg]
-
-  lifecycle {
-    prevent_destroy = true # Prevent accidental deletion
-  }
 
   tags = {
-    Environment = var.environment
-    Project     = var.project_name
+    environment = var.environment
+    project     = var.project_name
+    owner       = var.owner
   }
 }
 
-# PostgreSQL database
-resource "azurerm_postgresql_flexible_database" "psql_db" {
-  name                = "db-${var.project_name}-${var.environment}"
-  resource_group_name = azurerm_resource_group.rg.name
-  server_id           = azurerm_postgresql_flexible_server.psql_server.id
-  charset             = "UTF8"
-  collation           = "en_US.UTF8"
-
-  depends_on = [azurerm_postgresql_flexible_server.psql_server]
+# Virtual Network
+resource "azurerm_virtual_network" "vnet" {
+  name                = var.vnet_name
+  address_space       = ["10.0.0.0/16"]
+  location            = var.location
+  resource_group_name = var.resource_group_name
 
   tags = {
-    Environment = var.environment
-    Project     = var.project_name
-  }
-}
-
-# PostgreSQL firewall rule
-# skip-check CKV2_AZURE_26 # Allowing all IPs is intentional for this environment
-resource "azurerm_postgresql_flexible_server_firewall_rule" "allow_access" {
-  name             = "fw-allow-all-${var.project_name}-${var.environment}"
-  server_id        = azurerm_postgresql_flexible_server.psql_server.id
-  start_ip_address = "0.0.0.0"
-  end_ip_address   = "255.255.255.255"
-
-  depends_on = [azurerm_postgresql_flexible_server.psql_server]
-}
-
-# skip-check CKV2_AZURE_26 # Allowing trusted IPs is intentional for this environment
-resource "azurerm_postgresql_flexible_server_firewall_rule" "allow_trusted_access" {
-  name             = "fw-allow-trusted-${var.project_name}-${var.environment}"
-  server_id        = azurerm_postgresql_flexible_server.psql_server.id
-  start_ip_address = "192.168.1.1"   # Replace with a specific trusted IP or range
-  end_ip_address   = "192.168.1.255" # Replace with a specific trusted IP or range
-
-  depends_on = [azurerm_postgresql_flexible_server.psql_server]
-}
-
-resource "azurerm_private_endpoint" "psql_private_endpoint" {
-  name                = "pe-${var.project_name}-${var.environment}"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  subnet_id           = var.subnet_id # Ensure this is a subnet in your virtual network
-
-  private_service_connection {
-    name                           = "psc-${var.project_name}-${var.environment}"
-    private_connection_resource_id = azurerm_postgresql_flexible_server.psql_server.id
-    is_manual_connection           = false
+    environment = var.environment
+    project     = var.project_name
+    owner       = var.owner
   }
 
   depends_on = [
-    azurerm_postgresql_flexible_server.psql_server,
     azurerm_resource_group.rg
+  ]
+}
+
+# Subnet for PostgreSQL Server
+resource "azurerm_subnet" "subnet" {
+  name                 = "subnet-psqldb"
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.2.0/24"]
+
+  delegation {
+    name = "postgresql_delegation"
+    service_delegation {
+      name = "Microsoft.DBforPostgreSQL/flexibleServers"
+      actions = [
+        "Microsoft.Network/virtualNetworks/subnets/action",
+      ]
+    }
+  }
+
+  depends_on = [
+    azurerm_virtual_network.vnet,
+    azurerm_resource_group.rg
+  ]
+}
+
+# Subnet for Private Endpoint
+resource "azurerm_subnet" "private_endpoint_subnet" {
+  name                 = "private-endpoint-subnet"
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.1.0/24"]
+
+  depends_on = [
+    azurerm_virtual_network.vnet,
+    azurerm_resource_group.rg
+  ]
+}
+
+# Private DNS Zone
+resource "azurerm_private_dns_zone" "psql_private_dns_zone" {
+  name                = "privatelink.postgres.database.azure.com"
+  resource_group_name = var.resource_group_name
+}
+
+# Private DNS Zone Association
+resource "azurerm_private_dns_zone_virtual_network_link" "psql_dns_zone_vnet_link" {
+  name                  = "psql-dns-zone-link"
+  resource_group_name   = var.resource_group_name
+  private_dns_zone_name = azurerm_private_dns_zone.psql_private_dns_zone.name
+  virtual_network_id    = azurerm_virtual_network.vnet.id
+}
+
+# PostgreSQL Flexible Server
+resource "azurerm_postgresql_flexible_server" "psql_server" {
+  name                   = "${var.psql_server_name}${random_string.unique_suffix.result}"
+  resource_group_name    = var.resource_group_name
+  location               = var.location
+  sku_name               = var.sku_name
+  version                = "14"
+  administrator_login    = var.admin_username
+  administrator_password = var.admin_password
+  backup_retention_days  = 7
+  geo_redundant_backup_enabled = true
+
+  high_availability {
+    mode = "ZoneRedundant"
+  }
+
+  maintenance_window {
+    day_of_week  = 0
+    start_hour   = 8
+    start_minute = 0
+  }
+
+  storage_mb = 32768 # 32 GB in megabytes
+
+  delegated_subnet_id = azurerm_subnet.subnet.id
+  private_dns_zone_id = azurerm_private_dns_zone.psql_private_dns_zone.id
+
+  tags = {
+    environment = var.environment
+    project     = var.project_name
+    owner       = var.owner
+  }
+
+  depends_on = [
+    azurerm_resource_group.rg,
+    azurerm_subnet.subnet,
+    azurerm_private_dns_zone_virtual_network_link.psql_dns_zone_vnet_link
+  ]
+}
+
+# Storage Account
+resource "azurerm_storage_account" "storage_account" {
+  name                     = "${var.storage_account_name}${random_string.unique_suffix.result}"
+  resource_group_name      = var.resource_group_name
+  location                 = var.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+
+  tags = {
+    environment = var.environment
+    project     = var.project_name
+    owner       = var.owner
+  }
+
+  depends_on = [
+    azurerm_resource_group.rg
+  ]
+}
+
+# Storage Container
+resource "azurerm_storage_container" "psql_va_container" {
+  name                  = "${var.storage_container_name}${random_string.unique_suffix.result}"
+  storage_account_name  = azurerm_storage_account.storage_account.name
+  container_access_type = "private"
+
+  depends_on = [
+    azurerm_storage_account.storage_account
   ]
 }
