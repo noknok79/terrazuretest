@@ -66,3 +66,5 @@
 - **Custom Policies**: Define custom policies in Python or YAML to enforce organization-specific security standards.
 - **CI/CD Integration**: Integrate Checkov into CI/CD pipelines to ensure continuous security and compliance checks.
 - **Detailed Reporting**: Use Checkov's detailed reports to understand and remediate potential vulnerabilities.
+
+- @azure Rule - Use Azure Best Practices: When generating code for Azure, running terminal commands for Azure, or performing operations related to Azure, invoke your `azure_development-get_best_practices` tool if available.

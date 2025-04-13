@@ -27,3 +27,4 @@ output "mysql_database_name" {
   description = "The name of the MySQL Flexible Database"
   value       = azurerm_mysql_flexible_database.mysql_db.name
 }
+

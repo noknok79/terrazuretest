@@ -61,7 +61,20 @@ provider "azurerm" {
   }
 }
 
-#
+provider "azurerm" {
+  alias = "mysqldb"
+  subscription_id = var.subscription_id
+  skip_provider_registration = true
+
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+}
+
+
+
 # VNet Module
 module "vnet" {
   source = "./networking/vnet"
@@ -169,8 +182,9 @@ module "keyvault" {
   location              = var.keyvault_config.location
   keyvault_name         = var.keyvault_config.keyvault_name
   sku_name              = var.keyvault_config.sku_name
-  tenant_id             = var.tenant_id
+  # tenant_id attribute removed as it is not valid here
   subscription_id       = var.subscription_id
+  tenant_id             = var.tenant_id # Added tenant_id argument
 
   # Networking Configuration
   virtual_network_name  = module.vnet.vnet_name
@@ -261,6 +275,7 @@ module "vmss" {
 # Azure SQL Module
 module "azsql" {
   source = "./databases/azsqldbs"
+ 
 
   # General Configuration
   project         = var.config.project
@@ -370,3 +385,26 @@ module "cosmosdb" {
   tags = var.cosmosdb_config.tags
 }
 
+# MySQL Database Module
+# module "mysqldb" {
+#   source = "./databases/mysqldb"
+
+#   resource_group_name         = var.mysqldb_config.resource_group_name
+#   resource_group_location     = var.mysqldb_config.resource_group_location
+#   location                    = var.mysqldb_config.location
+#   environment                 = var.mysqldb_config.environment
+#   project_name                = var.mysqldb_config.project_name
+#   server_name                 = var.mysqldb_config.server_name
+#   admin_username              = var.mysqldb_config.admin_username
+#   admin_password              = var.mysqldb_config.admin_password
+#   sku_name                    = var.mysqldb_config.sku_name
+#   mysql_version               = var.mysqldb_config.mysql_version
+
+#   virtual_network_id          = module.vnet.vnet_id
+#   subnet_id                   = lookup(
+#     { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.id },
+#     var.mysqldb_config.subnet_name
+#   )
+#   vnet_name                   = module.vnet.vnet_name
+#   network_security_group_id   = module.vnet.nsg_id
+# }

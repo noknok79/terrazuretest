@@ -10,7 +10,19 @@ terraform {
 
 provider "azurerm" {
   features {}
+
+  # Optional alias for specific configurations
+  #alias             = "mysqldb"
+  subscription_id   = var.subscription_id
+  tenant_id         = var.tenant_id
   skip_provider_registration = true
+}
+
+
+resource "random_string" "unique_suffix" {
+  length  = 6
+  special = false
+  upper   = false
 }
 
 # Resource Group
@@ -61,7 +73,8 @@ resource "azurerm_subnet" "subnet" {
   }
 
   depends_on = [
-    azurerm_virtual_network.vnet
+    azurerm_virtual_network.vnet,
+    azurerm_resource_group.rg
   ]
 }
 
@@ -73,7 +86,8 @@ resource "azurerm_subnet" "private_endpoint_subnet" {
   address_prefixes     = ["10.0.1.0/24"]
 
   depends_on = [
-    azurerm_virtual_network.vnet
+    azurerm_virtual_network.vnet,
+    azurerm_resource_group.rg
   ]
 }
 
@@ -119,12 +133,12 @@ resource "azurerm_subnet_network_security_group_association" "private_endpoint_s
 
 # MySQL Flexible Server
 resource "azurerm_mysql_flexible_server" "mysql_server" {
-  name                   = "mysql-${var.project_name}-${var.environment}"
-  resource_group_name    = var.resource_group_name
-  location               = var.location
-  sku_name               = var.sku_name
+  name                = "${var.mysql_server_name}${random_string.unique_suffix.result}"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  sku_name            = var.sku_name
   version                = "8.0.21"
-  administrator_login    = var.admin_username
+  administrator_login = var.admin_username
   administrator_password = var.admin_password
   backup_retention_days  = 7
   geo_redundant_backup_enabled = true
@@ -151,6 +165,7 @@ resource "azurerm_mysql_flexible_server" "mysql_server" {
   }
 
   depends_on = [
+    azurerm_resource_group.rg,
     azurerm_subnet.subnet
   ]
 }
@@ -167,3 +182,33 @@ resource "azurerm_mysql_flexible_database" "mysql_db" {
     azurerm_mysql_flexible_server.mysql_server
   ]
 }
+
+# Storage Account
+resource "azurerm_storage_account" "storage_account" {
+  name                     = "${var.storage_account_name}${random_string.unique_suffix.result}"
+  resource_group_name      = var.resource_group_name
+  location                 = var.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+
+  tags = {
+    environment = var.environment
+    project     = var.project_name
+    owner       = var.owner
+  }
+    depends_on = [
+    azurerm_resource_group.rg
+  ]
+}
+
+# Storage Container
+resource "azurerm_storage_container" "sql_va_container" {
+  name                  = "${var.storage_container_name}-${random_string.unique_suffix.result}"
+  storage_account_name  = azurerm_storage_account.storage_account.name
+  container_access_type = "private"
+
+  depends_on = [
+    azurerm_storage_account.storage_account
+  ]
+}
+

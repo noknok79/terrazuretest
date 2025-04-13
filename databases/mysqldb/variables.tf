@@ -69,3 +69,58 @@ variable "virtual_network_id" {
   description = "The ID of the virtual network"
   type        = string
 }
+
+variable "mysql_version" {
+  description = "The version of the MySQL server"
+  type        = string
+}
+
+variable "mysql_server" {
+  description = "The name of the MySQL server."
+  type        = string
+}
+
+variable "mysql_server_name" {
+  description = "The name of the MySQL Flexible Server."
+  type        = string
+}
+
+variable "availability_zone" {
+  description = "The availability zone for the MySQL Flexible Server"
+  type        = string
+}
+
+variable "standby_availability_zone" {
+  description = "The standby availability zone for the MySQL Flexible Server"
+  type        = string
+}
+
+variable "storage_account_name" {
+  description = "The base name of the storage account. A unique suffix will be appended."
+  type        = string
+}
+
+variable "storage_container_name" {
+  description = "The base name of the storage container. A unique suffix will be appended."
+  type        = string
+}
+
+variable "subscription_id" {
+  description = "The subscription ID for the Azure account"
+  type        = string
+}
+
+variable "tenant_id" {
+  description = "The tenant ID for the Azure account"
+  type        = string
+}
+
+variable "start_ip_address" {
+  description = "The starting IP address for the MySQL server firewall rule"
+  type        = string
+}
+
+variable "end_ip_address" {
+  description = "The ending IP address for the MySQL server firewall rule"
+  type        = string
+}
