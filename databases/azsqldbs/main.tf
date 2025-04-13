@@ -81,7 +81,9 @@ resource "azurerm_storage_account" "sql_storage" {
 # Updated Storage Container for SQL Vulnerability Assessment
 resource "azurerm_storage_container" "sql_va_container" {
   name                  = "sql${random_string.random_suffix.result}vulnerability"
-  storage_account_id    = azurerm_storage_account.sql_storage.id # Updated to use storage_account_id
+  #storage_account_id    = azurerm_storage_account.sql_storage.id # Updated to use storage_account_id
+  storage_account_name  = var.storage_account_name
+
   container_access_type = "private"
 
   depends_on = [azurerm_storage_account.sql_storage] # Ensure storage account is created first

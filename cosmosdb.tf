@@ -50,6 +50,7 @@ variable "cosmosdb_config" {
     sql_container_name         = string
     partition_key_path         = string
     virtual_network_subnet_ids = list(string)
+    cosmosdb_partition_key_path = string
   })
 
   default = {
@@ -107,6 +108,7 @@ variable "cosmosdb_config" {
     sql_database_name          = "my-cosmosdb-sql-database"
     sql_container_name         = "my-cosmosdb-sql-container"
     partition_key_path         = "/partitionKey"
+    cosmosdb_partition_key_path = ""
     virtual_network_subnet_ids = [
       "/subscriptions/12345678-1234-9876-4563-123456789012/resourceGroups/example-rg/providers/Microsoft.Network/virtualNetworks/vnet-keyvault/subnets/example-subnet"
     ]

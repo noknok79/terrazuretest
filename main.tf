@@ -12,6 +12,7 @@ terraform {
 provider "azurerm" {
   alias = "vnet"
   subscription_id = var.subscription_id
+  skip_provider_registration = true
   features {
     resource_group {
       prevent_deletion_if_contains_resources = false
@@ -341,6 +342,7 @@ module "cosmosdb" {
   environment         = var.cosmosdb_config.environment
   owner               = var.cosmosdb_config.owner
   project             = var.cosmosdb_config.project
+  # cosmosdb_partition_key_path = var.cosmosdb_config.partition_key_path
 
   # Required Arguments
   keyvault_name                = module.keyvault.keyvault_name
@@ -385,26 +387,51 @@ module "cosmosdb" {
   tags = var.cosmosdb_config.tags
 }
 
-# MySQL Database Module
-# module "mysqldb" {
-#   source = "./databases/mysqldb"
+# MySQL DB Module
+module "mysqldb" {
+  source = "./databases/mysqldb"
 
-#   resource_group_name         = var.mysqldb_config.resource_group_name
-#   resource_group_location     = var.mysqldb_config.resource_group_location
-#   location                    = var.mysqldb_config.location
-#   environment                 = var.mysqldb_config.environment
-#   project_name                = var.mysqldb_config.project_name
-#   server_name                 = var.mysqldb_config.server_name
-#   admin_username              = var.mysqldb_config.admin_username
-#   admin_password              = var.mysqldb_config.admin_password
-#   sku_name                    = var.mysqldb_config.sku_name
-#   mysql_version               = var.mysqldb_config.mysql_version
+  # General Configuration
+  subscription_id             = var.mysqldb_config.subscription_id
+  tenant_id                   = var.mysqldb_config.tenant_id
+  resource_group_name         = var.mysqldb_config.resource_group_name
+  resource_group_location     = var.mysqldb_config.resource_group_location
+  location                    = var.mysqldb_config.location
+  environment                 = var.mysqldb_config.environment
+  project_name                = var.mysqldb_config.project_name
+  server_name                 = var.mysqldb_config.server_name
+  admin_username              = var.mysqldb_config.admin_username
+  admin_password              = var.mysqldb_config.admin_password
+  sku_name                    = var.mysqldb_config.sku_name
+  mysql_version               = var.mysqldb_config.mysql_version
+  mysql_server                = var.mysqldb_config.mysql_server
+  mysql_server_name           = var.mysqldb_config.mysql_server_name
 
-#   virtual_network_id          = module.vnet.vnet_id
-#   subnet_id                   = lookup(
-#     { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.id },
-#     var.mysqldb_config.subnet_name
-#   )
-#   vnet_name                   = module.vnet.vnet_name
-#   network_security_group_id   = module.vnet.nsg_id
-# }
+  # Networking Configuration
+  vnet_name                   = module.vnet.vnet_name
+  subnet_id                   = lookup(
+    { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.id },
+    "subnet-mysqldb"
+  )
+  virtual_network_id          = module.vnet.vnet_id
+  network_security_group_id   = lookup(
+    { for subnet in module.vnet.vnet_subnets : subnet.name => subnet.network_security_group_id },
+    "subnet-mysqldb",
+    null
+  )
+  start_ip_address            = var.mysqldb_config.start_ip_address
+  end_ip_address              = var.mysqldb_config.end_ip_address
+
+  # Availability Zones
+  availability_zone           = var.mysqldb_config.availability_zone
+  standby_availability_zone   = var.mysqldb_config.standby_availability_zone
+
+  # Storage Configuration
+  storage_account_name        = var.mysqldb_config.storage_account_name
+  storage_container_name      = var.mysqldb_config.storage_container_name
+  # storage_account_id          = var.mysqldb_config.storage_account_id
+
+  # Tags and Metadata
+  owner                       = var.mysqldb_config.owner
+}
+

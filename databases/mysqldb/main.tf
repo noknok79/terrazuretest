@@ -203,8 +203,10 @@ resource "azurerm_storage_account" "storage_account" {
 
 # Storage Container
 resource "azurerm_storage_container" "sql_va_container" {
-  name                  = "${var.storage_container_name}-${random_string.unique_suffix.result}"
-  storage_account_name  = azurerm_storage_account.storage_account.name
+  name                  = "${var.storage_container_name}${random_string.unique_suffix.result}"
+  storage_account_name = azurerm_storage_account.storage_account.name
+  #storage_account_id    = azurerm_storage_account.storage_account.id
+  #storage_account_id    = var.storage_account_id
   container_access_type = "private"
 
   depends_on = [

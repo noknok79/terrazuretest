@@ -148,7 +148,9 @@ resource "azurerm_cosmosdb_sql_container" "cosmosdb_sql_container" {
   resource_group_name = azurerm_resource_group.keyvault_rg.name
   account_name        = azurerm_cosmosdb_account.cosmosdb.name
   database_name       = azurerm_cosmosdb_sql_database.cosmosdb_sql_db.name
-  partition_key_paths = [var.cosmosdb_partition_key_path]
+  partition_key_path = var.cosmosdb_partition_key_path
+
+  #partition_key_paths = [var.cosmosdb_partition_key_path]
 
   indexing_policy {
     indexing_mode = "consistent"

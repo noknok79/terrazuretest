@@ -25,6 +25,18 @@ variable "mysqldb_config" {
       end_ip   = string
     }))
     tags                        = map(string)
+    vnet_name                   = string
+    mysql_server                = string
+    mysql_server_name           = string
+    availability_zone           = string
+    standby_availability_zone   = string
+    storage_account_name        = string
+    storage_container_name      = string
+    tenant_id                   = string
+    start_ip_address            = string
+    end_ip_address              = string
+    owner                       = string
+   
   })
 
   default = {
@@ -47,6 +59,7 @@ variable "mysqldb_config" {
     subnet_id                   = ""
     virtual_network_id          = ""
     network_security_group_id   = ""
+  
     firewall_rules = {
       default = {
         start_ip = "0.0.0.0"
@@ -56,5 +69,16 @@ variable "mysqldb_config" {
     tags = {
       owner = "team@example.com"
     }
+    vnet_name                   = "vnet-dev-eastus"
+    mysql_server                = "mysql-server-dev"
+    mysql_server_name           = "mysql-server-dev"
+    availability_zone           = "1"
+    standby_availability_zone   = "2"
+    storage_account_name        = "mystorageaccount"
+    storage_container_name      = "sql-va-container"
+    tenant_id                   = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
+    start_ip_address            = "0.0.0.0"
+    end_ip_address              = "255.255.255.255"
+    owner                       = "team@example.com"
   }
 }

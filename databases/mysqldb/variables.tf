@@ -124,3 +124,4 @@ variable "end_ip_address" {
   description = "The ending IP address for the MySQL server firewall rule"
   type        = string
 }
+
