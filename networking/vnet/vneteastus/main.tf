@@ -1,7 +1,15 @@
-# Subscription ID
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 3.0.0"
+    }
+  }
+}
+
 provider "azurerm" {
+  alias           = "vneteastus"
   features        {}
-  #alias           = "vnet"
   subscription_id = var.subscription_id
   tenant_id       = var.tenant_id
 }
@@ -81,13 +89,7 @@ variable "address_space" {
 
 # Subnets
 variable "subnets" {
-  description = <<EOT
-A map of subnets to create within the virtual network. Each subnet should have the following structure:
-{
-  name           = "subnet-name"
-  address_prefix = "subnet-address-prefix"
-}
-EOT
+  description = "A map of subnets with their names and address prefixes"
   type = map(object({
     name           = string
     address_prefix = string
@@ -120,4 +122,29 @@ variable "subscription_id" {
 variable "tenant_id" {
   description = "The Azure tenant ID to use for the provider."
   type        = string
+}
+
+
+# filepath: /mnt/c/markacnwsl/terrazuretest/networking/vnet/vneteastus/main.tf
+
+output "address_space" {
+  description = "The address space of the virtual network"
+  value       = azurerm_virtual_network.vnet.address_space
+}
+
+output "subnets" {
+  description = "A map of all subnets with their names and address prefixes"
+  value = { for subnet_key, subnet in azurerm_subnet.vnet_subnets : subnet_key => {
+    name           = subnet.name
+    address_prefix = subnet.address_prefixes[0]
+  } }
+}
+
+
+output "resource_group_name" {
+  value = var.resource_group_name
+}
+
+output "vnet_name" {
+  value = var.vnet_name
 }

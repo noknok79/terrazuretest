@@ -46,24 +46,24 @@ resource "azurerm_virtual_network_peering" "centralus_to_eastus" {
 
 # Data Block for East US Virtual Network
 data "azurerm_virtual_network" "vnet_eastus" {
-  name                = "vnet-dev-eastus" # Replace with the actual name of the East US VNet
-  resource_group_name = "RG-VNETEASTUS"   # Replace with the actual resource group name for East US
+  name                = var.eastus_vnet_name
+  resource_group_name = var.eastus_resource_group_name
 }
 
 # Data Block for Central US Virtual Network
 data "azurerm_virtual_network" "vnet_centralus" {
-  name                = "vnet-dev-centralus" # Replace with the actual name of the Central US VNet
-  resource_group_name = "RG-VNETCENTRALUS"   # Replace with the actual resource group name for Central US
+  name                = var.centralus_vnet_name
+  resource_group_name = var.centralus_resource_group_name
 }
 
 # Data Block for East US Resource Group
 data "azurerm_resource_group" "vnet_eastus" {
-  name = "RG-VNETEASTUS" # Replace with the actual resource group name for East US
+  name = var.eastus_resource_group_name
 }
 
 # Data Block for Central US Resource Group
 data "azurerm_resource_group" "vnet_centralus" {
-  name = "RG-VNETCENTRALUS" # Replace with the actual resource group name for Central US
+  name = var.centralus_resource_group_name
 }
 
 # Variables
@@ -74,5 +74,25 @@ variable "subscription_id" {
 
 variable "tenant_id" {
   description = "The Azure tenant ID to use for the provider."
+  type        = string
+}
+
+variable "eastus_vnet_name" {
+  description = "The name of the East US Virtual Network."
+  type        = string
+}
+
+variable "eastus_resource_group_name" {
+  description = "The name of the East US Resource Group."
+  type        = string
+}
+
+variable "centralus_vnet_name" {
+  description = "The name of the Central US Virtual Network."
+  type        = string
+}
+
+variable "centralus_resource_group_name" {
+  description = "The name of the Central US Resource Group."
   type        = string
 }

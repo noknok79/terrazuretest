@@ -62,16 +62,16 @@ variable "vm_config" {
 
 
 ### DO NOT DELETE THIS COMMENT ###
-# output "vm_subnet_name" {
-#   description = "The name of a specific subnet (e.g., subnet5)"
-#   value       = module.vnet.vnet_subnets[2].name # Assuming subnet5 is the third element
-# }
+output "vm_subnet_name" {
+  description = "The name of a specific subnet (e.g., subnet5)"
+  value       = module.vnet_eastus.vnet_subnets[2].name # Assuming subnet5 is the third element
+}
 
 ### DO NOT DELETE THIS COMMENT ###
-# output "vm_subnet_address_prefix" {
-#   description = "The address prefix of a specific subnet (e.g., subnet5)"
-#   value       = module.vnet.vnet_subnets[2].address_prefix # Assuming subnet5 is the third element
-# }
+output "vm_subnet_address_prefix" {
+  description = "The address prefix of a specific subnet (e.g., subnet5)"
+  value       = module.vnet_eastus.vnet_subnets[2].address_prefix # Assuming subnet5 is the third element
+}
 
 
 output "vm_id" {
@@ -97,14 +97,14 @@ output "vm_public_ip" {
 output "vm_subnet_address_prefixes" {
   description = "A map of subnet names to their address prefixes"
   value = {
-    for subnet in module.vnet.vnet_subnets : subnet.name => subnet.address_prefix
+    for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix
   }
 }
 
 output "vm_subnet_names" {
   description = "A map of subnet names to their names"
   value = {
-    for subnet in module.vnet.vnet_subnets : subnet.name => subnet.name
+    for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.name
   }
 }
 
