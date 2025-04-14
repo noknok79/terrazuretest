@@ -8,7 +8,7 @@ address_space       = ["10.0.0.0/16"]
 subnets = {
   subnet3 = {
     name           = "subnet-akscluster"
-    address_prefix = "10.0.2.0/23"
+    address_prefix = "10.0.2.0/24"
   }
   subnet4 = {
     name           = "subnet-azsqldbs"
@@ -24,4 +24,9 @@ subnets = {
   }
 }
 
-tags = var.tags
+environment = "dev"
+project     = "my-project"
+tags = {
+  Environment = "dev"
+  Project     = "my-project"
+}

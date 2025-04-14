@@ -1,101 +1,80 @@
-
-
-variable "vneteastus_config_group" {
-  description = "Configuration group for managing related settings"
+# VNet Configuration
+variable "vneteastus_config" {
+  description = <<EOT
+Configuration for the virtual network, including resource group, location, address space, and subnets.
+The structure should be:
+{
+  resource_group_name = "resource-group-name"
+  location            = "azure-region"
+  vnet_name           = "virtual-network-name"
+  address_space       = ["address-space"]
+  subnets = {
+    subnet_key = {
+      name           = "subnet-name"
+      address_prefix = "subnet-address-prefix"
+    }
+  }
+}
+EOT
   type = object({
-    subscription_id     = string
     resource_group_name = string
     location            = string
     vnet_name           = string
     address_space       = list(string)
-    subnets = map(object({
+    subnets             = map(object({
       name           = string
       address_prefix = string
     }))
-    tags = map(string)
-        environment  = string
-    project      = string
   })
   default = {
-    subscription_id     = "096534ab-9b99-4153-8505-90d030aa4f08"
-    resource_group_name = "RG-VNET"
+    resource_group_name = "RG-VNETEASTUS"
     location            = "eastus"
     vnet_name           = "vnet-dev-eastus"
-    environment         = "dev"
-    project             = "vnet-project"
     address_space       = ["10.0.0.0/16"]
     subnets = {
       subnet3 = {
         name           = "subnet-akscluster"
-        address_prefix = "10.0.2.0/24"
+        address_prefix = "10.0.2.0/23"
       }
       subnet4 = {
         name           = "subnet-azsqldbs"
-        address_prefix = "10.0.3.0/24"
+        address_prefix = "10.0.7.0/24"
       }
       subnet5 = {
         name           = "subnet-computevm"
-        address_prefix = "10.0.4.0/24"
+        address_prefix = "10.0.8.0/24"
       }
       subnet6 = {
         name           = "subnet-vmscaleset"
-        address_prefix = "10.0.5.0/24"
+        address_prefix = "10.0.9.0/24"
       }
-      subnet7 = {
-        name           = "subnet-keyvault"
-        address_prefix = "10.0.6.0/24"
-        # private_endpoint_subnet in AKS Cluster =  "10.0.7.0./24"
-        # should move to 10.0.8.0/24 for next subnet in VNET
-      }
-      subnet8 = {
-        name           = "subnet-private-endpoint"
-        address_prefix = "10.0.7.0/24"  # Adjusted to avoid overlap
-      }
-        subnet9 = {
-        name           = "subnet-cosmosdb"
-        address_prefix = "10.0.8.0/24"  # Adjusted to avoid overlap
-      }
-        subnet10 = {
-        name           = "subnet-mysqldb"
-        address_prefix = "10.0.9.0/24"  # Adjusted to avoid overlap
-      }   
-      # subnet11 = {
-      #   name           = "subnet-psqldb"
-      #   address_prefix = "10.0.10.0/24"  # Adjusted to avoid overlap
-      # }
-
-    }
-    tags = {
-      environment   = "dev"
-      project       = "vnet-project-testing"
     }
   }
 }
 
-
-
+# Outputs
 output "vnet_name" {
   description = "The name of the existing virtual network"
-  value       = module.vnet.vnet_name
+  value       = var.vnet_config.vnet_name
 }
 
 output "vnet_address_space" {
   description = "The address space of the virtual network"
-  value       = module.vnet.address_space
+  value       = var.vnet_config.address_space
 }
 
 output "vnet_subnets" {
   description = "A list of subnets with their details"
-  value       = module.vnet.vnet_subnets
+  value       = var.vnet_config.subnets
 }
 
 output "subnet_name" {
   description = "The name of a specific subnet (e.g., subnet5)"
-  value       = module.vnet.vnet_subnets[2].name # Assuming subnet5 is the third element
+  value       = var.vnet_config.subnets["subnet5"].name
 }
 
 output "subnet_address_prefix" {
   description = "The address prefix of a specific subnet (e.g., subnet5)"
-  value       = module.vnet.vnet_subnets[2].address_prefix # Assuming subnet5 is the third element
+  value       = var.vnet_config.subnets["subnet5"].address_prefix
 }
 

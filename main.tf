@@ -10,7 +10,7 @@ terraform {
 }
 
 provider "azurerm" {
-  alias = "vnet"
+  alias = "vnet_eastus"
   subscription_id = var.subscription_id
   skip_provider_registration = true
   features {
@@ -19,6 +19,17 @@ provider "azurerm" {
     }
   }
 }
+
+# provider "azurerm" {
+#   alias = "vnet_centralus"
+#   subscription_id = var.subscription_id
+#   skip_provider_registration = true
+#   features {
+#     resource_group {
+#       prevent_deletion_if_contains_resources = false
+#     }
+#   }
+# }
 
 provider "azurerm" {
   alias = "aksazure"
@@ -77,23 +88,30 @@ provider "azurerm" {
 
 
 # VNet Module
-module "vnet" {
+module "vnet_eastus" {
   source = "./networking/vnet"
 
   providers = {
-    azurerm = azurerm.vnet
+    azurerm = azurerm.vnet_eastus
   }
 
-  resource_group_name = var.vneteastus_config_group.resource_group_name
-  location            = var.vneteastus_config_group.location
-  vnet_name           = var.vneteastus_config_group.vnet_name
-  address_space       = var.vneteastus_config_group.address_space
-  subnets             = var.vneteastus_config_group.subnets
-  
-  subscription_id     = var.vneteastus_config_group.subscription_id
-  tags                = var.vneteastus_config_group.tags
-  environment         = var.vneteastus_config_group.environment
-  project             = var.vneteastus_config_group.project
+  # Required Arguments
+  resource_group_name = var.vneteastus_config.resource_group_name
+  location            = var.vneteastus_config.location
+  vnet_name           = var.vneteastus_config.vnet_name
+  address_space       = var.vneteastus_config.address_space
+  subnets             = var.vneteastus_config.subnets
+
+  # Explicitly define the required arguments
+  vnet_eastus_name          = var.vneteastus_config.vnet_name
+  vnet_eastus_address_space = var.vneteastus_config.address_space
+  vnet_eastus_subnets       = var.vneteastus_config.subnets
+
+  # Tags
+  tags = {
+    environment = var.vneteastus_config.environment
+    project     = var.vneteastus_config.project
+  }
 }
 
 

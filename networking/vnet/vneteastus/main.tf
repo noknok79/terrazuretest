@@ -1,7 +1,7 @@
 # Subscription ID
 provider "azurerm" {
   features        {}
-  alias           = "vnet"
+  #alias           = "vnet"
   subscription_id = var.subscription_id
   tenant_id       = var.tenant_id
 }
@@ -67,7 +67,6 @@ variable "location" {
   type        = string
 }
 
-
 # Virtual Network Name
 variable "vnet_name" {
   description = "The name of the virtual network."
@@ -93,4 +92,32 @@ EOT
     name           = string
     address_prefix = string
   }))
+}
+
+# Environment
+variable "environment" {
+  description = "The environment tag for the resources (e.g., dev, prod)."
+  type        = string
+}
+
+# Project
+variable "project" {
+  description = "The project tag for the resources."
+  type        = string
+}
+
+# Tags
+variable "tags" {
+  description = "A map of tags to apply to the resources."
+  type        = map(string)
+}
+
+variable "subscription_id" {
+  description = "The Azure subscription ID to use for the provider."
+  type        = string
+}
+
+variable "tenant_id" {
+  description = "The Azure tenant ID to use for the provider."
+  type        = string
 }

@@ -9,7 +9,7 @@ address_space_centralus = ["10.1.0.0/16"]
 subnets_centralus = {
   subnet1 = {
     name           = "subnet-akscluster-centralus"
-    address_prefix = "10.1.2.0/23"
+    address_prefix = "10.1.2.0/24"
   }
   subnet2 = {
     name           = "subnet-azsqldbs-centralus"
