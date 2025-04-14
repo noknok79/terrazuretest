@@ -1,6 +1,6 @@
 
 
-variable "vnet_config_group" {
+variable "vneteastus_config_group" {
   description = "Configuration group for managing related settings"
   type = object({
     subscription_id     = string
@@ -58,7 +58,11 @@ variable "vnet_config_group" {
         subnet10 = {
         name           = "subnet-mysqldb"
         address_prefix = "10.0.9.0/24"  # Adjusted to avoid overlap
-      }
+      }   
+      # subnet11 = {
+      #   name           = "subnet-psqldb"
+      #   address_prefix = "10.0.10.0/24"  # Adjusted to avoid overlap
+      # }
 
     }
     tags = {

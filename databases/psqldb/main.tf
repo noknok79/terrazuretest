@@ -92,6 +92,9 @@ resource "azurerm_subnet" "private_endpoint_subnet" {
 resource "azurerm_private_dns_zone" "psql_private_dns_zone" {
   name                = "privatelink.postgres.database.azure.com"
   resource_group_name = var.resource_group_name
+    depends_on = [
+    azurerm_resource_group.rg
+  ]
 }
 
 # Private DNS Zone Association
@@ -100,6 +103,11 @@ resource "azurerm_private_dns_zone_virtual_network_link" "psql_dns_zone_vnet_lin
   resource_group_name   = var.resource_group_name
   private_dns_zone_name = azurerm_private_dns_zone.psql_private_dns_zone.name
   virtual_network_id    = azurerm_virtual_network.vnet.id
+  depends_on = [
+    azurerm_private_dns_zone.psql_private_dns_zone,
+    azurerm_virtual_network.vnet,
+    azurerm_resource_group.rg
+  ]
 }
 
 # PostgreSQL Flexible Server
@@ -113,6 +121,8 @@ resource "azurerm_postgresql_flexible_server" "psql_server" {
   administrator_password = var.admin_password
   backup_retention_days  = 7
   geo_redundant_backup_enabled = true
+  delegated_subnet_id    = var.subnet_id
+
 
   high_availability {
     mode = "ZoneRedundant"
@@ -126,7 +136,7 @@ resource "azurerm_postgresql_flexible_server" "psql_server" {
 
   storage_mb = 32768 # 32 GB in megabytes
 
-  delegated_subnet_id = azurerm_subnet.subnet.id
+  #delegated_subnet_id = azurerm_subnet.subnet.id
   private_dns_zone_id = azurerm_private_dns_zone.psql_private_dns_zone.id
 
   tags = {
@@ -167,7 +177,7 @@ resource "azurerm_storage_container" "psql_va_container" {
   storage_account_name  = azurerm_storage_account.storage_account.name
   container_access_type = "private"
 
-  depends_on = [
+   depends_on = [
     azurerm_storage_account.storage_account
   ]
 }

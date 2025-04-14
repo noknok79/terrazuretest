@@ -84,16 +84,16 @@ module "vnet" {
     azurerm = azurerm.vnet
   }
 
-  resource_group_name = var.vnet_config_group.resource_group_name
-  location            = var.vnet_config_group.location
-  vnet_name           = var.vnet_config_group.vnet_name
-  address_space       = var.vnet_config_group.address_space
-  subnets             = var.vnet_config_group.subnets
+  resource_group_name = var.vneteastus_config_group.resource_group_name
+  location            = var.vneteastus_config_group.location
+  vnet_name           = var.vneteastus_config_group.vnet_name
+  address_space       = var.vneteastus_config_group.address_space
+  subnets             = var.vneteastus_config_group.subnets
   
-  subscription_id     = var.vnet_config_group.subscription_id
-  tags                = var.vnet_config_group.tags
-  environment         = var.vnet_config_group.environment
-  project             = var.vnet_config_group.project
+  subscription_id     = var.vneteastus_config_group.subscription_id
+  tags                = var.vneteastus_config_group.tags
+  environment         = var.vneteastus_config_group.environment
+  project             = var.vneteastus_config_group.project
 }
 
 
@@ -434,4 +434,32 @@ module "mysqldb" {
   # Tags and Metadata
   owner                       = var.mysqldb_config.owner
 }
+
+# PostgreSQL DB Module
+# module "psqldb" {
+#   source = "./databases/psqldb"
+
+#   # General Configuration
+#   subscription_id       = var.psqldb_config.subscription_id
+#   tenant_id             = var.psqldb_config.tenant_id
+#   resource_group_name   = var.psqldb_config.resource_group_name
+#   location              = var.psqldb_config.location
+#   environment           = var.psqldb_config.environment
+#   project_name          = var.psqldb_config.project_name
+#   owner                 = var.psqldb_config.owner
+
+#   # PostgreSQL Server Configuration
+#   psql_server_name      = var.psqldb_config.psql_server_name
+#   sku_name              = var.psqldb_config.sku_name
+#   admin_username        = var.psqldb_config.admin_username
+#   admin_password        = var.psqldb_config.admin_password
+
+#   # Networking Configuration
+#   # vnet_name             = var.psqldb_config.vnet_name
+#   # vnet_subnets          = var.psqldb_config.vnet_subnets
+#   # subnet_id             = var.psqldb_config.subnet_id
+  
+#   storage_account_name  = var.psqldb_config.storage_account_name
+#   storage_container_name = var.psqldb_config.storage_container_name
+# }
 

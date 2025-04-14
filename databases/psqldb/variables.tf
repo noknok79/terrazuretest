@@ -42,6 +42,15 @@ variable "vnet_name" {
   type        = string
 }
 
+variable "vnet_subnets" {
+  description = "A list of subnets in the virtual network"
+  type = list(object({
+    name           = string
+    id             = string
+    address_prefix = string
+  }))
+}
+
 # PostgreSQL Flexible Server
 variable "psql_server_name" {
   description = "The name of the PostgreSQL Flexible Server"
@@ -72,5 +81,10 @@ variable "storage_account_name" {
 
 variable "storage_container_name" {
   description = "The base name of the storage container. A unique suffix will be appended."
+  type        = string
+}
+
+variable "subnet_id" {
+  description = "The ID of the subnet where the PostgreSQL server will be deployed."
   type        = string
 }

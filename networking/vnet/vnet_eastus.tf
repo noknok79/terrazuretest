@@ -1,27 +1,14 @@
-terraform {
-  required_version = ">= 1.4.6"
-
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = ">= 3.64.0"
-    }
-  }
-}
-
+# Subscription ID
 provider "azurerm" {
   features        {}
-  alias = "vnet"
+  alias           = "vnet"
   subscription_id = var.subscription_id
   tenant_id       = var.tenant_id
-
-
 }
 
 # Resource Group
 resource "azurerm_resource_group" "vnet_rg" {
-  name = var.resource_group_name
-  #name     = "rg-vnet-${var.environment}"
+  name     = var.resource_group_name
   location = var.location
   tags = {
     Environment = var.environment
@@ -68,3 +55,42 @@ resource "azurerm_subnet" "subnet" {
   depends_on = [azurerm_virtual_network.vnet]
 }
 
+# Resource Group Name
+variable "resource_group_name" {
+  description = "The name of the resource group where the virtual network will be created."
+  type        = string
+}
+
+# Location
+variable "location" {
+  description = "The Azure region where the resources will be deployed."
+  type        = string
+}
+
+
+# Virtual Network Name
+variable "vnet_name" {
+  description = "The name of the virtual network."
+  type        = string
+}
+
+# Address Space
+variable "address_space" {
+  description = "The address space for the virtual network."
+  type        = list(string)
+}
+
+# Subnets
+variable "subnets" {
+  description = <<EOT
+A map of subnets to create within the virtual network. Each subnet should have the following structure:
+{
+  name           = "subnet-name"
+  address_prefix = "subnet-address-prefix"
+}
+EOT
+  type = map(object({
+    name           = string
+    address_prefix = string
+  }))
+}
