@@ -88,3 +88,4 @@ variable "subnet_id" {
   description = "The ID of the subnet where the PostgreSQL server will be deployed."
   type        = string
 }
+

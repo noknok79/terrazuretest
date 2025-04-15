@@ -9,8 +9,8 @@ terraform {
 }
 
 provider "azurerm" {
+  #alias = "pslqldb"
   features {}
-
   subscription_id           = var.subscription_id
   tenant_id                 = var.tenant_id
   skip_provider_registration = true
@@ -121,7 +121,8 @@ resource "azurerm_postgresql_flexible_server" "psql_server" {
   administrator_password = var.admin_password
   backup_retention_days  = 7
   geo_redundant_backup_enabled = true
-  delegated_subnet_id    = var.subnet_id
+  #delegated_subnet_id    = var.subnet_id
+  delegated_subnet_id    = azurerm_subnet.subnet.id # Reference the newly created subnet
 
 
   high_availability {

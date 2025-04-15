@@ -27,6 +27,14 @@ subnet_id               = ""                       # Matches variable "subnet_id
 virtual_network_id      = ""                       # Matches variable "virtual_network_id"
 network_security_group_id = ""                     # Matches variable "network_security_group_id"
 
+vnet_subnets = [
+  {
+    name           = "subnet1"
+    id             = ""
+    address_prefix = "10.1.0.0/24"
+  }
+]
+
 # Firewall Rules
 start_ip_address        = "0.0.0.0"                # Matches variable "start_ip_address"
 end_ip_address          = "255.255.255.255"        # Matches variable "end_ip_address"

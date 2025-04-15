@@ -11,3 +11,8 @@ output "vnet_name" {
 output "vnet_subnets" {
   value = var.vnet_subnets
 }
+
+output "subnets" {
+  description = "A list of subnets with their names and IDs"
+  value = var.vnet_subnets
+}

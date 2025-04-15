@@ -16,7 +16,7 @@ variable "psqldb_config" {
     vnet_name             = string
     vnet_subnets          = list(object({
       name           = string
-      id             = string
+      #id             = string
       address_prefix = string
     }))
     storage_account_name  = string
@@ -27,7 +27,7 @@ variable "psqldb_config" {
   default = {
     subscription_id       = "096534ab-9b99-4153-8505-90d030aa4f08"
     tenant_id             = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
-    resource_group_name   = "RG-PSQLDB"
+    resource_group_name   = "RG-PSQLDB-CENTRALUS"
     location              = "centralus" # Ensure this matches the PostgreSQL server location
     environment           = "dev"
     project_name          = "myproject"
@@ -41,9 +41,9 @@ variable "psqldb_config" {
     storage_container_name = "psql-va-container"
     subnet_id = ""
     vnet_subnets = [ {
-      name           = "subnet-psqldb"
-      id             = "" 
-      address_prefix = "10.0.10.0/24"
+      name           = "subnet-psqldb-centralus"
+      #id             = "" 
+      address_prefix = "10.1.1.0/24"
     } ]
   }
 }

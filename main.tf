@@ -1,34 +1,35 @@
 terraform {
-  required_version = ">= 1.3.0"
-
+  required_version = ">= 1.5.6"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.0.0"
+      version = "~> 3.80.0"
     }
   }
 }
 
 provider "azurerm" {
   alias = "vnet_eastus"
-  subscription_id = var.subscription_id
-  #resource_provider_registrations = "none"
+  subscription_id           = var.subscription_id
+  skip_provider_registration = true
   features {
     resource_group {
       prevent_deletion_if_contains_resources = false
     }
   }
 }
+
 provider "azurerm" {
   alias = "vnet_centralus"
-  subscription_id = var.subscription_id
-  #resource_provider_registrations = "none"
+  subscription_id           = var.subscription_id
+  skip_provider_registration = true
   features {
     resource_group {
       prevent_deletion_if_contains_resources = false
     }
   }
 }
+
 
 # provider "azurerm" {
 #   alias = "vnet_centralus"
@@ -95,8 +96,17 @@ provider "azurerm" {
 #   }
 # }
 
-
-
+provider "azurerm" {
+  alias = "psqldb"
+  subscription_id           = var.subscription_id
+  tenant_id                 = var.tenant_id
+  skip_provider_registration = true
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+}
 # VNet Module
 module "vnet_eastus" {
   source = "./networking/vnet/vneteastus"
@@ -540,31 +550,40 @@ module "vnet_peering" {
 #   owner                       = var.mysqldb_config.owner
 # }
 
-# PostgreSQL DB Module
-# module "psqldb" {
-#   source = "./databases/psqldb"
+#PostgreSQL DB Module
+module "psqldb" {
+  source = "./databases/psqldb"
+ 
+  providers = {
+    azurerm = azurerm.psqldb
+  }
+  # General Configuration
+  subscription_id       = var.psqldb_config.subscription_id
+  tenant_id             = var.psqldb_config.tenant_id
+  resource_group_name   = var.psqldb_config.resource_group_name
+  location              = var.psqldb_config.location
+  environment           = var.psqldb_config.environment
+  project_name          = var.psqldb_config.project_name
+  owner                 = var.psqldb_config.owner
 
-#   # General Configuration
-#   subscription_id       = var.psqldb_config.subscription_id
-#   tenant_id             = var.psqldb_config.tenant_id
-#   resource_group_name   = var.psqldb_config.resource_group_name
-#   location              = var.psqldb_config.location
-#   environment           = var.psqldb_config.environment
-#   project_name          = var.psqldb_config.project_name
-#   owner                 = var.psqldb_config.owner
+  # PostgreSQL Server Configuration
+  psql_server_name      = var.psqldb_config.psql_server_name
+  sku_name              = var.psqldb_config.sku_name
+  admin_username        = var.psqldb_config.admin_username
+  admin_password        = var.psqldb_config.admin_password
 
-#   # PostgreSQL Server Configuration
-#   psql_server_name      = var.psqldb_config.psql_server_name
-#   sku_name              = var.psqldb_config.sku_name
-#   admin_username        = var.psqldb_config.admin_username
-#   admin_password        = var.psqldb_config.admin_password
+  #Networking Configuration
+   # Networking Configuration
+  vnet_name             = module.vnet_centralus.vnet_name
+  vnet_subnets          = module.vnet_centralus.subnets
+    subnet_id             = lookup(
+    { for subnet in module.vnet_centralus.subnets : subnet.name => subnet.id },
+    "subnet-psqldb-centralus",
+    null
+  )
 
-#   # Networking Configuration
-#   # vnet_name             = var.psqldb_config.vnet_name
-#   # vnet_subnets          = var.psqldb_config.vnet_subnets
-#   # subnet_id             = var.psqldb_config.subnet_id
   
-#   storage_account_name  = var.psqldb_config.storage_account_name
-#   storage_container_name = var.psqldb_config.storage_container_name
-# }
+  storage_account_name  = var.psqldb_config.storage_account_name
+  storage_container_name = var.psqldb_config.storage_container_name
+}
 

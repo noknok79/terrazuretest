@@ -63,6 +63,14 @@ resource "azurerm_subnet" "subnet" {
   depends_on = [azurerm_virtual_network.vnet]
 }
 
+resource "azurerm_subnet" "subnets" {
+  count                = length(var.subnets)
+  name                 = var.subnets[count.index].name
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = var.vnet_name
+  address_prefixes     = [var.subnets[count.index].address_prefix]
+}
+
 # Resource Group Name
 variable "resource_group_name" {
   description = "The name of the resource group where the virtual network will be created."
