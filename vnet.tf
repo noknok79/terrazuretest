@@ -158,12 +158,13 @@ output "vnet_eastus_subnet_address_prefixes" {
   description = "A list of all subnet address prefixes in East US"
   value       = [for subnet_key, subnet in module.vnet_eastus.subnets : subnet.address_prefix]
 }
+
 output "vnet_subnets" {
   description = "A list of subnets with their names and IDs"
   value = [
-    for subnet in azurerm_subnet.subnets : {
-      name = subnet.name
-      id   = subnet.id
+    for subnet_key, subnet in module.vnet_eastus.subnets : {
+      name           = subnet.name
+      id             = subnet.id
       address_prefix = subnet.address_prefix
     }
   ]

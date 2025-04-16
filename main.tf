@@ -554,9 +554,9 @@ module "vnet_peering" {
 module "psqldb" {
   source = "./databases/psqldb"
  
-  providers = {
-    azurerm = azurerm.psqldb
-  }
+  # providers = {
+  #   azurerm = azurerm.psqldb
+  # }
   # General Configuration
   subscription_id       = var.psqldb_config.subscription_id
   tenant_id             = var.psqldb_config.tenant_id
