@@ -82,3 +82,13 @@ variable "mysqldb_config" {
     owner                       = "team@example.com"
   }
 }
+
+output "mysql_subnets" {
+  description = "A map of subnets with their names and IDs"
+  value       = { for subnet_name, subnet in module.vnet_eastus.subnets : subnet_name => { id = subnet.id, network_security_group_id = subnet.network_security_group_id } }
+}
+
+output "mysql_vnet_id" {
+  description = "The ID of the virtual network"
+  value       = module.vnet_eastus.vnet_id
+}

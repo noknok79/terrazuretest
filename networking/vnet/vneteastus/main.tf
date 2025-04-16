@@ -133,13 +133,14 @@ output "address_space" {
 }
 
 output "subnets" {
-  description = "A map of all subnets with their names and address prefixes"
-  value = { for subnet_key, subnet in azurerm_subnet.vnet_subnets : subnet_key => {
-    name           = subnet.name
-    address_prefix = subnet.address_prefixes[0]
-  } }
+  description = "A map of subnets with their names and IDs"
+  value       = { for subnet_name, subnet in azurerm_subnet.vnet_subnets : subnet_name => { id = subnet.id } }
 }
 
+output "vnet_id" {
+  description = "The ID of the virtual network"
+  value       = azurerm_virtual_network.vnet.id
+}
 
 output "resource_group_name" {
   value = var.resource_group_name
@@ -147,4 +148,8 @@ output "resource_group_name" {
 
 output "vnet_name" {
   value = var.vnet_name
+}
+
+output "vnet_subnets" {
+  value = azurerm_subnet.vnet_subnets
 }

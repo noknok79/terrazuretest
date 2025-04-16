@@ -502,53 +502,53 @@ module "vnet_peering" {
 #       # }
 # # MySQL DB Module
 # # MySQL DB Module
-# module "mysqldb" {
-#   source = "./databases/mysqldb"
+module "mysqldb" {
+  source = "./databases/mysqldb"
 
-#   # General Configuration
-#   subscription_id             = var.mysqldb_config.subscription_id
-#   tenant_id                   = var.mysqldb_config.tenant_id
-#   resource_group_name         = var.mysqldb_config.resource_group_name
-#   resource_group_location     = var.mysqldb_config.resource_group_location
-#   location                    = var.mysqldb_config.location
-#   environment                 = var.mysqldb_config.environment
-#   project_name                = var.mysqldb_config.project_name
-#   server_name                 = var.mysqldb_config.server_name
-#   admin_username              = var.mysqldb_config.admin_username
-#   admin_password              = var.mysqldb_config.admin_password
-#   sku_name                    = var.mysqldb_config.sku_name
-#   mysql_version               = var.mysqldb_config.mysql_version
-#   mysql_server                = var.mysqldb_config.mysql_server
-#   mysql_server_name           = var.mysqldb_config.mysql_server_name
+  # General Configuration
+  subscription_id             = var.mysqldb_config.subscription_id
+  tenant_id                   = var.mysqldb_config.tenant_id
+  resource_group_name         = var.mysqldb_config.resource_group_name
+  resource_group_location     = var.mysqldb_config.resource_group_location
+  location                    = var.mysqldb_config.location
+  environment                 = var.mysqldb_config.environment
+  project_name                = var.mysqldb_config.project_name
+  server_name                 = var.mysqldb_config.server_name
+  admin_username              = var.mysqldb_config.admin_username
+  admin_password              = var.mysqldb_config.admin_password
+  sku_name                    = var.mysqldb_config.sku_name
+  mysql_version               = var.mysqldb_config.mysql_version
+  mysql_server                = var.mysqldb_config.mysql_server
+  mysql_server_name           = var.mysqldb_config.mysql_server_name
 
-#   # Networking Configuration
-#   vnet_name                   = module.vnet_eastus.vnet_name
-#   subnet_id                   = lookup(
-#     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
-#     "subnet-mysqldb"
-#   )
-#   virtual_network_id          = module.vnet_eastus.vnet_id
-#   network_security_group_id   = lookup(
-#     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.network_security_group_id },
-#     "subnet-mysqldb",
-#     null
-#   )
+  # Networking Configuration
+  vnet_name                   = module.vnet_eastus.vnet_name
+  subnet_id                   = lookup(
+    { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
+    "subnet-mysqldb"
+  )
+  virtual_network_id          = module.vnet_eastus.vnet_id
+  network_security_group_id   = lookup(
+    { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.network_security_group_id },
+    "subnet-mysqldb",
+    null
+  )
 
-#   start_ip_address            = var.mysqldb_config.start_ip_address
-#   end_ip_address              = var.mysqldb_config.end_ip_address
+  start_ip_address            = var.mysqldb_config.start_ip_address
+  end_ip_address              = var.mysqldb_config.end_ip_address
 
-#   # Availability Zones
-#   availability_zone           = var.mysqldb_config.availability_zone
-#   standby_availability_zone   = var.mysqldb_config.standby_availability_zone
+  # Availability Zones
+  availability_zone           = var.mysqldb_config.availability_zone
+  standby_availability_zone   = var.mysqldb_config.standby_availability_zone
 
-#   # Storage Configuration
-#   storage_account_name        = var.mysqldb_config.storage_account_name
-#   storage_container_name      = var.mysqldb_config.storage_container_name
-#   # storage_account_id          = var.mysqldb_config.storage_account_id
+  # Storage Configuration
+  storage_account_name        = var.mysqldb_config.storage_account_name
+  storage_container_name      = var.mysqldb_config.storage_container_name
+  # storage_account_id          = var.mysqldb_config.storage_account_id
 
-#   # Tags and Metadata
-#   owner                       = var.mysqldb_config.owner
-# }
+  # Tags and Metadata
+  owner                       = var.mysqldb_config.owner
+}
 
 #PostgreSQL DB Module
 module "psqldb" {

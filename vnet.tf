@@ -118,10 +118,10 @@ output "vnet_centralus_address_space" {
   value       = module.vnet_centralus.address_space
 }
 
-output "vnet_centralus_subnets" {
-  description = "A map of all subnets with their names and address prefixes in Central US"
-  value       = module.vnet_centralus.subnets
-}
+# output "vnet_centralus_subnets" {
+#   description = "A map of all subnets with their names and address prefixes in Central US"
+#   value       = module.vnet_centralus.subnets
+# }
 
 output "vnet_centralus_subnet_names" {
   description = "A list of all subnet names in Central US"
@@ -170,7 +170,7 @@ output "vnet_subnets" {
   ]
 }
 
-output "subnets" {
+output "vnet_centralus_subnets" {
   description = "A list of subnets with their names and IDs"
   value = module.vnet_centralus.subnets
 }
@@ -178,4 +178,14 @@ output "subnets" {
 output "vnet_subnets_centralus" {
   description = "A list of subnets with their names and IDs"
   value = module.vnet_centralus.subnets
+}
+
+output "vnet_eastus_ubnets" {
+  description = "A map of subnets with their names and IDs"
+  value       = { for subnet_name, subnet in module.vnet_eastus.subnets : subnet_name => { id = subnet.id, network_security_group_id = subnet.network_security_group_id } }
+}
+
+output "vnet_eastus_vnet_id" {
+  description = "The ID of the virtual network"
+  value       = module.vnet_eastus.vnet_id
 }
