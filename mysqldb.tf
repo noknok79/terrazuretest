@@ -85,7 +85,7 @@ variable "mysqldb_config" {
 
 output "mysql_subnets" {
   description = "A map of subnets with their names and IDs"
-  value       = { for subnet_name, subnet in module.vnet_eastus.subnets : subnet_name => { id = subnet.id, network_security_group_id = subnet.network_security_group_id } }
+  value       = { for subnet_name, subnet in module.vnet_eastus.subnets : subnet_name => { id = subnet.id } }
 }
 
 output "mysql_vnet_id" {

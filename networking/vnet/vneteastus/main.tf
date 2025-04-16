@@ -133,8 +133,9 @@ output "address_space" {
 }
 
 output "subnets" {
-  description = "A map of subnets with their names and IDs"
-  value       = { for subnet_name, subnet in azurerm_subnet.vnet_subnets : subnet_name => { id = subnet.id } }
+  value = { for subnet in azurerm_subnet.vnet_subnets : subnet.name => {
+    id = subnet.id
+  } }
 }
 
 output "vnet_id" {
@@ -150,6 +151,13 @@ output "vnet_name" {
   value = var.vnet_name
 }
 
+// filepath: ./networking/vnet/vneteastus/outputs.tf
 output "vnet_subnets" {
-  value = azurerm_subnet.vnet_subnets
+  value = [
+    for subnet in azurerm_subnet.vnet_subnets : {
+      name           = subnet.name
+      id             = subnet.id
+      address_prefix = join(", ", subnet.address_prefixes) # Combine address prefixes into a single string
+    }
+  ]
 }

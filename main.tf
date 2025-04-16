@@ -12,6 +12,7 @@ provider "azurerm" {
   alias = "vnet_eastus"
   subscription_id           = var.subscription_id
   skip_provider_registration = true
+
   features {
     resource_group {
       prevent_deletion_if_contains_resources = false
@@ -31,16 +32,16 @@ provider "azurerm" {
 }
 
 
-# provider "azurerm" {
-#   alias = "vnet_centralus"
-#   subscription_id = var.subscription_id
-#   skip_provider_registration = true
-#   features {
-#     resource_group {
-#       prevent_deletion_if_contains_resources = false
-#     }
-#   }
-# }
+provider "azurerm" {
+  alias = "cosmosdb"
+  subscription_id = var.subscription_id
+  skip_provider_registration = true
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+}
 
 # provider "azurerm" {
 #   alias = "aksazure"
@@ -63,15 +64,18 @@ provider "azurerm" {
 #   }
 # }
 
-# provider "azurerm" {
-#   alias = "keyvault"
-#   subscription_id = var.subscription_id
-#   features {
-#     resource_group {
-#       prevent_deletion_if_contains_resources = false
-#     }
-#   }
-  
+provider "azurerm" {
+  alias = "keyvault"
+  subscription_id = var.subscription_id
+    tenant_id               = var.tenant_id
+
+  skip_provider_registration = true
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+}
 # }
 # # Resource Group for VNet
 # provider "azurerm" {
@@ -261,43 +265,44 @@ module "vnet_peering" {
 #     #   }
 # # Key Vault Module
 # # Key Vault Module
-# module "keyvault" {
-#   source = "./security/keyvaults"
+module "keyvault" {
+  source = "./security/keyvaults"
 
-#   resource_group_name   = var.keyvault_config.resource_group_name
-#   location              = var.keyvault_config.location
-#   keyvault_name         = var.keyvault_config.keyvault_name
-#   sku_name              = var.keyvault_config.sku_name
-#   # tenant_id attribute removed as it is not valid here
-#   subscription_id       = var.subscription_id
-#   tenant_id             = var.tenant_id # Added tenant_id argument
+  resource_group_name   = var.keyvault_config.resource_group_name
+  location              = var.keyvault_config.location
+  keyvault_name         = var.keyvault_config.keyvault_name
+  sku_name              = var.keyvault_config.sku_name
+  # tenant_id attribute removed as it is not valid here
+  subscription_id       = var.subscription_id
+  tenant_id             = var.tenant_id # Added tenant_id argument
 
-#   # Networking Configuration
-#    virtual_network_name  = module.vnet_eastus.vnet_name
-#   subnet_id             = lookup(
-#     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
-#     "subnet-keyvault"
-#   )
-#   subnet_name           = lookup(
-#     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.name },
-#     "subnet-keyvault"
-#   )
-#   subnet_address_prefixes = [lookup(
-#     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix },
-#     "subnet-keyvault",
-#     "10.0.6.0/24" # Updated to a non-overlapping range
-#   )]
+  # Networking Configuration
+   virtual_network_name  = module.vnet_eastus.vnet_name
+  subnet_id             = lookup(
+    { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
+    "subnet-keyvault"
+  )
+ subnet_name = lookup(
+  { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.name },
+  "subnet-keyvault"
+)
 
-#   owner                 = var.keyvault_config.owner
+subnet_address_prefixes = [lookup(
+  { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix },
+  "subnet-keyvault",
+  "10.0.6.0/24" # Updated to a non-overlapping range
+)]
 
-#   # Access Policies
-#   access_policies = var.keyvault_config.access_policies
+  owner                 = var.keyvault_config.owner
 
-#   # Tags and Metadata
-#   tags        = var.keyvault_config.tags
-#   environment = var.keyvault_config.environment
-#   project     = var.keyvault_config.project
-# }
+  # Access Policies
+  access_policies = var.keyvault_config.access_policies
+
+  # Tags and Metadata
+  tags        = var.keyvault_config.tags
+  environment = var.keyvault_config.environment
+  project     = var.keyvault_config.project
+}
 
 
 
@@ -436,70 +441,70 @@ module "vnet_peering" {
 #   #     }
 # # Cosmos DB Module
 # # Cosmos DB Module
-# module "cosmosdb" {
-#   source = "./databases/cosmosdb"
+module "cosmosdb" {
+  source = "./databases/cosmosdb"
 
-#   # General Configuration
-#   subscription_id     = var.cosmosdb_config.subscription_id
-#   resource_group_name = var.cosmosdb_config.resource_group_name
-#   location            = var.cosmosdb_config.location
-#   environment         = var.cosmosdb_config.environment
-#   owner               = var.cosmosdb_config.owner
-#   project             = var.cosmosdb_config.project
-#   # cosmosdb_partition_key_path = var.cosmosdb_config.partition_key_path
+  # General Configuration
+  subscription_id     = var.cosmosdb_config.subscription_id
+  resource_group_name = var.cosmosdb_config.resource_group_name
+  location            = var.cosmosdb_config.location
+  environment         = var.cosmosdb_config.environment
+  owner               = var.cosmosdb_config.owner
+  project             = var.cosmosdb_config.project
+  # cosmosdb_partition_key_path = var.cosmosdb_config.partition_key_path
 
-#   # Required Arguments
-#   keyvault_name                = module.keyvault.keyvault_name
-#   tenant_id                    = var.tenant_id
-#   cosmosdb_partition_key_path  = var.cosmosdb_config.partition_key_path
-#   access_policies = tomap({
-#     for policy in var.cosmosdb_config.access_policies : 
-#     policy.tenant_id => {
-#       tenant_id              = policy.tenant_id
-#       object_id              = policy.object_id
-#       certificate_permissions = policy.permissions.certificates
-#       key_permissions         = policy.permissions.keys
-#       secret_permissions      = policy.permissions.secrets
-#     }
-#   })
+  # Required Arguments
+  keyvault_name                = module.keyvault.keyvault_name
+  tenant_id                    = var.tenant_id
+  cosmosdb_partition_key_path  = var.cosmosdb_config.partition_key_path
+  access_policies = tomap({
+    for policy in var.cosmosdb_config.access_policies : 
+    policy.tenant_id => {
+      tenant_id              = policy.tenant_id
+      object_id              = policy.object_id
+      certificate_permissions = policy.permissions.certificates
+      key_permissions         = policy.permissions.keys
+      secret_permissions      = policy.permissions.secrets
+    }
+  })
   
-#   cosmosdb_sql_container_name  = var.cosmosdb_config.sql_container_name
-#   cosmosdb_sql_database_name   = var.cosmosdb_config.sql_database_name
-#   sku_name                     = var.cosmosdb_config.sku_name
+  cosmosdb_sql_container_name  = var.cosmosdb_config.sql_container_name
+  cosmosdb_sql_database_name   = var.cosmosdb_config.sql_database_name
+  sku_name                     = var.cosmosdb_config.sku_name
 
-  
-  
-#   # Networking Configuration
-#   subnet_id                    = lookup(
-#     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
-#     var.cosmosdb_config.subnet_name,
-#     ""
-#   )
+  # Networking Configuration
+  subnet_id                    = lookup(
+    { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
+    var.cosmosdb_config.subnet_name,
+    ""
+  )
 
-#   virtual_network_name           = module.vnet_eastus.vnet_name
-#   virtual_network_address_space  = module.vnet_eastus.address_space
-#   subnet_name                    = lookup(
-#     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.name },
-#     "subnet-cosmosdb"
-#   )
+  virtual_network_name           = module.vnet_eastus.vnet_name
+  virtual_network_address_space  = module.vnet_eastus.address_space
+  subnet_name                    = lookup(
+    { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.name },
+    "subnet-cosmosdb"
+  )
 
-#   subnet_address_prefixes        = [
-#     lookup(
-#       { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix },
-#       var.cosmosdb_config.subnet_name,
-#       "10.0.8.0/24" # Default value to avoid null
-#     )
-#   ]
+  subnet_address_prefixes        = [
+    lookup(
+      { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix },
+      var.cosmosdb_config.subnet_name,
+      "10.0.8.0/24" # Default value to avoid null
+    )
+  ]
 
-#   # Tags
-#   tags = var.cosmosdb_config.tags
-# }
+  # Tags
+  tags = var.cosmosdb_config.tags
+}
 
 
-#       # subnet9 = {
-#       #   name           = "subnet-mysqldb"
-#       #   address_prefix = "10.0.10.0/24"
-#       # }
+
+
+      # subnet9 = {
+      #   name           = "subnet-mysqldb"
+      #   address_prefix = "10.0.10.0/24"
+      # }
 # # MySQL DB Module
 # # MySQL DB Module
 module "mysqldb" {

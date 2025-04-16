@@ -16,16 +16,17 @@ provider "azurerm" {
     }
   }
 
-  subscription_id = var.subscription_id
-  tenant_id       = var.tenant_id
+  subscription_id          = var.subscription_id
+  tenant_id                = var.tenant_id
+  skip_provider_registration = true # Disable automatic provider registration
 }
 
 provider "azurerm" {
-  alias           = "cosmosdb"
+  alias                    = "cosmosdb"
   features {}
-
-  subscription_id = var.subscription_id
-  tenant_id       = var.tenant_id
+  subscription_id          = var.subscription_id
+  tenant_id                = var.tenant_id
+  skip_provider_registration = true # Disable automatic provider registration
 }
 
 # Resource Group

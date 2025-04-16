@@ -149,26 +149,26 @@ output "vnet_eastus_subnets" {
   value       = module.vnet_eastus.subnets
 }
 
-output "vnet_eastus_subnet_names" {
-  description = "A list of all subnet names in East US"
-  value       = [for subnet_key, subnet in module.vnet_eastus.subnets : subnet.name]
-}
+# output "vnet_eastus_subnet_names" {
+#   description = "A list of all subnet names in East US"
+#   value       = [for subnet_key, subnet in module.vnet_eastus.subnets : subnet.name]
+# }
 
-output "vnet_eastus_subnet_address_prefixes" {
-  description = "A list of all subnet address prefixes in East US"
-  value       = [for subnet_key, subnet in module.vnet_eastus.subnets : subnet.address_prefix]
-}
+# output "vnet_eastus_subnet_address_prefixes" {
+#   description = "A list of all subnet address prefixes in East US"
+#   value       = [for subnet_key, subnet in module.vnet_eastus.subnets : subnet.address_prefix]
+# }
 
-output "vnet_subnets" {
-  description = "A list of subnets with their names and IDs"
-  value = [
-    for subnet_key, subnet in module.vnet_eastus.subnets : {
-      name           = subnet.name
-      id             = subnet.id
-      address_prefix = subnet.address_prefix
-    }
-  ]
-}
+# output "vnet_subnets" {
+#   description = "A list of subnets with their names and IDs"
+#   value = [
+#     for subnet_key, subnet in module.vnet_eastus.subnets : {
+#       #name           = subnet.name
+#       id             = subnet.id
+#       address_prefix = subnet.address_prefix
+#     }
+#   ]
+# }
 
 output "vnet_centralus_subnets" {
   description = "A list of subnets with their names and IDs"
@@ -180,10 +180,10 @@ output "vnet_subnets_centralus" {
   value = module.vnet_centralus.subnets
 }
 
-output "vnet_eastus_ubnets" {
-  description = "A map of subnets with their names and IDs"
-  value       = { for subnet_name, subnet in module.vnet_eastus.subnets : subnet_name => { id = subnet.id, network_security_group_id = subnet.network_security_group_id } }
-}
+# output "vnet_eastus_subnets" {
+#   description = "A map of subnets with their names and IDs"
+#   value       = { for subnet_name, subnet in module.vnet_eastus.subnets : subnet_name => { id = subnet.id } }
+# }
 
 output "vnet_eastus_vnet_id" {
   description = "The ID of the virtual network"
