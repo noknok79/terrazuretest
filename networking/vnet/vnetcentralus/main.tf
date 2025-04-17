@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.0.0"
+      version = ">= 3.80.0" 
     }
   }
 }
@@ -63,12 +63,21 @@ resource "azurerm_subnet" "subnet" {
   depends_on = [azurerm_virtual_network.vnet]
 }
 
+# resource "azurerm_subnet" "subnets" {
+#   count                = length(var.subnets)
+#   name                 = var.subnets[count.index].name
+#   resource_group_name  = var.resource_group_name
+#   virtual_network_name = var.vnet_name
+#   address_prefixes     = [var.subnets[count.index].address_prefix]
+# }
+
+
 resource "azurerm_subnet" "subnets" {
-  count                = length(var.subnets)
-  name                 = var.subnets[count.index].name
+  for_each             = var.subnets
+  name                 = each.value.name
   resource_group_name  = var.resource_group_name
-  virtual_network_name = var.vnet_name
-  address_prefixes     = [var.subnets[count.index].address_prefix]
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = [each.value.address_prefix]
 }
 
 # Resource Group Name
@@ -152,4 +161,9 @@ output "resource_group_name" {
 output "vnet_name" {
   description = "The name of the virtual network"
   value       = var.vnet_name
+}
+
+output "vnet_id" {
+  description = "The ID of the Central US Virtual Network."
+  value       = azurerm_virtual_network.vnet.id
 }

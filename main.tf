@@ -11,6 +11,7 @@ terraform {
 provider "azurerm" {
   alias = "vnet_eastus"
   subscription_id           = var.subscription_id
+  tenant_id                = var.tenant_id
   skip_provider_registration = true
 
   features {
@@ -31,6 +32,16 @@ provider "azurerm" {
   }
 }
 
+provider "azurerm" {
+  alias = "peering"
+  subscription_id           = var.subscription_id
+  skip_provider_registration = true
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+}
 
 provider "azurerm" {
   alias = "cosmosdb"
@@ -54,15 +65,16 @@ provider "azurerm" {
   
 # }
 
-# provider "azurerm" {
-#   alias = "compute"
-#   subscription_id = var.subscription_id
-#   features {
-#     resource_group {
-#       prevent_deletion_if_contains_resources = false
-#     }
-#   }
-# }
+provider "azurerm" {
+  alias = "compute"
+  subscription_id = var.subscription_id
+  skip_provider_registration = true
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+}
 
 provider "azurerm" {
   alias = "keyvault"
@@ -156,9 +168,9 @@ module "vnet_centralus" {
 module "vnet_peering" {
   source = "./networking/vnet/peering"
 
-  # providers = {
-  #   azurerm = azurerm.vnet_centralus
-  # }
+  providers = {
+    azurerm = azurerm.peering
+  }
 
   eastus_vnet_name             = module.vnet_eastus.vnet_name
   eastus_resource_group_name   = module.vnet_eastus.resource_group_name
@@ -167,6 +179,10 @@ module "vnet_peering" {
 
   subscription_id = var.subscription_id
   tenant_id       = var.tenant_id
+  vnet_eastus_vnetid = module.vnet_eastus.vnet_id
+  vnet_centralus_vnetid = module.vnet_centralus.vnet_id
+  #depends_on = [ module.vnet_eastus, module.vnet_centralus ]
+
 }
 
   #  subnet5 = {
@@ -175,46 +191,46 @@ module "vnet_peering" {
   #     }
 # Compute VM Module
 # Compute VM Module
-# module "compute_vm" {
-#   source = "./compute/vm"
+module "compute_vm" {
+  source = "./compute/vm"
 
-#   providers = {
-#     azurerm = azurerm.compute
-#   }
+  providers = {
+    azurerm = azurerm.compute
+  }
 
-#   resource_group_name           = var.vm_config.resource_group_name
-#   location                      = var.vm_config.location
-#   prefix                        = var.vm_config.prefix
-#   vm_size                       = var.vm_config.vm_size
-#   admin_username                = var.vm_config.admin_username
-#   admin_password                = var.vm_config.admin_password
-#   os_disk_storage_account_type  = var.vm_config.os_disk_storage_account_type
-#   image_reference               = var.vm_config.image_reference
-#   linux_custom_script_command   = var.vm_config.linux_custom_script_command
-#   windows_custom_script_command = var.vm_config.windows_custom_script_command
-#   tags                          = var.vm_config.tags
-#   environment                   = var.vm_config.environment
-#   project                       = var.vm_config.project
-#   os_type                       = var.vm_config.os_type
-#   ssh_public_key                = file("/root/.ssh/id_rsa.pub")
+  resource_group_name           = var.vm_config.resource_group_name
+  location                      = var.vm_config.location
+  prefix                        = var.vm_config.prefix
+  vm_size                       = var.vm_config.vm_size
+  admin_username                = var.vm_config.admin_username
+  admin_password                = var.vm_config.admin_password
+  os_disk_storage_account_type  = var.vm_config.os_disk_storage_account_type
+  image_reference               = var.vm_config.image_reference
+  linux_custom_script_command   = var.vm_config.linux_custom_script_command
+  windows_custom_script_command = var.vm_config.windows_custom_script_command
+  tags                          = var.vm_config.tags
+  environment                   = var.vm_config.environment
+  project                       = var.vm_config.project
+  os_type                       = var.vm_config.os_type
+  ssh_public_key                = file("/root/.ssh/id_rsa.pub")
 
-#   # Networking Configuration
-#   # Networking Configuration
-#   virtual_network_name  = module.vnet_eastus.vnet_name
-#   address_space         = module.vnet_eastus.address_space
-#   subnet_id             = lookup(
-#     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
-#     "subnet-computevm"
-#   )
-#   subnet_name           = lookup(
-#     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.name },
-#     "subnet-computevm"
-#   )
-#   subnet_address_prefix = lookup(
-#     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix },
-#     "subnet-computevm"
-#   )
-# }
+  # Networking Configuration
+  # Networking Configuration
+  virtual_network_name  = module.vnet_eastus.vnet_name
+  address_space         = module.vnet_eastus.address_space
+  subnet_id             = lookup(
+    { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
+    "subnet-computevm"
+  )
+  subnet_name           = lookup(
+    { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.name },
+    "subnet-computevm"
+  )
+  subnet_address_prefix = lookup(
+    { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix },
+    "subnet-computevm"
+  )
+}
 
 #     # subnet3 = {
 #     #     name           = "subnet-akscluster"

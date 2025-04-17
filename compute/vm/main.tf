@@ -2,14 +2,15 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.0.0"
+      version = ">= 3.80.0" 
     }
   }
 }
 
 provider "azurerm" {
-  features        {}
   alias = "compute"
+  features        {}
+  skip_provider_registration = true
   subscription_id = var.subscription_id
   tenant_id       = var.tenant_id
 }
@@ -33,6 +34,9 @@ resource "azurerm_virtual_network" "vnet" {
   resource_group_name = var.resource_group_name
   location            = var.location
   address_space       = var.address_space
+
+    depends_on = [azurerm_resource_group.vm_rg] # Ensure the resource group is created first
+
 }
 
 # Subnet
@@ -41,6 +45,8 @@ resource "azurerm_subnet" "subnet" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = var.virtual_network_name
   address_prefixes     = [var.subnet_address_prefix]
+    depends_on = [azurerm_virtual_network.vnet] # Ensure the virtual network is created first
+
 }
 
 # Network Interface
