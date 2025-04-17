@@ -25,9 +25,9 @@ variable "aks_config" {
   })
   default = {
     resource_group_name = "RG-AKSCLUSTER"
-    location            = "East US"
+    location            = "eastus"
     dns_prefix          = "aks-dns-prefix"
-    kubernetes_version  = "1.30.10"
+    kubernetes_version = "1.30.11"
     node_count          = 3
     vm_size             = "Standard_DS2_v2"
     linux_vm_size       = "Standard_D2_v2"

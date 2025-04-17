@@ -19,12 +19,24 @@ required_providers {
 }
 
 provider "azurerm" {
-  features {}
-  alias = "aksazure"
-  subscription_id = var.subscription_id
-  tenant_id       = var.tenant_id
+  alias                     = "aksazure"
+  subscription_id           = var.subscription_id
+  tenant_id                 = var.tenant_id
+  features {
+    # resource_group {
+    #   prevent_deletion_if_contains_resources = false
+    # }
+  }
+  skip_provider_registration = true 
 }
 
+
+provider "azurerm" {
+  subscription_id = var.subscription_id
+  tenant_id       = var.tenant_id
+
+  features {}
+}
 resource "azurerm_resource_group" "rg_aks" {
   name = var.resource_group_name
   #name     = "rg-aks-${var.environment}"
@@ -74,6 +86,7 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
   location            = var.location
   resource_group_name = var.resource_group_name
   dns_prefix          = var.dns_prefix
+  
   default_node_pool {
     name            = "default"
     vm_size         = var.vm_size
@@ -82,12 +95,17 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
     #vnet_subnet_id  = var.subnet_id
   }
 
-  network_profile {
-    network_plugin = "azure"
-    service_cidr   = "10.2.0.0/16" # Changed to avoid overlap with VNet
-    dns_service_ip = "10.2.0.10"
-    # Removed invalid attribute docker_bridge_cidr
+  windows_profile {
+    admin_username = "azureuser" # Replace with your desired username
+    admin_password = var.windows_admin_password # Ensure this variable is defined securely
   }
+
+  # network_profile {
+  #   network_plugin = "azure"
+  #   service_cidr   = "10.2.0.0/16" # Changed to avoid overlap with VNet
+  #   dns_service_ip = "10.2.0.10"
+  #   # Removed invalid attribute docker_bridge_cidr
+  # }
 
   identity {
     type = "SystemAssigned"

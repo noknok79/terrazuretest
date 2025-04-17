@@ -54,16 +54,17 @@ provider "azurerm" {
   }
 }
 
-# provider "azurerm" {
-#   alias = "aksazure"
-#   subscription_id = var.subscription_id
-#   features {
-#     resource_group {
-#       prevent_deletion_if_contains_resources = false
-#     }
-#   }
-  
-# }
+provider "azurerm" {
+  alias                     = "aksazure"
+  subscription_id           = var.subscription_id
+  tenant_id                 = var.tenant_id
+  features {
+    # resource_group {
+    #   prevent_deletion_if_contains_resources = false
+    # }
+  }
+  skip_provider_registration = true 
+}
 
 provider "azurerm" {
   alias = "compute"
@@ -237,42 +238,42 @@ module "compute_vm" {
 #     #     address_prefix = "10.0.2.0/24"
 #     #   }
       
-# # AKS Module
-# module "aks" {
-#   source = "./compute/aks"
+# AKS Module
+module "aks" {
+  source = "./compute/aks"
 
-#   providers = {
-#     azurerm = azurerm.aksazure
-#   }
+  providers = {
+    azurerm = azurerm.aksazure
+  }
 
-#   subscription_id     = var.subscription_id
-#   tenant_id           = var.tenant_id
-#   resource_group_name = var.aks_config.resource_group_name
-#   location            = var.aks_config.location
-#   dns_prefix          = var.aks_config.dns_prefix
+  subscription_id     = var.subscription_id
+  tenant_id           = var.tenant_id
+  resource_group_name = var.aks_config.resource_group_name
+  location            = var.aks_config.location
+  dns_prefix          = var.aks_config.dns_prefix
   
-#   vnet_name  = module.vnet_eastus.vnet_name
-#   subnet_id  = lookup(
-#     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
-#     "subnet-akscluster"
-#   )
+  vnet_name  = module.vnet_eastus.vnet_name
+  subnet_id  = lookup(
+    { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
+    "subnet-akscluster"
+  )
   
-#   cluster_name                    = var.aks_config.cluster_name
-#   kubernetes_version              = var.aks_config.kubernetes_version
-#   linux_vm_size                   = var.aks_config.linux_vm_size
-#   linux_node_count                = var.aks_config.linux_node_count
-#   windows_vm_size                 = var.aks_config.windows_vm_size
-#   windows_node_count              = var.aks_config.windows_node_count
-#   vm_size                         = var.aks_config.vm_size
-#   node_count                      = var.aks_config.node_count
-#   admin_group_object_ids          = var.aks_config.admin_group_object_ids
-#   authorized_ip_ranges            = var.aks_config.authorized_ip_ranges
-#   api_server_authorized_ip_ranges = var.aks_config.api_server_authorized_ip_ranges
-#   log_analytics_workspace_id      = var.aks_config.log_analytics_workspace_id
-#   tags                            = var.aks_config.tags
-#   environment                     = var.aks_config.environment
-#   project                         = var.aks_config.project
-# }
+  cluster_name                    = var.aks_config.cluster_name
+  kubernetes_version              = var.aks_config.kubernetes_version
+  linux_vm_size                   = var.aks_config.linux_vm_size
+  linux_node_count                = var.aks_config.linux_node_count
+  windows_vm_size                 = var.aks_config.windows_vm_size
+  windows_node_count              = var.aks_config.windows_node_count
+  vm_size                         = var.aks_config.vm_size
+  node_count                      = var.aks_config.node_count
+  admin_group_object_ids          = var.aks_config.admin_group_object_ids
+  authorized_ip_ranges            = var.aks_config.authorized_ip_ranges
+  api_server_authorized_ip_ranges = var.aks_config.api_server_authorized_ip_ranges
+  log_analytics_workspace_id      = var.aks_config.log_analytics_workspace_id
+  tags                            = var.aks_config.tags
+  environment                     = var.aks_config.environment
+  project                         = var.aks_config.project
+}
 
 
 #     #  subnet7 = {

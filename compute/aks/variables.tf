@@ -110,3 +110,9 @@ variable "api_server_authorized_ip_ranges" {
   description = "A list of authorized IP ranges for the Kubernetes API server."
   type        = list(string)
 }
+
+variable "windows_admin_password" {
+  description = "Admin password for Windows nodes"
+  type        = string
+  sensitive   = true
+}
