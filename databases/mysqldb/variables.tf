@@ -125,3 +125,10 @@ variable "end_ip_address" {
   type        = string
 }
 
+variable "vnet_subnets" {
+  description = "A map of subnets with their names and IDs"
+  type        = map(object({
+    id                       = string
+    network_security_group_id = string
+  }))
+}

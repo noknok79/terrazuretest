@@ -1,13 +1,14 @@
 terraform {
-  required_version = ">= 1.4.6"
-
+  required_version = ">= 1.5.6"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.64.0"
+      version = "~> 3.74" # Use the latest stable version
+
     }
   }
 }
+
 
 provider "azurerm" {
   features {
@@ -21,12 +22,18 @@ provider "azurerm" {
   skip_provider_registration = true # Disable automatic provider registration
 }
 
-provider "azurerm" {
-  alias                    = "cosmosdb"
-  features {}
-  subscription_id          = var.subscription_id
-  tenant_id                = var.tenant_id
-  skip_provider_registration = true # Disable automatic provider registration
+# provider "azurerm" {
+#   alias                    = "cosmosdb"
+#   features {}
+#   subscription_id          = var.subscription_id
+#   tenant_id                = var.tenant_id
+#   skip_provider_registration = true # Disable automatic provider registration
+# }
+
+resource "random_string" "cosmosdb_suffix" {
+  length  = 6
+  upper   = false
+  special = false
 }
 
 # Resource Group
@@ -98,8 +105,8 @@ resource "azurerm_key_vault_access_policy" "keyvault_policy" {
   tenant_id    = each.value.tenant_id
   object_id    = each.value.object_id
 
-  secret_permissions = each.value.secret_permissions
-  key_permissions    = each.value.key_permissions
+  secret_permissions      = each.value.secret_permissions
+  key_permissions         = each.value.key_permissions
   certificate_permissions = each.value.certificate_permissions
 
   depends_on = [azurerm_key_vault.keyvault]
@@ -124,6 +131,10 @@ resource "azurerm_cosmosdb_account" "cosmosdb" {
 
   is_virtual_network_filter_enabled = var.cosmosdb_is_virtual_network_filter_enabled
 
+  virtual_network_rule {
+    id = azurerm_subnet.keyvault_subnet.id
+  }
+
   dynamic "virtual_network_rule" {
     for_each = [azurerm_subnet.keyvault_subnet.id]
     content {
@@ -132,24 +143,25 @@ resource "azurerm_cosmosdb_account" "cosmosdb" {
   }
 
   depends_on = [
-    azurerm_key_vault.keyvault 
+    azurerm_key_vault.keyvault,
+    azurerm_subnet.keyvault_subnet 
   ]
 }
 
 # Cosmos DB SQL Database
 resource "azurerm_cosmosdb_sql_database" "cosmosdb_sql_db" {
-  name                = var.cosmosdb_sql_database_name
+  name                = "cosmosdb-${random_string.unique_suffix.result}"
   resource_group_name = azurerm_resource_group.keyvault_rg.name
   account_name        = azurerm_cosmosdb_account.cosmosdb.name
 }
 
 # Cosmos DB SQL Container
 resource "azurerm_cosmosdb_sql_container" "cosmosdb_sql_container" {
-  name                = var.cosmosdb_sql_container_name
+  name                = "cosmosdbcontainer-${random_string.unique_suffix.result}"
   resource_group_name = azurerm_resource_group.keyvault_rg.name
   account_name        = azurerm_cosmosdb_account.cosmosdb.name
   database_name       = azurerm_cosmosdb_sql_database.cosmosdb_sql_db.name
-  partition_key_path = var.cosmosdb_partition_key_path
+  partition_key_path = var.cosmosdb_partition_key_path # Correct argument (plural)
 
   #partition_key_paths = [var.cosmosdb_partition_key_path]
 

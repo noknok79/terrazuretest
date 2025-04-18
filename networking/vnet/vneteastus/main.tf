@@ -2,16 +2,27 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.80.0" 
+      version = ">= 3.80.0"
     }
   }
 }
+
+provider "azurerm" {
+  features {}
+  subscription_id = var.subscription_id
+  tenant_id       = var.tenant_id
+    skip_provider_registration = true
+
+}
+
 
 provider "azurerm" {
   alias           = "vneteastus"
   features        {}
   subscription_id = var.subscription_id
   tenant_id       = var.tenant_id
+    skip_provider_registration = true
+
 }
 
 # Resource Group
@@ -44,9 +55,9 @@ resource "azurerm_subnet" "vnet_subnets" {
   address_prefixes     = [each.value.address_prefix]
 }
 
-resource "azurerm_subnet" "subnet" {
+resource "azurerm_subnet" "keyvault_subnet" {
   name                 = "subnet-keyvault"
-  resource_group_name  = azurerm_resource_group.vnet_rg.name
+  resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.6.0/24"]
 
@@ -61,6 +72,33 @@ resource "azurerm_subnet" "subnet" {
   }
 
   depends_on = [azurerm_virtual_network.vnet]
+}
+
+
+# Associate NSGs with subnets
+resource "azurerm_network_security_group" "vnet_eastus_nsg" {
+  name                = "vnet_eastus_nsg"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+
+  security_rule {
+    name                       = "Allow-HTTP"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+    tags = var.tags
+}
+
+resource "azurerm_subnet_network_security_group_association" "subnet_nsg_association" {
+  for_each             = azurerm_subnet.vnet_subnets
+  subnet_id            = each.value.id
+  network_security_group_id = azurerm_network_security_group.vnet_eastus_nsg.id
 }
 
 # Resource Group Name
@@ -155,9 +193,13 @@ output "vnet_name" {
 output "vnet_subnets" {
   value = [
     for subnet in azurerm_subnet.vnet_subnets : {
-      name           = subnet.name
-      id             = subnet.id
-      address_prefix = join(", ", subnet.address_prefixes) # Combine address prefixes into a single string
+      name                     = subnet.name
+      id                       = subnet.id
+      address_prefix           = subnet.address_prefixes[0]
+      network_security_group_id = try(
+        azurerm_subnet_network_security_group_association.subnet_nsg_association[subnet.name].network_security_group_id,
+        null
+      )
     }
   ]
 }

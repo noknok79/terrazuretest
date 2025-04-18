@@ -50,3 +50,14 @@ availability_zone = "1"
 
 # Standby availability zone for the MySQL Flexible Server
 standby_availability_zone = "2"
+
+vnet_subnets = {
+  subnet-mysqldb = {
+    id                       = ""
+    network_security_group_id = ""
+    }
+  subnet-app = {
+    id                       = ""
+    network_security_group_id = ""
+    }
+}

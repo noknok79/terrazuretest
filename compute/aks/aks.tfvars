@@ -13,7 +13,7 @@ linux_vm_size     = "Standard_DS2_v2"
 linux_node_count  = 2
 windows_vm_size   = "Standard_DS2_v2"
 windows_node_count = 1
-kubernetes_version = "1.30.11"
+kubernetes_version = "1.30.0"
 tags = {
   Environment = "dev"
   Project     = "myproject"
@@ -33,3 +33,9 @@ admin_group_object_ids = [
 vnet_name = ""
 
 windows_admin_password = "YourSecurePassword123!" # Replace with a strong password
+
+# Add the missing vnet_subnets variable
+vnet_subnets = {
+  subnet1 = "subnet-1-id" # Replace with actual subnet IDs
+  subnet2 = "subnet-2-id"
+}

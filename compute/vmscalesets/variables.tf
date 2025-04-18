@@ -221,8 +221,24 @@ variable "vmss_nic_name" {
 
 # Add your variable declarations here
 
+variable "subnets" {
+  description = "The list of subnets for the VM Scale Set"
+  type        = list(object({
+    name           = string
+    id             = string
+    address_prefix = string
+  }))
+}
+
 variable "vmss_network_profile_name" {
   description = "The name of the network profile for the VM scale set."
   type        = string
   default     = "vmss-network-profile"
 }
+
+variable "vmss_os_disk_size_gb" {
+  description = "The size of the OS disk in GB for the VM Scale Set"
+  type        = number
+  default     = 30
+}
+

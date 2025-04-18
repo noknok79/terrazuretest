@@ -2,16 +2,35 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.0.0"
+      version = "~> 3.74" 
     }
   }
 }
 
 provider "azurerm" {
-  features        {}
-  alias = "vmss"
-  subscription_id = var.subscription_id
-  tenant_id       = var.tenant_id
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
+  skip_provider_registration = true
+
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+}
+
+# Provider alias for VM Scale Sets
+provider "azurerm" {
+  alias                      = "vmss"
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
+  skip_provider_registration = true
+
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
 }
 
 # Resource Group
@@ -136,52 +155,42 @@ resource "azurerm_lb_rule" "lb_rule" {
 }
 
 # Virtual Machine Scale Set
-resource "azurerm_virtual_machine_scale_set" "vmss" {
+resource "azurerm_linux_virtual_machine_scale_set" "vmss" {
   name                = var.vmss_name
   location            = var.location
   resource_group_name = var.rg_vmss
 
-  sku {
-    name     = var.vmss_sku
-    tier     = "Standard"
-    capacity = var.vmss_instances
+  sku = var.vmss_sku
+  instances = var.vmss_instances
+
+  upgrade_mode = "Manual"
+
+  admin_username = var.admin_username
+  admin_password = var.admin_password
+
+  admin_ssh_key {
+    username   = var.admin_username
+    public_key = file(var.ssh_public_key_path)
   }
 
-  upgrade_policy_mode = "Manual"
-
-  os_profile {
-    computer_name_prefix = var.vmss_name
-    admin_username       = var.admin_username
-    admin_password       = var.admin_password
-  }
-
-  os_profile_linux_config {
-    disable_password_authentication = false
-    ssh_keys {
-      path     = "/home/${var.admin_username}/.ssh/authorized_keys"
-      key_data = file(var.ssh_public_key_path)
-    }
-  }
-
-  network_profile {
-    name    = var.vmss_network_profile_name
+  network_interface {
+    name    = var.nic_ip_config_name
     primary = true
 
     ip_configuration {
-      name                          = var.nic_ip_config_name
-      primary                       = true
-      subnet_id                     = azurerm_subnet.subnet.id
+      name                                   = "ipconfig-vmscaleset"
+      subnet_id                              = azurerm_subnet.subnet.id
       load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.lb_backend_pool.id]
     }
   }
 
-  storage_profile_os_disk {
+  os_disk {
     caching           = var.vmss_os_disk_caching
-    managed_disk_type = var.vmss_os_disk_storage_account_type
-    create_option     = "FromImage"
+    storage_account_type = var.vmss_os_disk_storage_account_type
+    disk_size_gb      = var.vmss_os_disk_size_gb
   }
 
-  storage_profile_image_reference {
+  source_image_reference {
     publisher = var.vmss_image_publisher
     offer     = var.vmss_image_offer
     sku       = var.vmss_image_sku
@@ -193,4 +202,5 @@ resource "azurerm_virtual_machine_scale_set" "vmss" {
     owner       = "team-name"
   }
 }
+
 

@@ -9,20 +9,21 @@
 # terraform force-unlock -force <lock-id>
 
 terraform {
-  required_version = ">= 1.4.6"
-
+  required_version = ">= 1.5.6"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.64.0" # Upgrade to the latest compatible version
+      version = "~> 3.74"
     }
   }
 }
 
 provider "azurerm" {
-  features {}
-  subscription_id = var.subscription_id
-  tenant_id       = var.tenant_id
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
+  skip_provider_registration = true
+
+  features {} # Mandatory block for the azurerm provider
 }
 
 # Resource Group
@@ -82,8 +83,7 @@ resource "azurerm_storage_account" "sql_storage" {
 resource "azurerm_storage_container" "sql_va_container" {
   name                  = "sql${random_string.random_suffix.result}vulnerability"
   #storage_account_id    = azurerm_storage_account.sql_storage.id # Updated to use storage_account_id
-  storage_account_name  = var.storage_account_name
-
+  storage_account_name  = azurerm_storage_account.sql_storage.name
   container_access_type = "private"
 
   depends_on = [azurerm_storage_account.sql_storage] # Ensure storage account is created first

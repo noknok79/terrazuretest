@@ -119,3 +119,13 @@ variable "windows_admin_password" {
   sensitive   = true
 }
 
+variable "vnet_subnets" {
+  type = map(string)
+  description = "Map of subnet names to their IDs"
+}
+
+variable "vmss_os_disk_size_gb" {
+  description = "The size of the OS disk in GB for the VM Scale Set"
+  type        = number
+  default     = 30
+}

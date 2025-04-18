@@ -8,31 +8,30 @@
 # If errors occur with locks, use the command:
 # terraform force-unlock -force <lock-id>
 terraform {
-  required_version = ">= 1.5.0"
-
-required_providers {
+  required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.7.0"
+      version = ">= 3.75.0, < 4.0.0"
     }
   }
 }
 
 provider "azurerm" {
-  alias                     = "aksazure"
-  subscription_id           = var.subscription_id
-  tenant_id                 = var.tenant_id
-  skip_provider_registration = true # Disable automatic provider registration
-
+  alias                      = "aksazure"
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
+  skip_provider_registration = true
   features {}
-}
 
+  # Specify a stable API version
+
+}
 provider "azurerm" {
   subscription_id           = var.subscription_id
   tenant_id                 = var.tenant_id
-  skip_provider_registration = true # Disable automatic provider registration
-
+  skip_provider_registration = true
   features {}
+
 }
 
 
@@ -62,7 +61,7 @@ resource "azurerm_subnet" "subnet_aks" {
   name                 = "subnet-aks-${var.environment}"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet_aks.name
-  address_prefixes     = ["10.1.2.0/23"] # Adjusted to fit within new VNet range
+  address_prefixes     = ["10.1.2.0/24"] # Adjusted to fit within new VNet range
   depends_on           = [azurerm_virtual_network.vnet_aks]
 }
 
@@ -71,7 +70,7 @@ resource "azurerm_subnet" "subnet_linux" {
   resource_group_name  = var.resource_group_name
 
   virtual_network_name = azurerm_virtual_network.vnet_aks.name
-  address_prefixes     = ["10.1.4.0/23"] # Adjusted to fit within new VNet range
+  address_prefixes     = ["10.1.4.0/24"] # Adjusted to fit within new VNet range
 }
 
 resource "azurerm_subnet" "subnet_windows" {
@@ -108,9 +107,11 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
   
 
   # Network profile with API server authorized IP ranges
- network_profile {
-    network_plugin = "azure"
-    network_policy = "calico"
+   network_profile {
+    network_plugin    = "azure"
+    network_policy    = "calico"
+    dns_service_ip    = "10.0.0.10"
+    service_cidr      = "10.0.0.0/16"
   }
 
   tags = var.tags

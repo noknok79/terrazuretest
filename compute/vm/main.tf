@@ -2,19 +2,18 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.80.0" 
+      version = ">= 3.80.0"
     }
   }
 }
 
 provider "azurerm" {
-  alias = "compute"
-  features        {}
-  skip_provider_registration = true
-  subscription_id = var.subscription_id
-  tenant_id       = var.tenant_id
-}
 
+  features               {} # Ensure this block is present
+  skip_provider_registration = true
+  subscription_id        = var.subscription_id
+  tenant_id              = var.tenant_id
+}
 
 
 resource "azurerm_resource_group" "vm_rg" {

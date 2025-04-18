@@ -1,6 +1,8 @@
 variable "vm_config" {
   description = "Configuration for the virtual machine and related resources"
   type = object({
+    subscription_id         = string
+    tenant_id               = string  
     resource_group_name    = string
     location               = string
     prefix                 = string
@@ -30,6 +32,8 @@ variable "vm_config" {
     ssh_public_key                = string # Added SSH public key variable
   })
   default = {
+    subscription_id = "096534ab-9b99-4153-8505-90d030aa4f08"
+    tenant_id       = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
     resource_group_name    = "RG-COMPUTE"
     location               = "East US"
     prefix                 = "compute-dev"

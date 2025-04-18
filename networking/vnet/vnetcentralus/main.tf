@@ -2,16 +2,16 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.80.0" 
+      version = ">= 3.80.0"
     }
   }
 }
 
 provider "azurerm" {
-  alias           = "vnetcentralus"
-  features        {}
-  subscription_id = var.subscription_id
-  tenant_id       = var.tenant_id
+  features {}
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
+  skip_provider_registration = true
 }
 
 # Resource Group
@@ -80,6 +80,48 @@ resource "azurerm_subnet" "subnets" {
   address_prefixes     = [each.value.address_prefix]
 }
 
+
+# Create a Network Security Group for Central US
+resource "azurerm_network_security_group" "vnet_centralus_nsg" {
+  name                = "vnet_centralus_nsg"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+
+  security_rule {
+    name                       = "Allow-HTTP"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "Allow-HTTPS"
+    priority                   = 110
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  tags = var.tags
+}
+
+# Associate the NSG with all subnets in the Central US Virtual Network
+resource "azurerm_subnet_network_security_group_association" "subnet_nsg_association" {
+  for_each             = azurerm_subnet.vnet_subnets
+  subnet_id            = each.value.id
+  network_security_group_id = azurerm_network_security_group.vnet_centralus_nsg.id
+}
+
+
 # Resource Group Name
 variable "resource_group_name" {
   description = "The name of the resource group where the virtual network will be created."
@@ -147,11 +189,13 @@ output "address_space" {
 }
 
 output "subnets" {
-  description = "A map of all subnets with their names and address prefixes"
-  value = { for subnet_key, subnet in azurerm_subnet.vnet_subnets : subnet_key => {
-    name           = subnet.name
-    address_prefix = subnet.address_prefixes[0]
-  } }
+  value = [
+    for subnet in azurerm_subnet.vnet_subnets : {
+      name           = subnet.name
+      id             = subnet.id
+      address_prefix = subnet.address_prefixes[0]
+    }
+  ]
 }
 
 output "resource_group_name" {
@@ -166,4 +210,18 @@ output "vnet_name" {
 output "vnet_id" {
   description = "The ID of the Central US Virtual Network."
   value       = azurerm_virtual_network.vnet.id
+}
+
+output "vnet_subnets" {
+  value = [
+    for subnet in azurerm_subnet.vnet_subnets : {
+      name                     = subnet.name
+      id                       = subnet.id
+      address_prefix           = subnet.address_prefixes[0]
+      network_security_group_id = try(
+        azurerm_subnet_network_security_group_association.subnet_nsg_association[subnet.name].network_security_group_id,
+        null
+      )
+    }
+  ]
 }
