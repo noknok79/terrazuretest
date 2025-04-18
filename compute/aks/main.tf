@@ -13,7 +13,7 @@ terraform {
 required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.0.0"
+      version = ">= 3.7.0"
     }
   }
 }
@@ -22,21 +22,21 @@ provider "azurerm" {
   alias                     = "aksazure"
   subscription_id           = var.subscription_id
   tenant_id                 = var.tenant_id
-  features {
-    # resource_group {
-    #   prevent_deletion_if_contains_resources = false
-    # }
-  }
-  skip_provider_registration = true 
-}
-
-
-provider "azurerm" {
-  subscription_id = var.subscription_id
-  tenant_id       = var.tenant_id
+  skip_provider_registration = true # Disable automatic provider registration
 
   features {}
 }
+
+provider "azurerm" {
+  subscription_id           = var.subscription_id
+  tenant_id                 = var.tenant_id
+  skip_provider_registration = true # Disable automatic provider registration
+
+  features {}
+}
+
+
+
 resource "azurerm_resource_group" "rg_aks" {
   name = var.resource_group_name
   #name     = "rg-aks-${var.environment}"
@@ -91,7 +91,7 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
     name            = "default"
     vm_size         = var.vm_size
     node_count      = var.node_count
-    vnet_subnet_id = azurerm_subnet.subnet_aks.id
+    #vnet_subnet_id = azurerm_subnet.subnet_aks.id
     #vnet_subnet_id  = var.subnet_id
   }
 
@@ -100,20 +100,24 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
     admin_password = var.windows_admin_password # Ensure this variable is defined securely
   }
 
-  # network_profile {
-  #   network_plugin = "azure"
-  #   service_cidr   = "10.2.0.0/16" # Changed to avoid overlap with VNet
-  #   dns_service_ip = "10.2.0.10"
-  #   # Removed invalid attribute docker_bridge_cidr
-  # }
 
   identity {
     type = "SystemAssigned"
   }
+# Enable RBAC
+  
 
-  #api_server_authorized_ip_ranges = var.api_server_authorized_ip_ranges
+  # Network profile with API server authorized IP ranges
+ network_profile {
+    network_plugin = "azure"
+    network_policy = "calico"
+  }
 
   tags = var.tags
+  depends_on = [
+    azurerm_resource_group.rg_aks,
+    azurerm_virtual_network.vnet_aks
+  ]
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "linux_node_pool" {
@@ -122,10 +126,13 @@ resource "azurerm_kubernetes_cluster_node_pool" "linux_node_pool" {
   vm_size               = var.linux_vm_size
   node_count            = var.linux_node_count
   os_type               = "Linux"
-  vnet_subnet_id        = azurerm_subnet.subnet_linux.id
+  #vnet_subnet_id        = azurerm_subnet.subnet_linux.id
   max_pods              = 110
   node_labels           = { "namespace" = "linuxpool" }
   orchestrator_version  = var.kubernetes_version
+  depends_on = [
+    azurerm_kubernetes_cluster.aks_cluster
+  ]
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "windows_node_pool" {
@@ -134,9 +141,12 @@ resource "azurerm_kubernetes_cluster_node_pool" "windows_node_pool" {
   vm_size               = var.windows_vm_size
   node_count            = var.windows_node_count
   os_type               = "Windows"
-  vnet_subnet_id        = azurerm_subnet.subnet_windows.id
+  #vnet_subnet_id        = azurerm_subnet.subnet_windows.id
   max_pods              = 110
   node_labels           = { "namespace" = "winpl" }
   orchestrator_version  = var.kubernetes_version
+  depends_on = [
+    azurerm_kubernetes_cluster.aks_cluster
+  ]
 }
 

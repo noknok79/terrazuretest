@@ -3,15 +3,16 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.80.0"
+      version = "~> 3.74" # Use the latest stable version
+
     }
   }
 }
 
 provider "azurerm" {
-  alias = "vnet_eastus"
-  subscription_id           = var.subscription_id
-  tenant_id                = var.tenant_id
+  alias                      = "vnet_eastus"
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
   skip_provider_registration = true
 
   features {
@@ -22,8 +23,8 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
-  alias = "vnet_centralus"
-  subscription_id           = var.subscription_id
+  alias                      = "vnet_centralus"
+  subscription_id            = var.subscription_id
   skip_provider_registration = true
   features {
     resource_group {
@@ -33,8 +34,8 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
-  alias = "peering"
-  subscription_id           = var.subscription_id
+  alias                      = "peering"
+  subscription_id            = var.subscription_id
   skip_provider_registration = true
   features {
     resource_group {
@@ -44,8 +45,8 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
-  alias = "cosmosdb"
-  subscription_id = var.subscription_id
+  alias                      = "cosmosdb"
+  subscription_id            = var.subscription_id
   skip_provider_registration = true
   features {
     resource_group {
@@ -55,20 +56,23 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
-  alias                     = "aksazure"
-  subscription_id           = var.subscription_id
-  tenant_id                 = var.tenant_id
+  alias                      = "aksazure"
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
+  skip_provider_registration = true # Disable automatic provider registration
+
   features {
     # resource_group {
     #   prevent_deletion_if_contains_resources = false
     # }
   }
-  skip_provider_registration = true 
+  #jversion = "~> 3.70" #
+  #skip_provider_registration = true 
 }
 
 provider "azurerm" {
-  alias = "compute"
-  subscription_id = var.subscription_id
+  alias                      = "compute"
+  subscription_id            = var.subscription_id
   skip_provider_registration = true
   features {
     resource_group {
@@ -78,9 +82,9 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
-  alias = "keyvault"
+  alias           = "keyvault"
   subscription_id = var.subscription_id
-    tenant_id               = var.tenant_id
+  tenant_id       = var.tenant_id
 
   skip_provider_registration = true
   features {
@@ -114,9 +118,9 @@ provider "azurerm" {
 # }
 
 provider "azurerm" {
-  alias = "psqldb"
-  subscription_id           = var.subscription_id
-  tenant_id                 = var.tenant_id
+  alias                      = "psqldb"
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
   skip_provider_registration = true
   features {
     resource_group {
@@ -173,23 +177,23 @@ module "vnet_peering" {
     azurerm = azurerm.peering
   }
 
-  eastus_vnet_name             = module.vnet_eastus.vnet_name
-  eastus_resource_group_name   = module.vnet_eastus.resource_group_name
-  centralus_vnet_name          = module.vnet_centralus.vnet_name
+  eastus_vnet_name              = module.vnet_eastus.vnet_name
+  eastus_resource_group_name    = module.vnet_eastus.resource_group_name
+  centralus_vnet_name           = module.vnet_centralus.vnet_name
   centralus_resource_group_name = module.vnet_centralus.resource_group_name
 
-  subscription_id = var.subscription_id
-  tenant_id       = var.tenant_id
-  vnet_eastus_vnetid = module.vnet_eastus.vnet_id
+  subscription_id       = var.subscription_id
+  tenant_id             = var.tenant_id
+  vnet_eastus_vnetid    = module.vnet_eastus.vnet_id
   vnet_centralus_vnetid = module.vnet_centralus.vnet_id
   #depends_on = [ module.vnet_eastus, module.vnet_centralus ]
 
 }
 
-  #  subnet5 = {
-  #       name           = "subnet-computevm"
-  #       address_prefix = "10.0.8.0/24"
-  #     }
+#  subnet5 = {
+#       name           = "subnet-computevm"
+#       address_prefix = "10.0.8.0/24"
+#     }
 # Compute VM Module
 # Compute VM Module
 module "compute_vm" {
@@ -199,12 +203,13 @@ module "compute_vm" {
     azurerm = azurerm.compute
   }
 
-  resource_group_name           = var.vm_config.resource_group_name
-  location                      = var.vm_config.location
-  prefix                        = var.vm_config.prefix
-  vm_size                       = var.vm_config.vm_size
-  admin_username                = var.vm_config.admin_username
-  admin_password                = var.vm_config.admin_password
+  resource_group_name = var.vm_config.resource_group_name
+  location            = var.vm_config.location
+  prefix              = var.vm_config.prefix
+  vm_size             = var.vm_config.vm_size
+  admin_username      = var.vm_config.admin_username
+  admin_password      = var.vm_config.admin_password
+  # windows_admin_password        = var.vm_config.windows_admin_password
   os_disk_storage_account_type  = var.vm_config.os_disk_storage_account_type
   image_reference               = var.vm_config.image_reference
   linux_custom_script_command   = var.vm_config.linux_custom_script_command
@@ -217,13 +222,13 @@ module "compute_vm" {
 
   # Networking Configuration
   # Networking Configuration
-  virtual_network_name  = module.vnet_eastus.vnet_name
-  address_space         = module.vnet_eastus.address_space
-  subnet_id             = lookup(
+  virtual_network_name = module.vnet_eastus.vnet_name
+  address_space        = module.vnet_eastus.address_space
+  subnet_id = lookup(
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
     "subnet-computevm"
   )
-  subnet_name           = lookup(
+  subnet_name = lookup(
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.name },
     "subnet-computevm"
   )
@@ -237,27 +242,29 @@ module "compute_vm" {
 #     #     name           = "subnet-akscluster"
 #     #     address_prefix = "10.0.2.0/24"
 #     #   }
-      
+
 # AKS Module
 module "aks" {
   source = "./compute/aks"
 
-  providers = {
-    azurerm = azurerm.aksazure
-  }
+  # providers = {
+  #   azurerm = azurerm.aksazure
+  # }
 
   subscription_id     = var.subscription_id
   tenant_id           = var.tenant_id
   resource_group_name = var.aks_config.resource_group_name
   location            = var.aks_config.location
   dns_prefix          = var.aks_config.dns_prefix
-  
-  vnet_name  = module.vnet_eastus.vnet_name
-  subnet_id  = lookup(
-    { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
-    "subnet-akscluster"
+
+  vnet_name    = module.vnet_eastus.vnet_name
+  # vnet_subnets = module.vnet_eastus.subnets
+  subnet_id = lookup(
+    { for subnet in module.vnet_eastus.subnets : subnet.name => subnet.id },
+    "subnet-akscluster",
+    null
   )
-  
+
   cluster_name                    = var.aks_config.cluster_name
   kubernetes_version              = var.aks_config.kubernetes_version
   linux_vm_size                   = var.aks_config.linux_vm_size
@@ -273,6 +280,9 @@ module "aks" {
   tags                            = var.aks_config.tags
   environment                     = var.aks_config.environment
   project                         = var.aks_config.project
+
+  windows_admin_password = var.aks_config.windows_admin_password
+
 }
 
 
@@ -285,32 +295,32 @@ module "aks" {
 module "keyvault" {
   source = "./security/keyvaults"
 
-  resource_group_name   = var.keyvault_config.resource_group_name
-  location              = var.keyvault_config.location
-  keyvault_name         = var.keyvault_config.keyvault_name
-  sku_name              = var.keyvault_config.sku_name
+  resource_group_name = var.keyvault_config.resource_group_name
+  location            = var.keyvault_config.location
+  keyvault_name       = var.keyvault_config.keyvault_name
+  sku_name            = var.keyvault_config.sku_name
   # tenant_id attribute removed as it is not valid here
-  subscription_id       = var.subscription_id
-  tenant_id             = var.tenant_id # Added tenant_id argument
+  subscription_id = var.subscription_id
+  tenant_id       = var.tenant_id # Added tenant_id argument
 
   # Networking Configuration
-   virtual_network_name  = module.vnet_eastus.vnet_name
-  subnet_id             = lookup(
+  virtual_network_name = module.vnet_eastus.vnet_name
+  subnet_id = lookup(
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
     "subnet-keyvault"
   )
- subnet_name = lookup(
-  { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.name },
-  "subnet-keyvault"
-)
+  subnet_name = lookup(
+    { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.name },
+    "subnet-keyvault"
+  )
 
-subnet_address_prefixes = [lookup(
-  { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix },
-  "subnet-keyvault",
-  "10.0.6.0/24" # Updated to a non-overlapping range
-)]
+  subnet_address_prefixes = [lookup(
+    { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix },
+    "subnet-keyvault",
+    "10.0.6.0/24" # Updated to a non-overlapping range
+  )]
 
-  owner                 = var.keyvault_config.owner
+  owner = var.keyvault_config.owner
 
   # Access Policies
   access_policies = var.keyvault_config.access_policies
@@ -363,7 +373,7 @@ subnet_address_prefixes = [lookup(
 #   admin_username                   = var.vmss_network.admin_username
 #   admin_password                   = var.vmss_network.admin_password
 #   ssh_public_key_path              = var.vmss_network.ssh_public_key_path
-  
+
 #   vnet_name                        = module.vnet_eastus.vnet_name
 #   vnet_address_space               = module.vnet_eastus.address_space
 #   subnet_name                      = module.vnet_eastus.vnet_subnets[2].name # Assuming subnet5 is the third element
@@ -372,7 +382,7 @@ subnet_address_prefixes = [lookup(
 #     "subnet-vmscaleset"
 #   )
 #   subnet_address_prefixes          = [module.vnet_eastus.vnet_subnets[2].address_prefix] # Assuming subnet5 is the third element
-  
+
 #   public_ip_enabled                = var.vmss_network.public_ip_enabled
 #   nic_ip_config_name               = var.vmss_network.nic_ip_config_name
 #   nic_ip_allocation                = var.vmss_network.nic_ip_allocation
@@ -396,7 +406,7 @@ subnet_address_prefixes = [lookup(
 # # Azure SQL Module
 # module "azsql" {
 #   source = "./databases/azsqldbs"
- 
+
 
 #   # General Configuration
 #   project         = var.config.project
@@ -471,39 +481,39 @@ module "cosmosdb" {
   # cosmosdb_partition_key_path = var.cosmosdb_config.partition_key_path
 
   # Required Arguments
-  keyvault_name                = module.keyvault.keyvault_name
-  tenant_id                    = var.tenant_id
-  cosmosdb_partition_key_path  = var.cosmosdb_config.partition_key_path
+  keyvault_name               = module.keyvault.keyvault_name
+  tenant_id                   = var.tenant_id
+  cosmosdb_partition_key_path = var.cosmosdb_config.partition_key_path
   access_policies = tomap({
-    for policy in var.cosmosdb_config.access_policies : 
+    for policy in var.cosmosdb_config.access_policies :
     policy.tenant_id => {
-      tenant_id              = policy.tenant_id
-      object_id              = policy.object_id
+      tenant_id               = policy.tenant_id
+      object_id               = policy.object_id
       certificate_permissions = policy.permissions.certificates
       key_permissions         = policy.permissions.keys
       secret_permissions      = policy.permissions.secrets
     }
   })
-  
-  cosmosdb_sql_container_name  = var.cosmosdb_config.sql_container_name
-  cosmosdb_sql_database_name   = var.cosmosdb_config.sql_database_name
-  sku_name                     = var.cosmosdb_config.sku_name
+
+  cosmosdb_sql_container_name = var.cosmosdb_config.sql_container_name
+  cosmosdb_sql_database_name  = var.cosmosdb_config.sql_database_name
+  sku_name                    = var.cosmosdb_config.sku_name
 
   # Networking Configuration
-  subnet_id                    = lookup(
+  subnet_id = lookup(
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
     var.cosmosdb_config.subnet_name,
     ""
   )
 
-  virtual_network_name           = module.vnet_eastus.vnet_name
-  virtual_network_address_space  = module.vnet_eastus.address_space
-  subnet_name                    = lookup(
+  virtual_network_name          = module.vnet_eastus.vnet_name
+  virtual_network_address_space = module.vnet_eastus.address_space
+  subnet_name = lookup(
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.name },
     "subnet-cosmosdb"
   )
 
-  subnet_address_prefixes        = [
+  subnet_address_prefixes = [
     lookup(
       { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix },
       var.cosmosdb_config.subnet_name,
@@ -518,94 +528,94 @@ module "cosmosdb" {
 
 
 
-      # subnet9 = {
-      #   name           = "subnet-mysqldb"
-      #   address_prefix = "10.0.10.0/24"
-      # }
+# subnet9 = {
+#   name           = "subnet-mysqldb"
+#   address_prefix = "10.0.10.0/24"
+# }
 # # MySQL DB Module
 # # MySQL DB Module
 module "mysqldb" {
   source = "./databases/mysqldb"
 
   # General Configuration
-  subscription_id             = var.mysqldb_config.subscription_id
-  tenant_id                   = var.mysqldb_config.tenant_id
-  resource_group_name         = var.mysqldb_config.resource_group_name
-  resource_group_location     = var.mysqldb_config.resource_group_location
-  location                    = var.mysqldb_config.location
-  environment                 = var.mysqldb_config.environment
-  project_name                = var.mysqldb_config.project_name
-  server_name                 = var.mysqldb_config.server_name
-  admin_username              = var.mysqldb_config.admin_username
-  admin_password              = var.mysqldb_config.admin_password
-  sku_name                    = var.mysqldb_config.sku_name
-  mysql_version               = var.mysqldb_config.mysql_version
-  mysql_server                = var.mysqldb_config.mysql_server
-  mysql_server_name           = var.mysqldb_config.mysql_server_name
+  subscription_id         = var.mysqldb_config.subscription_id
+  tenant_id               = var.mysqldb_config.tenant_id
+  resource_group_name     = var.mysqldb_config.resource_group_name
+  resource_group_location = var.mysqldb_config.resource_group_location
+  location                = var.mysqldb_config.location
+  environment             = var.mysqldb_config.environment
+  project_name            = var.mysqldb_config.project_name
+  server_name             = var.mysqldb_config.server_name
+  admin_username          = var.mysqldb_config.admin_username
+  admin_password          = var.mysqldb_config.admin_password
+  sku_name                = var.mysqldb_config.sku_name
+  mysql_version           = var.mysqldb_config.mysql_version
+  mysql_server            = var.mysqldb_config.mysql_server
+  mysql_server_name       = var.mysqldb_config.mysql_server_name
 
   # Networking Configuration
-  vnet_name                   = module.vnet_eastus.vnet_name
-  subnet_id                   = lookup(
+  vnet_name = module.vnet_eastus.vnet_name
+  subnet_id = lookup(
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
     "subnet-mysqldb"
   )
-  virtual_network_id          = module.vnet_eastus.vnet_id
-  network_security_group_id   = lookup(
+  virtual_network_id = module.vnet_eastus.vnet_id
+  network_security_group_id = lookup(
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.network_security_group_id },
     "subnet-mysqldb",
     null
   )
 
-  start_ip_address            = var.mysqldb_config.start_ip_address
-  end_ip_address              = var.mysqldb_config.end_ip_address
+  start_ip_address = var.mysqldb_config.start_ip_address
+  end_ip_address   = var.mysqldb_config.end_ip_address
 
   # Availability Zones
-  availability_zone           = var.mysqldb_config.availability_zone
-  standby_availability_zone   = var.mysqldb_config.standby_availability_zone
+  availability_zone         = var.mysqldb_config.availability_zone
+  standby_availability_zone = var.mysqldb_config.standby_availability_zone
 
   # Storage Configuration
-  storage_account_name        = var.mysqldb_config.storage_account_name
-  storage_container_name      = var.mysqldb_config.storage_container_name
+  storage_account_name   = var.mysqldb_config.storage_account_name
+  storage_container_name = var.mysqldb_config.storage_container_name
   # storage_account_id          = var.mysqldb_config.storage_account_id
 
   # Tags and Metadata
-  owner                       = var.mysqldb_config.owner
+  owner = var.mysqldb_config.owner
 }
 
 #PostgreSQL DB Module
 module "psqldb" {
   source = "./databases/psqldb"
- 
+
   # providers = {
   #   azurerm = azurerm.psqldb
   # }
   # General Configuration
-  subscription_id       = var.psqldb_config.subscription_id
-  tenant_id             = var.psqldb_config.tenant_id
-  resource_group_name   = var.psqldb_config.resource_group_name
-  location              = var.psqldb_config.location
-  environment           = var.psqldb_config.environment
-  project_name          = var.psqldb_config.project_name
-  owner                 = var.psqldb_config.owner
+  subscription_id     = var.psqldb_config.subscription_id
+  tenant_id           = var.psqldb_config.tenant_id
+  resource_group_name = var.psqldb_config.resource_group_name
+  location            = var.psqldb_config.location
+  environment         = var.psqldb_config.environment
+  project_name        = var.psqldb_config.project_name
+  owner               = var.psqldb_config.owner
 
   # PostgreSQL Server Configuration
-  psql_server_name      = var.psqldb_config.psql_server_name
-  sku_name              = var.psqldb_config.sku_name
-  admin_username        = var.psqldb_config.admin_username
-  admin_password        = var.psqldb_config.admin_password
+  psql_server_name = var.psqldb_config.psql_server_name
+  sku_name         = var.psqldb_config.sku_name
+  admin_username   = var.psqldb_config.admin_username
+  admin_password   = var.psqldb_config.admin_password
 
   #Networking Configuration
-   # Networking Configuration
-  vnet_name             = module.vnet_centralus.vnet_name
-  vnet_subnets          = module.vnet_centralus.subnets
-    subnet_id             = lookup(
+  # Networking Configuration
+  vnet_name    = module.vnet_centralus.vnet_name
+  vnet_subnets = module.vnet_centralus.subnets
+  subnet_id = lookup(
     { for subnet in module.vnet_centralus.subnets : subnet.name => subnet.id },
     "subnet-psqldb-centralus",
     null
   )
 
-  
-  storage_account_name  = var.psqldb_config.storage_account_name
+
+  storage_account_name   = var.psqldb_config.storage_account_name
   storage_container_name = var.psqldb_config.storage_container_name
 }
 

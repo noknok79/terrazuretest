@@ -1,12 +1,14 @@
 variable "vm_config" {
   description = "Configuration for the virtual machine and related resources"
   type = object({
-    resource_group_name          = string
-    location                     = string
-    prefix                       = string
-    vm_size                      = string
-    admin_username               = string
-    admin_password               = string
+    resource_group_name    = string
+    location               = string
+    prefix                 = string
+    vm_size                = string
+    admin_username         = string
+    admin_password         = string
+    windows_admin_password = string # Added Windows admin password variable
+
     os_disk_storage_account_type = string
     image_reference = object({
       publisher = string
@@ -22,18 +24,20 @@ variable "vm_config" {
     subnet_address_prefix         = string
     subnet_id                     = string
     tags                          = map(string)
-    environment                 = string
-    project                      = string 
+    environment                   = string
+    project                       = string
     os_type                       = string
     ssh_public_key                = string # Added SSH public key variable
   })
   default = {
-    resource_group_name          = "RG-COMPUTE"
-    location                     = "East US"
-    prefix                       = "compute-dev"
-    vm_size                      = "Standard_DS1_v2"
-    admin_username               = "azureadmin"
-    admin_password               = "xQ3@mP4z!Bk8*wHy"
+    resource_group_name    = "RG-COMPUTE"
+    location               = "East US"
+    prefix                 = "compute-dev"
+    vm_size                = "Standard_DS1_v2"
+    admin_username         = "azureadmin"
+    admin_password         = "xQ3@mP4z!Bk8*wHy"
+    windows_admin_password = "xQ3@mP4z!Bk8*wHy" # Default value for Windows admin password
+
     os_disk_storage_account_type = "Standard_LRS"
     image_reference = {
       publisher = "Canonical"
@@ -52,8 +56,8 @@ variable "vm_config" {
       environment = "dev"
       owner       = "team"
     }
-    environment = "dev"
-    project     = "compute-project-testing"
+    environment    = "dev"
+    project        = "compute-project-testing"
     os_type        = "Linux"
     ssh_public_key = "" # Leave this empty; it will be set dynamically
     # Reads the SSH public key from the file

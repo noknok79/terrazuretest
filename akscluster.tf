@@ -1,33 +1,35 @@
 variable "aks_config" {
   description = "Configuration for the AKS cluster"
   type = object({
-        resource_group_name           = string
+    resource_group_name = string
 
-    location                      = string
-    dns_prefix                    = string
-    cluster_name                  = string
-    kubernetes_version            = string
-    linux_vm_size                 = string
-    linux_node_count              = number
-    windows_vm_size               = string
-    windows_node_count            = number
-    vm_size                       = string
-    node_count                    = number
-    admin_group_object_ids        = list(string)
-    authorized_ip_ranges          = list(string)
+    location                        = string
+    dns_prefix                      = string
+    cluster_name                    = string
+    kubernetes_version              = string
+    linux_vm_size                   = string
+    linux_node_count                = number
+    windows_vm_size                 = string
+    windows_node_count              = number
+    vm_size                         = string
+    node_count                      = number
+    admin_group_object_ids          = list(string)
+    authorized_ip_ranges            = list(string)
     api_server_authorized_ip_ranges = list(string)
-    log_analytics_workspace_id    = string
-    tags                          = map(string)
-    environment                   = string
-    project                       = string
-    subscription_id               = string
-    tenant_id                     = string
+    log_analytics_workspace_id      = string
+    tags                            = map(string)
+    environment                     = string
+    project                         = string
+    subscription_id                 = string
+    tenant_id                       = string
+    windows_admin_password          = string # Added this attribute
+
   })
   default = {
     resource_group_name = "RG-AKSCLUSTER"
     location            = "eastus"
     dns_prefix          = "aks-dns-prefix"
-    kubernetes_version = "1.30.11"
+    kubernetes_version  = "1.31.7"
     node_count          = 3
     vm_size             = "Standard_DS2_v2"
     linux_vm_size       = "Standard_D2_v2"
@@ -53,6 +55,8 @@ variable "aks_config" {
     api_server_authorized_ip_ranges = ["0.0.0.0/0"]
     environment                     = "dev"
     project                         = "aks-cluster-testing"
+    windows_admin_password          = "xQ3@mP4z!Bk8*wHy" # Provide a secure default value
+
   }
 }
 

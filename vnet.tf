@@ -6,7 +6,7 @@ variable "vneteastus_config" {
     location            = string
     vnet_name           = string
     address_space       = list(string)
-    subnets             = map(object({
+    subnets = map(object({
       name           = string
       address_prefix = string
     }))
@@ -71,7 +71,7 @@ variable "vnetcentralus_config" {
     location            = string
     vnet_name           = string
     address_space       = list(string)
-    subnets             = map(object({
+    subnets = map(object({
       name           = string
       address_prefix = string
     }))
@@ -91,6 +91,10 @@ variable "vnetcentralus_config" {
       subnet1 = {
         name           = "subnet-psqldb-centralus"
         address_prefix = "10.1.1.0/24"
+      }
+      subnet2 = {
+        name           = "subnet-akscluster-centralus"
+        address_prefix = "10.1.2.0/24"
       }
     }
     project         = "project-centralus"
@@ -172,12 +176,12 @@ output "vnet_eastus_subnets" {
 
 output "vnet_centralus_subnets" {
   description = "A list of subnets with their names and IDs"
-  value = module.vnet_centralus.subnets
+  value       = module.vnet_centralus.subnets
 }
 
 output "vnet_subnets_centralus" {
   description = "A list of subnets with their names and IDs"
-  value = module.vnet_centralus.subnets
+  value       = module.vnet_centralus.subnets
 }
 
 # output "vnet_eastus_subnets" {
