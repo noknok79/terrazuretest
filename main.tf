@@ -3,8 +3,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.74" # Use the latest stable version
-
+      version = "3.74.0"
     }
   }
 }
@@ -79,8 +78,7 @@ provider "azurerm" {
     }
   }
 }
-# }
-# # Resource Group for VNet
+
 provider "azurerm" {
   alias                      = "vmss"
   subscription_id            = var.subscription_id
@@ -94,17 +92,18 @@ provider "azurerm" {
   }
 }
 
-# provider "azurerm" {
-#   alias = "mysqldb"
-#   subscription_id = var.subscription_id
-#   skip_provider_registration = true
+provider "azurerm" {
+  alias                      = "appgw"
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
+  skip_provider_registration = true
 
-#   features {
-#     resource_group {
-#       prevent_deletion_if_contains_resources = false
-#     }
-#   }
-# }
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+}
 
 provider "azurerm" {
   alias                      = "psqldb"
@@ -117,11 +116,9 @@ provider "azurerm" {
     }
   }
 }
-# VNet Module
+
 module "vnet_eastus" {
   source = "./networking/vnet/vneteastus"
-
-
 
   resource_group_name = var.vneteastus_config.resource_group_name
   location            = var.vneteastus_config.location
@@ -136,11 +133,8 @@ module "vnet_eastus" {
   tags            = var.vneteastus_config.tags
 }
 
-
 module "vnet_centralus" {
   source = "./networking/vnet/vnetcentralus"
-
-
 
   resource_group_name = var.vnetcentralus_config.resource_group_name
   location            = var.vnetcentralus_config.location
@@ -171,22 +165,11 @@ module "vnet_peering" {
   tenant_id             = var.tenant_id
   vnet_eastus_vnetid    = module.vnet_eastus.vnet_id
   vnet_centralus_vnetid = module.vnet_centralus.vnet_id
-  #depends_on = [ module.vnet_eastus, module.vnet_centralus ]
-
 }
 
-#  subnet5 = {
-#       name           = "subnet-computevm"
-#       address_prefix = "10.0.8.0/24"
-#     }
-# Compute VM Module
-# Compute VM Module
 module "compute_vm" {
   source = "./compute/vm"
 
-  # providers = {
-  #   azurerm = azurerm.compute
-  # }
   subscription_id = var.subscription_id
   tenant_id       = var.tenant_id
   resource_group_name = var.vm_config.resource_group_name
@@ -195,7 +178,6 @@ module "compute_vm" {
   vm_size             = var.vm_config.vm_size
   admin_username      = var.vm_config.admin_username
   admin_password      = var.vm_config.admin_password
-  # windows_admin_password        = var.vm_config.windows_admin_password
   os_disk_storage_account_type  = var.vm_config.os_disk_storage_account_type
   image_reference               = var.vm_config.image_reference
   linux_custom_script_command   = var.vm_config.linux_custom_script_command
@@ -206,8 +188,6 @@ module "compute_vm" {
   os_type                       = var.vm_config.os_type
   ssh_public_key                = file("/root/.ssh/id_rsa.pub")
 
-  # Networking Configuration
-  # Networking Configuration
   virtual_network_name = module.vnet_eastus.vnet_name
   address_space        = module.vnet_eastus.address_space
   subnet_id = lookup(
@@ -224,18 +204,8 @@ module "compute_vm" {
   )
 }
 
-#     # subnet3 = {
-#     #     name           = "subnet-akscluster"
-#     #     address_prefix = "10.0.2.0/24"
-#     #   }
-
-# AKS Module
 module "aks" {
   source = "./compute/aks"
-
-  # providers = {
-  #   azurerm = azurerm.aksazure
-  # }
 
   subscription_id     = var.subscription_id
   tenant_id           = var.tenant_id
@@ -245,7 +215,6 @@ module "aks" {
 
   vnet_name    = module.vnet_eastus.vnet_name
   vnet_subnets = { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id }
-  # vnet_subnets = module.vnet_eastus.subnets
   subnet_id = lookup(
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
     "subnet-akscluster"
@@ -266,16 +235,8 @@ module "aks" {
   environment                     = var.aks_config.environment
   project                         = var.aks_config.project
   windows_admin_password = var.aks_config.windows_admin_password
-
 }
 
-
-#     #  subnet7 = {
-#     #     name           = "subnet-keyvault"
-#     #     address_prefix = "10.0.6.0/24"
-#     #   }
-# # Key Vault Module
-# # Key Vault Module
 module "keyvault" {
   source = "./security/keyvaults"
 
@@ -283,11 +244,9 @@ module "keyvault" {
   location            = var.keyvault_config.location
   keyvault_name       = var.keyvault_config.keyvault_name
   sku_name            = var.keyvault_config.sku_name
-  # tenant_id attribute removed as it is not valid here
   subscription_id = var.subscription_id
-  tenant_id       = var.tenant_id # Added tenant_id argument
+  tenant_id       = var.tenant_id
 
-  # Networking Configuration
   virtual_network_name = module.vnet_eastus.vnet_name
   subnet_id = lookup(
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
@@ -301,35 +260,22 @@ module "keyvault" {
   subnet_address_prefixes = [lookup(
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix },
     "subnet-keyvault",
-    "10.0.6.0/24" # Updated to a non-overlapping range
+    "10.0.6.0/24"
   )]
-  #keyvault_id = var.keyvault_config.keyvault_id
   keyvault_secret_value               = var.keyvault_config.keyvault_secret_value
 
   owner = var.keyvault_config.owner
 
-  # Access Policies
   access_policies = var.keyvault_config.access_policies
 
-  # Tags and Metadata
   tags        = var.keyvault_config.tags
   environment = var.keyvault_config.environment
   project     = var.keyvault_config.project
 }
 
-
-
-#       # subnet6 = {
-#       #   name           = "subnet-vmscaleset"
-#       #   address_prefix = "10.0.9.0/24"
-#       # }
-# # VMSS Module
 module "vmss" {
   source = "./compute/vmscalesets"
 
-
-
-  # Azure Configuration
   subscription_id                  = var.vmss_azure.subscription_id
   tenant_id                        = var.vmss_azure.tenant_id
   location                         = var.vmss_azure.location
@@ -337,7 +283,6 @@ module "vmss" {
   tags                             = var.vmss_azure.tags
   environment                      = var.vmss_azure.environment
 
-  # VM Scale Set Configuration
   vmss_name                        = var.vmss_config.name
   vmss_sku                         = var.vmss_config.sku
   vmss_instances                   = var.vmss_config.instances
@@ -353,19 +298,18 @@ module "vmss" {
   backend_pool_id                  = var.vmss_config.backend_pool_id
   log_analytics_workspace_id       = var.vmss_config.log_analytics_workspace_id
 
-  # Networking Configuration
   admin_username                   = var.vmss_network.admin_username
   admin_password                   = var.vmss_network.admin_password
   ssh_public_key_path              = var.vmss_network.ssh_public_key_path
 
   vnet_name                        = module.vnet_eastus.vnet_name
   vnet_address_space               = module.vnet_eastus.address_space
-  subnet_name                      = module.vnet_eastus.vnet_subnets[2].name # Assuming subnet5 is the third element
+  subnet_name                      = module.vnet_eastus.vnet_subnets[2].name
   subnet_id                        = lookup(
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
     "subnet-vmscaleset"
   )
-  subnet_address_prefixes          = [module.vnet_eastus.vnet_subnets[2].address_prefix] # Assuming subnet5 is the third element
+  subnet_address_prefixes          = [module.vnet_eastus.vnet_subnets[2].address_prefix]
   subnets                          = module.vnet_eastus.vnet_subnets
 
   public_ip_enabled                = var.vmss_network.public_ip_enabled
@@ -383,53 +327,36 @@ module "vmss" {
   nsg_rule_destination_port_range  = var.vmss_network.nsg_rule.destination_port_range
 }
 
-#   #  subnet4 = {
-#   #       name           = "subnet-azsqldbs"
-#   #       address_prefix = "10.0.7.0/24"
-#   #     }
-
-# # Azure SQL Module
 module "azsql" {
   source = "./databases/azsqldbs"
 
-
-  # General Configuration
   project         = var.config.project
   subscription_id = var.config.subscription_id
   environment     = var.config.environment
   location        = var.config.location
 
-  # Tags
   tags = var.config.tags
 
-  # SQL Server Configuration
   sql_server_name           = var.config.sql_server_name
   sql_server_admin_username = var.config.sql_server_admin_username
   sql_server_admin_password = var.config.sql_server_admin_password
 
-  # SQL Database Configuration
   database_names        = var.config.database_names
   sql_database_sku_name = var.config.sql_database_sku_name
   max_size_gb           = var.config.max_size_gb
 
-  # Storage Account Configuration
   storage_account_name = var.config.storage_account_name
 
-  # Monitoring Configuration
   log_analytics_workspace_id = var.config.log_analytics_workspace_id
 
-  # Azure Active Directory Configuration
   tenant_id           = var.config.tenant_id
   aad_admin_object_id = var.config.aad_admin_object_id
 
-  # Admin Credentials
   admin_username = var.config.admin_username
   admin_password = var.config.admin_password
 
-  # Resource Group
   resource_group_name = var.config.resource_group_name
 
-  # Networking Configuration
   vnet_name             = module.vnet_eastus.vnet_name
   vnet_address_space    = module.vnet_eastus.address_space
   subnet_id             = lookup(
@@ -446,17 +373,9 @@ module "azsql" {
   )]
 }
 
-
-#   # subnet5 = {
-#   #       name           = "subnet-cosmosdb"
-#   #       address_prefix = "10.0.8.0/24"
-#   #     }
-# # Cosmos DB Module
-# # Cosmos DB Module
 module "cosmosdb" {
   source = "./databases/cosmosdb"
 
-  # General Configuration
   subscription_id                     = var.cosmosdb_config.subscription_id
   resource_group_name                 = var.cosmosdb_config.resource_group_name
   location                            = var.cosmosdb_config.location
@@ -465,9 +384,6 @@ module "cosmosdb" {
   project                             = var.cosmosdb_config.project
   cosmosdb_virtual_network_subnet_ids = var.cosmosdb_config.virtual_network_subnet_ids
 
-  # cosmosdb_partition_key_path = var.cosmosdb_config.partition_key_path
-
-  # Required Arguments
   keyvault_name               = module.keyvault.keyvault_name
   tenant_id                   = var.tenant_id
   cosmosdb_partition_key_path = var.cosmosdb_config.partition_key_path
@@ -486,7 +402,6 @@ module "cosmosdb" {
   cosmosdb_sql_database_name  = var.cosmosdb_config.sql_database_name
   sku_name                    = var.cosmosdb_config.sku_name
 
-  # Networking Configuration
   subnet_id = lookup(
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
     var.cosmosdb_config.subnet_name,
@@ -504,26 +419,16 @@ module "cosmosdb" {
     lookup(
       { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix },
       var.cosmosdb_config.subnet_name,
-      "10.0.8.0/24" # Default value to avoid null
+      "10.0.8.0/24"
     )
   ]
 
-  # Tags
   tags = var.cosmosdb_config.tags
 }
 
-
-
-# subnet9 = {
-#   name           = "subnet-mysqldb"
-#   address_prefix = "10.0.10.0/24"
-# }
-# # MySQL DB Module
-# # MySQL DB Module
 module "mysqldb" {
   source = "./databases/mysqldb"
 
-  # General Configuration
   subscription_id         = var.mysqldb_config.subscription_id
   tenant_id               = var.mysqldb_config.tenant_id
   resource_group_name     = var.mysqldb_config.resource_group_name
@@ -539,7 +444,6 @@ module "mysqldb" {
   mysql_server            = var.mysqldb_config.mysql_server
   mysql_server_name       = var.mysqldb_config.mysql_server_name
 
-  # Networking Configuration
   vnet_name    = module.vnet_eastus.vnet_name
   vnet_subnets = { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet }
 
@@ -560,27 +464,18 @@ module "mysqldb" {
   start_ip_address = var.mysqldb_config.start_ip_address
   end_ip_address   = var.mysqldb_config.end_ip_address
 
-  # Availability Zones
   availability_zone         = var.mysqldb_config.availability_zone
   standby_availability_zone = var.mysqldb_config.standby_availability_zone
 
-  # Storage Configuration
   storage_account_name   = var.mysqldb_config.storage_account_name
   storage_container_name = var.mysqldb_config.storage_container_name
-  # storage_account_id          = var.mysqldb_config.storage_account_id
 
-  # Tags and Metadata
   owner = var.mysqldb_config.owner
 }
 
-#PostgreSQL DB Module
 module "psqldb" {
   source = "./databases/psqldb"
 
-  # providers = {
-  #   azurerm = azurerm.psqldb
-  # }
-  # General Configuration
   subscription_id     = var.psqldb_config.subscription_id
   tenant_id           = var.psqldb_config.tenant_id
   resource_group_name = var.psqldb_config.resource_group_name
@@ -589,23 +484,55 @@ module "psqldb" {
   project_name        = var.psqldb_config.project_name
   owner               = var.psqldb_config.owner
 
-  # PostgreSQL Server Configuration
   psql_server_name = var.psqldb_config.psql_server_name
   sku_name         = var.psqldb_config.sku_name
   admin_username   = var.psqldb_config.admin_username
   admin_password   = var.psqldb_config.admin_password
 
-  #Networking Configuration
-  # Networking Configuration
   vnet_name    = module.vnet_centralus.vnet_name
   vnet_subnets = module.vnet_centralus.subnets
   subnet_id = lookup(
-    { for subnet in module.vnet_centralus.subnets : subnet.name => subnet.id },
-    "subnet-psqldb-centralus",
+    { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
+    "subnet-appgateway",
     null
   )
 
-
   storage_account_name   = var.psqldb_config.storage_account_name
   storage_container_name = var.psqldb_config.storage_container_name
+}
+
+module "appgw" {
+  source = "./networking/appgw"
+
+  resource_group_name = var.appgw_config.resource_group_name
+  location            = var.appgw_config.location
+  // Removed invalid attribute "tags"
+
+  app_gateway_name = var.appgw_config.app_gateway_name
+  // Removed invalid attribute "sku"
+  // Removed invalid attribute "capacity"
+  // Removed invalid attribute "tier"
+
+  vnet_name           = module.vnet_eastus.vnet_name
+  backend_subnet_name = lookup(
+    { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.name },
+    "subnet-appgateway"
+  )
+
+  // Removed invalid attribute "ssl_certificate_name"
+
+  frontend_ip_configuration_name = var.appgw_config.frontend_ip_configuration_name
+  frontend_port_name             = var.appgw_config.frontend_port_name
+  listener_name                  = var.appgw_config.listener_name
+
+  backend_address_pool_name = var.appgw_config.backend_address_pool_name
+  http_setting_name         = var.appgw_config.http_setting_name
+  request_routing_rule_name = var.appgw_config.request_routing_rule_name
+  public_ip_name            = var.appgw_config.public_ip_name
+
+  vm_admin_username     = var.appgw_config.vm_admin_username
+  vm_admin_password     = var.appgw_config.vm_admin_password
+  nsg_name              = var.appgw_config.nsg_name
+  vm_size               = var.appgw_config.vm_size
+  frontend_subnet_name  = var.appgw_config.frontend_subnet_name
 }

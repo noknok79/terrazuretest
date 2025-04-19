@@ -1,9 +1,9 @@
 terraform {
-  required_version = ">= 1.5.0" # Ensure compatibility with the latest stable Terraform version
+  required_version = ">= 1.5.6"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.74.0" # Use the latest stable version of the AzureRM provider
+      version = "3.74.0"
     }
   }
 }
@@ -18,11 +18,11 @@ provider "azurerm" {
 }
 
 # Add random string for resource group uniqueness
-resource "random_string" "rg_suffix" {
-  length  = 6
-  upper   = false
-  special = false
-}
+# resource "random_string" "rg_suffix" {
+#   length  = 6
+#   upper   = false
+#   special = false
+# }
 
 # Updated Resource Group
 resource "azurerm_resource_group" "app_gateway_rg" {
@@ -109,7 +109,7 @@ resource "azurerm_subnet" "backend_subnet" {
   address_prefixes     = ["10.0.3.0/24"] # Additional backend subnet
   
    lifecycle {
-    prevent_destroy = true # Prevent accidental deletion of the subnet
+    prevent_destroy = false # Prevent accidental deletion of the subnet
     ignore_changes  = [address_prefixes] # Ignore changes to address prefixes
   }
 
@@ -202,14 +202,19 @@ resource "azurerm_network_interface" "backend_nic" {
   name                = "backend-nic-${count.index}"
   location            = var.location
   resource_group_name = var.resource_group_name
+  
   lifecycle {
     prevent_destroy = false # Allow deletion of VMs
   }
+  
   ip_configuration {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.backend_subnet.id
     private_ip_address_allocation = "Dynamic"
   }
+   depends_on = [
+    azurerm_subnet.backend_subnet
+  ]
 }
 
 resource "azurerm_virtual_machine" "backend_vm" {
@@ -251,4 +256,8 @@ resource "azurerm_virtual_machine" "backend_vm" {
   tags = {
     environment = "production"
   }
+  depends_on = [
+    azurerm_network_interface.backend_nic
+  ]
+
 }

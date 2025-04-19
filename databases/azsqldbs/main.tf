@@ -7,13 +7,12 @@
 # #2 terraform destroy -var-file="databases/azsqldbs/azsql.tfvars" --input=false
 # If errors occur with locks, use the command:
 # terraform force-unlock -force <lock-id>
-
 terraform {
   required_version = ">= 1.5.6"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.74"
+      version = "3.74.0"
     }
   }
 }
