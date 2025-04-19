@@ -303,6 +303,8 @@ module "keyvault" {
     "subnet-keyvault",
     "10.0.6.0/24" # Updated to a non-overlapping range
   )]
+  #keyvault_id = var.keyvault_config.keyvault_id
+  keyvault_secret_value               = var.keyvault_config.keyvault_secret_value
 
   owner = var.keyvault_config.owner
 
@@ -509,7 +511,6 @@ module "cosmosdb" {
   # Tags
   tags = var.cosmosdb_config.tags
 }
-
 
 
 

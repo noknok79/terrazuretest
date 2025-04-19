@@ -51,6 +51,10 @@ variable "vneteastus_config" {
         name           = "subnet-mysqldb"
         address_prefix = "10.0.10.0/24"
       }
+      subnet8 = {
+        name           = "subnet-appgateway"
+        address_prefix = "10.0.11.0/24"
+      }
     }
     project         = "my-project"
     environment     = "dev"

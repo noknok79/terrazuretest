@@ -9,20 +9,32 @@ terraform {
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+  skip_provider_registration = true
 }
 
-# Resource Group
+# Add random string for resource group uniqueness
+resource "random_string" "rg_suffix" {
+  length  = 6
+  upper   = false
+  special = false
+}
+
+# Updated Resource Group
 resource "azurerm_resource_group" "app_gateway_rg" {
-  name     = "rg-app-gateway"
+  name     = var.resource_group_name
   location = var.location
 }
 
-# Virtual Network
+# Updated Virtual Network
 resource "azurerm_virtual_network" "app_gateway_vnet" {
-  name                = "vnet-app-gateway"
-  location            = azurerm_resource_group.app_gateway_rg.location
-  resource_group_name = azurerm_resource_group.app_gateway_rg.name
+  name                = var.vnet_name
+  location            = var.location
+  resource_group_name = var.resource_group_name
   address_space       = ["10.0.0.0/16"]
 
   depends_on = [
@@ -32,10 +44,11 @@ resource "azurerm_virtual_network" "app_gateway_vnet" {
 
 # Network Security Group for the subnet
 resource "azurerm_network_security_group" "app_gateway_nsg" {
-  name                = "nsg-app-gateway"
-  location            = azurerm_resource_group.app_gateway_rg.location
-  resource_group_name = azurerm_resource_group.app_gateway_rg.name
+  name                = var.nsg_name
+  location            = var.location
+  resource_group_name = var.resource_group_name
 
+  # Allow HTTP traffic
   security_rule {
     name                       = "Allow-HTTP"
     priority                   = 100
@@ -44,7 +57,20 @@ resource "azurerm_network_security_group" "app_gateway_nsg" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "80"
-    source_address_prefix      = "10.0.0.0/8" # Restrict to internal traffic or trusted IP range
+    source_address_prefix      = "10.0.0.0/8"
+    destination_address_prefix = "*"
+  }
+
+  # Allow Application Gateway V2 SKU traffic
+  security_rule {
+    name                       = "Allow-AppGW-V2-Traffic"
+    priority                   = 200
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_ranges    = ["65200-65535"]
+    source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
 
@@ -53,34 +79,62 @@ resource "azurerm_network_security_group" "app_gateway_nsg" {
   ]
 }
 
-# Subnet for Application Gateway
-resource "azurerm_subnet" "app_gateway_subnet" {
-  name                = "subnet-app-gateway"
-  resource_group_name = azurerm_resource_group.app_gateway_rg.name
-  virtual_network_name = azurerm_virtual_network.app_gateway_vnet.name
-  address_prefixes    = ["10.0.1.0/24"]
+# Updated Subnets
+resource "azurerm_subnet" "app_gateway_frontend_subnet" {
+  name                 = var.frontend_subnet_name
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = var.vnet_name
+  address_prefixes     = ["10.0.1.0/24"]
 
   depends_on = [
     azurerm_virtual_network.app_gateway_vnet
   ]
 }
 
+resource "azurerm_subnet" "app_gateway_backend_subnet" {
+  name                 = var.backend_subnet_name
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = var.vnet_name
+  address_prefixes     = ["10.0.2.0/24"]
+
+  depends_on = [
+    azurerm_virtual_network.app_gateway_vnet
+  ]
+}
+
+resource "azurerm_subnet" "backend_subnet" {
+  name                 = var.backend_subnet_name
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = var.vnet_name
+  address_prefixes     = ["10.0.3.0/24"] # Additional backend subnet
+  
+   lifecycle {
+    prevent_destroy = true # Prevent accidental deletion of the subnet
+    ignore_changes  = [address_prefixes] # Ignore changes to address prefixes
+  }
+
+  depends_on = [
+    azurerm_resource_group.app_gateway_rg,
+    azurerm_virtual_network.app_gateway_vnet
+  ]
+}
+
 # Associate NSG with the Subnet
 resource "azurerm_subnet_network_security_group_association" "app_gateway_subnet_nsg_association" {
-  subnet_id                 = azurerm_subnet.app_gateway_subnet.id
+  subnet_id                 = azurerm_subnet.app_gateway_frontend_subnet.id
   network_security_group_id = azurerm_network_security_group.app_gateway_nsg.id
 
   depends_on = [
     azurerm_network_security_group.app_gateway_nsg,
-    azurerm_subnet.app_gateway_subnet
+    azurerm_subnet.app_gateway_frontend_subnet
   ]
 }
 
-# Public IP for Application Gateway
+# Updated Public IP
 resource "azurerm_public_ip" "app_gateway_pip" {
-  name                = "pip-app-gateway"
-  location            = azurerm_resource_group.app_gateway_rg.location
-  resource_group_name = azurerm_resource_group.app_gateway_rg.name
+  name                = var.public_ip_name
+  location            = var.location
+  resource_group_name = var.resource_group_name
   allocation_method   = "Static"
   sku                 = "Standard"
 
@@ -89,28 +143,27 @@ resource "azurerm_public_ip" "app_gateway_pip" {
   ]
 }
 
-# skip-check CKV_AZURE_218 # Secure protocols are intentionally configured for this environment
-# skip-check CKV_AZURE_120 # WAF is intentionally configured for this environment
+# Updated Application Gateway
 resource "azurerm_application_gateway" "app_gateway" {
-  name                = "app-gateway"
-  location            = azurerm_resource_group.app_gateway_rg.location
-  resource_group_name = azurerm_resource_group.app_gateway_rg.name
+  name                = var.app_gateway_name
+  location            = var.location
+  resource_group_name = var.resource_group_name
   sku {
-    name     = "WAF_v2" # Best practice: Use WAF_v2 for enhanced security
-    tier     = "WAF_v2"
+    name     = "Standard_v2"
+    tier     = "Standard_v2"
     capacity = 2
   }
   gateway_ip_configuration {
     name      = "app-gateway-ip-config"
-    subnet_id = azurerm_subnet.app_gateway_subnet.id
+    subnet_id = azurerm_subnet.app_gateway_frontend_subnet.id
   }
   frontend_ip_configuration {
     name                 = "app-gateway-frontend-ip"
     public_ip_address_id = azurerm_public_ip.app_gateway_pip.id
   }
   frontend_port {
-    name = "https-port"
-    port = 443
+    name = "http-port"
+    port = 80
   }
   backend_address_pool {
     name = "app-gateway-backend-pool"
@@ -118,24 +171,15 @@ resource "azurerm_application_gateway" "app_gateway" {
   http_listener {
     name                           = "app-gateway-http-listener"
     frontend_ip_configuration_name = "app-gateway-frontend-ip"
-    frontend_port_name             = "https-port"
-    protocol                       = "Https"
-    ssl_certificate_name           = "app-gateway-ssl-cert" # Replace with your SSL certificate name
+    frontend_port_name             = "http-port"
+    protocol                       = "Http"
   }
-  ssl_certificate {
-    name     = "app-gateway-ssl-cert"
-    data     = filebase64("${path.module}/cert.pfx") # Replace with your certificate file
-    password = var.ssl_certificate_password
-  }
-  ssl_policy {
-    policy_type          = "Custom"
-    min_protocol_version = "TLSv1_2" # Enforce TLS 1.2 or higher
-    cipher_suites = [
-      "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-      "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-      "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
-      "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384"
-    ]
+  backend_http_settings {
+    name                  = "app-gateway-http-settings"
+    cookie_based_affinity = "Disabled"
+    port                  = 80
+    protocol              = "Http"
+    request_timeout       = 60
   }
   request_routing_rule {
     name                       = "app-gateway-routing-rule"
@@ -143,26 +187,68 @@ resource "azurerm_application_gateway" "app_gateway" {
     http_listener_name         = "app-gateway-http-listener"
     backend_address_pool_name  = "app-gateway-backend-pool"
     backend_http_settings_name = "app-gateway-http-settings"
-  }
-  backend_http_settings {
-    name                  = "app-gateway-http-settings"
-    cookie_based_affinity = "Disabled"
-    port                  = 80
-    protocol              = "Http"
-    request_timeout       = 20
-  }
-
-  # Enable WAF Configuration
-  waf_configuration {
-    enabled          = true
-    firewall_mode    = "Prevention" # Use "Detection" for monitoring only
-    rule_set_type    = "OWASP"
-    rule_set_version = "3.2"
+    priority                   = 1
   }
 
   depends_on = [
-    azurerm_subnet.app_gateway_subnet,
+    azurerm_subnet.app_gateway_frontend_subnet,
     azurerm_public_ip.app_gateway_pip
   ]
 }
 
+# New Virtual Machines
+resource "azurerm_network_interface" "backend_nic" {
+  count               = 2
+  name                = "backend-nic-${count.index}"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  lifecycle {
+    prevent_destroy = false # Allow deletion of VMs
+  }
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.backend_subnet.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+
+resource "azurerm_virtual_machine" "backend_vm" {
+  count                 = 2 # Adjust the count as needed
+  name                  = "backend-vm-${count.index}"
+  location              = var.location
+  resource_group_name   = var.resource_group_name
+  network_interface_ids = [azurerm_network_interface.backend_nic[count.index].id]
+  vm_size               = var.vm_size
+
+ lifecycle {
+    prevent_destroy = false # Allow deletion of VMs
+  }
+
+  storage_os_disk {
+    name              = "backend-os-disk-${count.index}"
+    caching           = "ReadWrite"
+    create_option     = "FromImage"
+    managed_disk_type = "Standard_LRS"
+  }
+
+  storage_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "18.04-LTS"
+    version   = "latest"
+  }
+
+  os_profile {
+    computer_name  = "backend-vm-${count.index}"
+    admin_username = var.vm_admin_username
+    admin_password = var.vm_admin_password # Ensure this is securely managed
+  }
+
+  os_profile_linux_config {
+    disable_password_authentication = false
+  }
+
+  tags = {
+    environment = "production"
+  }
+}

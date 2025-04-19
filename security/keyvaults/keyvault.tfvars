@@ -25,12 +25,19 @@ storage_account_id = "/subscriptions/096534ab-9b99-4153-8505-90d030aa4f08/resour
 log_analytics_workspace_id = "/subscriptions/096534ab-9b99-4153-8505-90d030aa4f08/resourceGroups/RG-LOG/providers/Microsoft.OperationalInsights/workspaces/my-log-analytics"
 
 access_policies = {
-  admin_policy = {
-    tenant_id               = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
-    object_id               = "ac2a3d05-eff3-4e60-baa6-4e15c08ddc4d"
-    secret_permissions      = ["Get", "List"]
-    key_permissions         = ["Get", "List"]
+  policy1 = {
+    tenant_id              = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
+    object_id              = "ac2a3d05-eff3-4e60-baa6-4e15c08ddc4d"
     certificate_permissions = ["Get", "List"]
+    key_permissions        = ["Get", "List", "Create", "Delete"]
+    secret_permissions     = ["Get", "List", "Set", "Delete"]
+  }
+  policy2 = {
+    tenant_id              = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
+    object_id              = "a22a3d05-eff3-4e60-baa6-4e15c08ddc4d"
+    certificate_permissions = ["Get"]
+    key_permissions        = ["Get", "List"]
+    secret_permissions     = ["Get", "List"]
   }
 }
 

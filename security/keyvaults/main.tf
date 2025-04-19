@@ -25,6 +25,10 @@ provider "azurerm" {
   tenant_id       = var.tenant_id
 }
 
+# Add your variable declarations here
+
+
+
 # Resource Group
 resource "azurerm_resource_group" "keyvault_rg" {
   name     = var.resource_group_name
@@ -109,6 +113,82 @@ resource "azurerm_key_vault_access_policy" "keyvault_policy" {
   secret_permissions = each.value.secret_permissions
   key_permissions    = each.value.key_permissions
   certificate_permissions = each.value.certificate_permissions
+
+  depends_on = [azurerm_key_vault.keyvault]
+}
+
+# Key Vault Certificate
+resource "azurerm_key_vault_certificate" "pfx_certificate" {
+  name         = "pfx-cert"
+  key_vault_id = azurerm_key_vault.keyvault.id
+
+  certificate_policy {
+    issuer_parameters {
+      name = "Self" # Use "Self" for a self-signed certificate or "Unknown" for a CA-signed certificate
+    }
+
+    key_properties {
+      exportable = true
+      key_size   = 2048
+      key_type   = "RSA"
+      reuse_key  = true
+    }
+
+    secret_properties {
+      content_type = "application/x-pkcs12"
+    }
+
+    x509_certificate_properties {
+      subject            = "CN=example-cert"
+      validity_in_months = 12
+      key_usage = [
+        "digitalSignature",
+        "keyEncipherment",
+      ]
+    }
+
+    lifetime_action {
+      action {
+        action_type = "AutoRenew"
+      }
+
+      trigger {
+        days_before_expiry = 30
+      }
+    }
+  }
+
+  depends_on = [azurerm_key_vault.keyvault]
+}
+
+# Key Vault Key
+resource "azurerm_key_vault_key" "keyvault_key" {
+  name         = "keyvault-key"
+  key_vault_id = azurerm_key_vault.keyvault.id
+  key_type     = "RSA"
+  key_size     = 2048
+  key_opts     = ["encrypt", "decrypt", "sign", "verify", "wrapKey", "unwrapKey"]
+
+  tags = {
+    environment = var.environment
+    owner       = var.owner
+    project     = var.project
+  }
+
+  depends_on = [azurerm_key_vault.keyvault]
+}
+
+# Key Vault Secret
+resource "azurerm_key_vault_secret" "keyvault_secret" {
+  name         = "keyvault-secret"
+  value        = var.keyvault_secret_value
+  key_vault_id = azurerm_key_vault.keyvault.id
+
+  tags = {
+    environment = var.environment
+    owner       = var.owner
+    project     = var.project
+  }
 
   depends_on = [azurerm_key_vault.keyvault]
 }

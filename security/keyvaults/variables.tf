@@ -81,11 +81,11 @@ variable "ip_rules" {
 variable "access_policies" {
   description = "Access policies for the Key Vault"
   type = map(object({
-    tenant_id               = string
-    object_id               = string
-    secret_permissions      = list(string)
-    key_permissions         = list(string)
-    certificate_permissions = list(string)
+    tenant_id              = string
+    object_id              = string
+    certificate_permissions = list(string) # Ensure this is a flat list
+    key_permissions        = list(string)
+    secret_permissions     = list(string)
   }))
 }
 
@@ -111,8 +111,6 @@ variable "cost_center" {
   default     = "IT-001" # Adjust the default value if needed
 }
 
-
-
 variable "tenant_id" {
   description = "The tenant ID for the Key Vault"
   type        = string
@@ -130,3 +128,13 @@ variable "subnet_id" {
   description = "The ID of the subnet to associate with the Key Vault network ACLs"
   type        = string
 }
+
+variable "keyvault_secret_value" {
+  description = "The value of the secret to be stored in the Key Vault."
+  type        = string
+}
+
+# variable "keyvault_id" {
+#   description = "The ID of the Key Vault."
+#   type        = string
+# }

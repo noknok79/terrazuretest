@@ -23,6 +23,8 @@ variable "keyvault_config" {
     key_vault_public_network_access_enabled = bool
     key_vault_default_action                = string
     key_vault_bypass                        = string
+    keyvault_secret_value                   = string
+
     ip_rules                                = list(string)
     access_policies = map(object({
       tenant_id               = string
@@ -57,6 +59,8 @@ variable "keyvault_config" {
     key_vault_public_network_access_enabled = false
     key_vault_default_action                = "Deny"
     key_vault_bypass                        = "AzureServices"
+    keyvault_secret_value                   = ">ha.16mGCKKj/RL5Oj(I%T,Bc49}S'"
+
     ip_rules                                = ["136.158.30.104", "136.158.30.105"]
     access_policies = {
       admin_policy = {
