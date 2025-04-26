@@ -8,7 +8,7 @@ tags                                 = {
 }
 owner                                = "team@example.com" # The owner of the resource
 resource_group_name_prefix           = "rg"
-resource_group_name                  = "RG-APP-SERVICE" # The name of the resource group
+resource_group_name                  = "RG-APPSERVICE-WESTUS" # The name of the resource group
 ase_resource_group_name              = "rg-ase"
 subscription_id                      = "096534ab-9b99-4153-8505-90d030aa4f08" # The Azure Subscription ID where resources will be deployed
 tenant_id                            = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
