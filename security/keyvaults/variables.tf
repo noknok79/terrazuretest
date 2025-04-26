@@ -81,11 +81,11 @@ variable "ip_rules" {
 variable "access_policies" {
   description = "Access policies for the Key Vault"
   type = map(object({
-    tenant_id              = string
-    object_id              = string
+    tenant_id               = string
+    object_id               = string
     certificate_permissions = list(string) # Ensure this is a flat list
-    key_permissions        = list(string)
-    secret_permissions     = list(string)
+    key_permissions         = list(string)
+    secret_permissions      = list(string)
   }))
 }
 
@@ -119,7 +119,7 @@ variable "tenant_id" {
 variable "keyvault_name" {
   description = "The name of the Key Vault"
   type        = string
-  
+
 }
 
 # Add your variable declarations here

@@ -3,7 +3,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.74.0"  # Use the latest stable version
+      version = "3.74.0" # Use the latest stable version
     }
   }
 
@@ -13,8 +13,8 @@ terraform {
 provider "azurerm" {
   alias = "peering"
   features {}
-  subscription_id          = var.subscription_id
-  tenant_id                = var.tenant_id
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
   skip_provider_registration = true
 }
 
@@ -101,7 +101,7 @@ variable "centralus_resource_group_name" {
 variable "vnet_eastus_vnetid" {
   description = "The ID of the East US Virtual Network."
   type        = string
-  
+
 }
 
 variable "vnet_centralus_vnetid" {

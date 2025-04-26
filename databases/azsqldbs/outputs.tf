@@ -54,10 +54,10 @@ output "sql_server_firewall_rules" {
       azurerm_mssql_firewall_rule.sql_firewall,
       azurerm_mssql_firewall_rule.deny_azure_services,
       azurerm_mssql_firewall_rule.sql_firewall_rule
-    ] : {
-      name       = rule.name
-      start_ip   = rule.start_ip_address
-      end_ip     = rule.end_ip_address
+      ] : {
+      name     = rule.name
+      start_ip = rule.start_ip_address
+      end_ip   = rule.end_ip_address
     }
   ]
 }
@@ -99,8 +99,8 @@ output "log_analytics_workspace_id" {
 }
 
 output "primary_access_key" {
-  value = azurerm_storage_account.sql_storage.primary_access_key
-  sensitive  = true
+  value     = azurerm_storage_account.sql_storage.primary_access_key
+  sensitive = true
 }
 
 output "primary_blob_endpoint" {

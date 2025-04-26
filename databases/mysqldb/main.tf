@@ -13,8 +13,8 @@ provider "azurerm" {
 
   # Optional alias for specific configurations
   #alias             = "mysqldb"
-  subscription_id   = var.subscription_id
-  tenant_id         = var.tenant_id
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
   skip_provider_registration = true
 }
 
@@ -133,14 +133,14 @@ resource "azurerm_subnet_network_security_group_association" "private_endpoint_s
 
 # MySQL Flexible Server
 resource "azurerm_mysql_flexible_server" "mysql_server" {
-  name                = "${var.mysql_server_name}${random_string.unique_suffix.result}"
-  resource_group_name = var.resource_group_name
-  location            = var.location
-  sku_name            = var.sku_name
-  version                = "8.0.21"
-  administrator_login = var.admin_username
-  administrator_password = var.admin_password
-  backup_retention_days  = 7
+  name                         = "${var.mysql_server_name}${random_string.unique_suffix.result}"
+  resource_group_name          = var.resource_group_name
+  location                     = var.location
+  sku_name                     = var.sku_name
+  version                      = "8.0.21"
+  administrator_login          = var.admin_username
+  administrator_password       = var.admin_password
+  backup_retention_days        = 7
   geo_redundant_backup_enabled = true
 
   high_availability {
@@ -196,14 +196,14 @@ resource "azurerm_storage_account" "storage_account" {
     project     = var.project_name
     owner       = var.owner
   }
-    depends_on = [
+  depends_on = [
     azurerm_resource_group.rg
   ]
 }
 
 # Storage Container
 resource "azurerm_storage_container" "sql_va_container" {
-  name                  = "${var.storage_container_name}${random_string.unique_suffix.result}"
+  name                 = "${var.storage_container_name}${random_string.unique_suffix.result}"
   storage_account_name = azurerm_storage_account.storage_account.name
   #storage_account_id    = azurerm_storage_account.storage_account.id
   #storage_account_id    = var.storage_account_id

@@ -116,8 +116,8 @@ resource "azurerm_lb" "lb" {
   sku                 = "Standard"
 
   frontend_ip_configuration {
-    name                 = "lb-frontend"
-    subnet_id            = azurerm_subnet.subnet.id
+    name                          = "lb-frontend"
+    subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Dynamic"
   }
 
@@ -135,10 +135,10 @@ resource "azurerm_lb_backend_address_pool" "lb_backend_pool" {
 
 # Load Balancer Probe
 resource "azurerm_lb_probe" "lb_probe" {
-  name            = "lb-probe"
-  loadbalancer_id = azurerm_lb.lb.id
-  protocol        = "Tcp"
-  port            = 80
+  name                = "lb-probe"
+  loadbalancer_id     = azurerm_lb.lb.id
+  protocol            = "Tcp"
+  port                = 80
   interval_in_seconds = 5
   number_of_probes    = 2
 }
@@ -161,7 +161,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "vmss" {
   location            = var.location
   resource_group_name = var.rg_vmss
 
-  sku = var.vmss_sku
+  sku       = var.vmss_sku
   instances = var.vmss_instances
 
   upgrade_mode = "Manual"
@@ -186,9 +186,9 @@ resource "azurerm_linux_virtual_machine_scale_set" "vmss" {
   }
 
   os_disk {
-    caching           = var.vmss_os_disk_caching
+    caching              = var.vmss_os_disk_caching
     storage_account_type = var.vmss_os_disk_storage_account_type
-    disk_size_gb      = var.vmss_os_disk_size_gb
+    disk_size_gb         = var.vmss_os_disk_size_gb
   }
 
   source_image_reference {

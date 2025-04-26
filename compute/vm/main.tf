@@ -10,15 +10,15 @@ terraform {
 
 provider "azurerm" {
 
-  features               {} # Ensure this block is present
+  features {} # Ensure this block is present
   skip_provider_registration = true
-  subscription_id        = var.subscription_id
-  tenant_id              = var.tenant_id
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
 }
 
 
 resource "azurerm_resource_group" "vm_rg" {
-  name =  var.resource_group_name
+  name = var.resource_group_name
   #name     = "rg-vm-${var.environment}"
   location = var.location
   tags = {
@@ -35,7 +35,7 @@ resource "azurerm_virtual_network" "vnet" {
   location            = var.location
   address_space       = var.address_space
 
-    depends_on = [azurerm_resource_group.vm_rg] # Ensure the resource group is created first
+  depends_on = [azurerm_resource_group.vm_rg] # Ensure the resource group is created first
 
 }
 
@@ -45,7 +45,7 @@ resource "azurerm_subnet" "subnet" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = var.virtual_network_name
   address_prefixes     = [var.subnet_address_prefix]
-    depends_on = [azurerm_virtual_network.vnet] # Ensure the virtual network is created first
+  depends_on           = [azurerm_virtual_network.vnet] # Ensure the virtual network is created first
 
 }
 
@@ -78,7 +78,7 @@ resource "azurerm_public_ip" "public_ip" {
 resource "azurerm_virtual_machine" "vm" {
   name                  = "${var.prefix}-vm"
   location              = var.location
-  resource_group_name   = var.resource_group_name  
+  resource_group_name   = var.resource_group_name
   network_interface_ids = [azurerm_network_interface.nic.id]
   vm_size               = var.vm_size
 

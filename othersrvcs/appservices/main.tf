@@ -15,12 +15,12 @@ terraform {
 
 provider "azurerm" {
   features {
-     resource_group {
-       prevent_deletion_if_contains_resources = false
+    resource_group {
+      prevent_deletion_if_contains_resources = false
     }
   }
-  subscription_id = "096534ab-9b99-4153-8505-90d030aa4f08"
-  tenant_id       = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
+  subscription_id            = "096534ab-9b99-4153-8505-90d030aa4f08"
+  tenant_id                  = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
   skip_provider_registration = true
 
 }
@@ -83,11 +83,11 @@ resource "azurerm_service_plan" "appserviceplan" {
 
 # Create the web app, pass in the App Service Plan ID
 resource "azurerm_linux_web_app" "webapp_nodejs" {
-  name                  = "webapp-${random_string.unique_suffix.result}"
+  name                = "webapp-${random_string.unique_suffix.result}"
   resource_group_name = var.resource_group_name
   location            = var.location
-  service_plan_id       = azurerm_service_plan.appserviceplan.id
-  https_only            = true
+  service_plan_id     = azurerm_service_plan.appserviceplan.id
+  https_only          = true
 
   site_config {
     minimum_tls_version = "1.2"
@@ -103,13 +103,13 @@ resource "azurerm_linux_web_app" "webapp_nodejs" {
 
 # Deploy code from a public GitHub repo
 resource "azurerm_app_service_source_control" "sourcecontrol" {
-  app_id                = azurerm_linux_web_app.webapp_nodejs.id
-  repo_url              = "https://github.com/Azure-Samples/nodejs-docs-hello-world"
-  branch                = "main"
+  app_id                 = azurerm_linux_web_app.webapp_nodejs.id
+  repo_url               = "https://github.com/Azure-Samples/nodejs-docs-hello-world"
+  branch                 = "main"
   use_manual_integration = true
-  use_mercurial         = false
+  use_mercurial          = false
 
-    depends_on = [
+  depends_on = [
     azurerm_linux_web_app.webapp_nodejs
   ]
 }
@@ -123,12 +123,12 @@ resource "azurerm_linux_web_app" "webapp_docker" {
   service_plan_id     = azurerm_service_plan.appserviceplan.id
 
   app_settings = {
-    WEBSITES_PORT                      = "80" # Specify the port your container listens on
-    DOCKER_CUSTOM_IMAGE_NAME           = "noknok79/eshopwebmvc:latest" # Replace with your Docker image and tag
-    DOCKER_REGISTRY_SERVER_URL         = "https://hub.docker.com/u/noknok79" # Replace with your registry URL
-    DOCKER_REGISTRY_SERVER_USERNAME    = "noknok79" # Replace with your registry username
-    DOCKER_REGISTRY_SERVER_PASSWORD    = var.docker_registry_password # Use a secure variable for the password
-    WEBSITES_ENABLE_APP_SERVICE_STORAGE = "false" # Disable persistent storage for Docker containers
+    WEBSITES_PORT                       = "80"                                # Specify the port your container listens on
+    DOCKER_CUSTOM_IMAGE_NAME            = "noknok79/eshopwebmvc:latest"       # Replace with your Docker image and tag
+    DOCKER_REGISTRY_SERVER_URL          = "https://hub.docker.com/u/noknok79" # Replace with your registry URL
+    DOCKER_REGISTRY_SERVER_USERNAME     = "noknok79"                          # Replace with your registry username
+    DOCKER_REGISTRY_SERVER_PASSWORD     = var.docker_registry_password        # Use a secure variable for the password
+    WEBSITES_ENABLE_APP_SERVICE_STORAGE = "false"                             # Disable persistent storage for Docker containers
   }
 
   site_config {

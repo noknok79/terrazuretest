@@ -9,19 +9,19 @@ terraform {
 
 provider "azurerm" {
   features {}
-  subscription_id = var.subscription_id
-  tenant_id       = var.tenant_id
-    skip_provider_registration = true
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
+  skip_provider_registration = true
 
 }
 
 
 provider "azurerm" {
-  alias           = "vneteastus"
-  features        {}
-  subscription_id = var.subscription_id
-  tenant_id       = var.tenant_id
-    skip_provider_registration = true
+  alias = "vneteastus"
+  features {}
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
+  skip_provider_registration = true
 
 }
 
@@ -92,12 +92,12 @@ resource "azurerm_network_security_group" "vnet_eastus_nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
-    tags = var.tags
+  tags = var.tags
 }
 
 resource "azurerm_subnet_network_security_group_association" "subnet_nsg_association" {
-  for_each             = azurerm_subnet.vnet_subnets
-  subnet_id            = each.value.id
+  for_each                  = azurerm_subnet.vnet_subnets
+  subnet_id                 = each.value.id
   network_security_group_id = azurerm_network_security_group.vnet_eastus_nsg.id
 }
 
@@ -193,9 +193,9 @@ output "vnet_name" {
 output "vnet_subnets" {
   value = [
     for subnet in azurerm_subnet.vnet_subnets : {
-      name                     = subnet.name
-      id                       = subnet.id
-      address_prefix           = subnet.address_prefixes[0]
+      name           = subnet.name
+      id             = subnet.id
+      address_prefix = subnet.address_prefixes[0]
       network_security_group_id = try(
         azurerm_subnet_network_security_group_association.subnet_nsg_association[subnet.name].network_security_group_id,
         null

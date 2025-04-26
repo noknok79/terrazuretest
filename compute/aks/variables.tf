@@ -109,7 +109,7 @@ variable "cluster_name" {
 variable "api_server_authorized_ip_ranges" {
   description = "A list of authorized IP ranges for the Kubernetes API server."
   type        = list(string)
-    default     = ["203.0.113.0/24", "198.51.100.0/24"] # Replace with your IP ranges
+  default     = ["203.0.113.0/24", "198.51.100.0/24"] # Replace with your IP ranges
 
 }
 
@@ -120,7 +120,7 @@ variable "windows_admin_password" {
 }
 
 variable "vnet_subnets" {
-  type = map(string)
+  type        = map(string)
   description = "Map of subnet names to their IDs"
 }
 

@@ -223,7 +223,7 @@ variable "vmss_nic_name" {
 
 variable "subnets" {
   description = "The list of subnets for the VM Scale Set"
-  type        = list(object({
+  type = list(object({
     name           = string
     id             = string
     address_prefix = string

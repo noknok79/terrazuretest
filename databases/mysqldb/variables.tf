@@ -47,12 +47,12 @@ variable "sku_name" {
 
 variable "server_name" {
   description = "The name of the MySQL server"
-  type        = string 
+  type        = string
 }
 
 variable "vnet_name" {
   description = "The name of the virtual network"
-  type        = string  
+  type        = string
 }
 
 variable "network_security_group_id" {
@@ -127,8 +127,8 @@ variable "end_ip_address" {
 
 variable "vnet_subnets" {
   description = "A map of subnets with their names and IDs"
-  type        = map(object({
-    id                       = string
+  type = map(object({
+    id                        = string
     network_security_group_id = string
   }))
 }

@@ -61,7 +61,7 @@ resource "azurerm_subnet" "subnet" {
   address_prefixes     = var.subnet_address_prefix
 
   depends_on = [azurerm_resource_group.rg_sql,
-    azurerm_virtual_network.vnet] # Ensure the virtual network and resource group are created first
+  azurerm_virtual_network.vnet] # Ensure the virtual network and resource group are created first
 }
 
 # Storage Account for SQL Auditing
@@ -80,7 +80,7 @@ resource "azurerm_storage_account" "sql_storage" {
 
 # Updated Storage Container for SQL Vulnerability Assessment
 resource "azurerm_storage_container" "sql_va_container" {
-  name                  = "sql${random_string.random_suffix.result}vulnerability"
+  name = "sql${random_string.random_suffix.result}vulnerability"
   #storage_account_id    = azurerm_storage_account.sql_storage.id # Updated to use storage_account_id
   storage_account_name  = azurerm_storage_account.sql_storage.name
   container_access_type = "private"

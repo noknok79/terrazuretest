@@ -97,23 +97,23 @@ variable "subnet_id" {
 variable "environment" {
   description = "The environment for the deployment (e.g., dev, prod)"
   type        = string
-  
+
 }
 
 variable "project" {
   description = "The project name for the deployment"
   type        = string
-  
+
 }
 
 variable "subscription_id" {
   description = "The Azure subscription ID"
-  type        = string  
-  
+  type        = string
+
 }
 
 variable "tenant_id" {
   description = "The Azure tenant ID"
   type        = string
-  
+
 }

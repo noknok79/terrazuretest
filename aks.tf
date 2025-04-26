@@ -23,7 +23,7 @@ variable "aks_config" {
     subscription_id                 = string
     tenant_id                       = string
     windows_admin_password          = string # Added this attribute
-    keyvault_id                   = string
+    keyvault_id                     = string
   })
   default = {
     resource_group_name = "RG-AKSCLUSTER"
@@ -56,7 +56,7 @@ variable "aks_config" {
     environment                     = "dev"
     project                         = "aks-cluster-testing"
     windows_admin_password          = "xQ3@mP4z!Bk8*wHy" # Provide a secure default value
-    keyvault_id                    = "your-keyvault-id" # Placeholder for Key Vault ID
+    keyvault_id                     = "your-keyvault-id" # Placeholder for Key Vault ID
   }
 }
 

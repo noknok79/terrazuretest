@@ -77,14 +77,14 @@ output "cosmosdb_endpoint" {
 
 # Output for Cosmos DB Primary Key
 output "cosmosdb_primary_key" {
-  value      = data.azurerm_cosmosdb_account.cosmosdb.primary_key
-  sensitive  = true
+  value     = data.azurerm_cosmosdb_account.cosmosdb.primary_key
+  sensitive = true
 }
 
 # Output for Cosmos DB Secondary Key
 output "cosmosdb_secondary_key" {
-  value      = data.azurerm_cosmosdb_account.cosmosdb.secondary_key
-  sensitive  = true
+  value     = data.azurerm_cosmosdb_account.cosmosdb.secondary_key
+  sensitive = true
 }
 
 output "keyvault_subnet_id" {

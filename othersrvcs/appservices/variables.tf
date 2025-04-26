@@ -88,11 +88,11 @@ variable "docker_registry_url" {
 variable "environment" {
   description = "The environment for the deployment (e.g., dev, staging, prod)"
   type        = string
-# Replace with your desired default value
+  # Replace with your desired default value
 }
 
 variable "owner" {
   description = "The owner of the resource"
   type        = string
-  
+
 }

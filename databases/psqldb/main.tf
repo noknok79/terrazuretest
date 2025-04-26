@@ -10,8 +10,8 @@ terraform {
 provider "azurerm" {
   #alias = "pslqldb"
   features {}
-  subscription_id           = var.subscription_id
-  tenant_id                 = var.tenant_id
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
   skip_provider_registration = true
 }
 
@@ -91,7 +91,7 @@ resource "azurerm_subnet" "private_endpoint_subnet" {
 resource "azurerm_private_dns_zone" "psql_private_dns_zone" {
   name                = "privatelink.postgres.database.azure.com"
   resource_group_name = var.resource_group_name
-    depends_on = [
+  depends_on = [
     azurerm_resource_group.rg
   ]
 }
@@ -111,17 +111,17 @@ resource "azurerm_private_dns_zone_virtual_network_link" "psql_dns_zone_vnet_lin
 
 # PostgreSQL Flexible Server
 resource "azurerm_postgresql_flexible_server" "psql_server" {
-  name                   = "${var.psql_server_name}${random_string.unique_suffix.result}"
-  resource_group_name    = var.resource_group_name
-  location               = var.location
-  sku_name               = var.sku_name
-  version                = "14"
-  administrator_login    = var.admin_username
-  administrator_password = var.admin_password
-  backup_retention_days  = 7
+  name                         = "${var.psql_server_name}${random_string.unique_suffix.result}"
+  resource_group_name          = var.resource_group_name
+  location                     = var.location
+  sku_name                     = var.sku_name
+  version                      = "14"
+  administrator_login          = var.admin_username
+  administrator_password       = var.admin_password
+  backup_retention_days        = 7
   geo_redundant_backup_enabled = true
   #delegated_subnet_id    = var.subnet_id
-  delegated_subnet_id    = azurerm_subnet.subnet.id # Reference the newly created subnet
+  delegated_subnet_id = azurerm_subnet.subnet.id # Reference the newly created subnet
 
 
   high_availability {
@@ -177,7 +177,7 @@ resource "azurerm_storage_container" "psql_va_container" {
   storage_account_name  = azurerm_storage_account.storage_account.name
   container_access_type = "private"
 
-   depends_on = [
+  depends_on = [
     azurerm_storage_account.storage_account
   ]
 }

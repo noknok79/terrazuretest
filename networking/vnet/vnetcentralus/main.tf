@@ -116,8 +116,8 @@ resource "azurerm_network_security_group" "vnet_centralus_nsg" {
 
 # Associate the NSG with all subnets in the Central US Virtual Network
 resource "azurerm_subnet_network_security_group_association" "subnet_nsg_association" {
-  for_each             = azurerm_subnet.vnet_subnets
-  subnet_id            = each.value.id
+  for_each                  = azurerm_subnet.vnet_subnets
+  subnet_id                 = each.value.id
   network_security_group_id = azurerm_network_security_group.vnet_centralus_nsg.id
 }
 
@@ -215,9 +215,9 @@ output "vnet_id" {
 output "vnet_subnets" {
   value = [
     for subnet in azurerm_subnet.vnet_subnets : {
-      name                     = subnet.name
-      id                       = subnet.id
-      address_prefix           = subnet.address_prefixes[0]
+      name           = subnet.name
+      id             = subnet.id
+      address_prefix = subnet.address_prefixes[0]
       network_security_group_id = try(
         azurerm_subnet_network_security_group_association.subnet_nsg_association[subnet.name].network_security_group_id,
         null

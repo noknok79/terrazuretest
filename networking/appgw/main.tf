@@ -107,9 +107,9 @@ resource "azurerm_subnet" "backend_subnet" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = var.vnet_name
   address_prefixes     = ["10.0.3.0/24"] # Additional backend subnet
-  
-   lifecycle {
-    prevent_destroy = false # Prevent accidental deletion of the subnet
+
+  lifecycle {
+    prevent_destroy = false              # Prevent accidental deletion of the subnet
     ignore_changes  = [address_prefixes] # Ignore changes to address prefixes
   }
 
@@ -202,17 +202,17 @@ resource "azurerm_network_interface" "backend_nic" {
   name                = "backend-nic-${count.index}"
   location            = var.location
   resource_group_name = var.resource_group_name
-  
+
   lifecycle {
     prevent_destroy = false # Allow deletion of VMs
   }
-  
+
   ip_configuration {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.backend_subnet.id
     private_ip_address_allocation = "Dynamic"
   }
-   depends_on = [
+  depends_on = [
     azurerm_subnet.backend_subnet
   ]
 }
@@ -225,7 +225,7 @@ resource "azurerm_virtual_machine" "backend_vm" {
   network_interface_ids = [azurerm_network_interface.backend_nic[count.index].id]
   vm_size               = var.vm_size
 
- lifecycle {
+  lifecycle {
     prevent_destroy = false # Allow deletion of VMs
   }
 

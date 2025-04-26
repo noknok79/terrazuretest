@@ -12,13 +12,13 @@ terraform {
 provider "azurerm" {
   features {}
 
-  subscription_id = var.subscription_id
-  tenant_id       = var.tenant_id
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
   skip_provider_registration = true
 }
 
 provider "azurerm" {
-  alias           = "keyvault"
+  alias = "keyvault"
   features {}
 
   subscription_id = var.subscription_id
@@ -78,12 +78,12 @@ resource "azurerm_subnet" "keyvault_subnet" {
 
 # Key Vault
 resource "azurerm_key_vault" "keyvault" {
-  name                        = "kv-${var.project}-${var.environment}-${random_string.keyvault_suffix.result}"
-  location                    = var.location
-  resource_group_name         = azurerm_resource_group.keyvault_rg.name
-  tenant_id                   = data.azurerm_client_config.current.tenant_id
-  sku_name                    = var.key_vault_sku_name
-  purge_protection_enabled    = var.key_vault_purge_protection_enabled
+  name                          = "kv-${var.project}-${var.environment}-${random_string.keyvault_suffix.result}"
+  location                      = var.location
+  resource_group_name           = azurerm_resource_group.keyvault_rg.name
+  tenant_id                     = data.azurerm_client_config.current.tenant_id
+  sku_name                      = var.key_vault_sku_name
+  purge_protection_enabled      = var.key_vault_purge_protection_enabled
   public_network_access_enabled = var.key_vault_public_network_access_enabled
 
   tags = {
@@ -110,8 +110,8 @@ resource "azurerm_key_vault_access_policy" "keyvault_policy" {
   tenant_id    = each.value.tenant_id
   object_id    = each.value.object_id
 
-  secret_permissions = each.value.secret_permissions
-  key_permissions    = each.value.key_permissions
+  secret_permissions      = each.value.secret_permissions
+  key_permissions         = each.value.key_permissions
   certificate_permissions = each.value.certificate_permissions
 
   depends_on = [azurerm_key_vault.keyvault]

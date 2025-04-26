@@ -81,10 +81,10 @@ variable "ip_rules" {
 variable "access_policies" {
   description = "Access policies for the Key Vault"
   type = map(object({
-    tenant_id             = string
-    object_id             = string
-    secret_permissions    = list(string)
-    key_permissions       = list(string)
+    tenant_id               = string
+    object_id               = string
+    secret_permissions      = list(string)
+    key_permissions         = list(string)
     certificate_permissions = list(string)
   }))
 }
@@ -164,7 +164,7 @@ variable "cosmosdb_sql_container_name" {
 variable "cosmosdb_partition_key_path" {
   description = "The partition key path for the Cosmos DB container"
   type        = string
-  
+
 }
 variable "cosmosdb_virtual_network_subnet_ids" {
   description = "List of subnet IDs for Cosmos DB virtual network rules"

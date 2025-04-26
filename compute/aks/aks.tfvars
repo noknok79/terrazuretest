@@ -1,28 +1,28 @@
 resource_group_name = "RG-AKSCLUSTER"
-environment       = "dev"
-location          = "eastus"
-project           = "myproject"
-subscription_id   = "096534ab-9b99-4153-8505-90d030aa4f08"
-tenant_id         = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
-cluster_name      = "129-aks-cluster"
-dns_prefix        = "myaks"
-vm_size           = "Standard_DS2_v2"
-node_count        = 3
-subnet_id         = ""
-linux_vm_size     = "Standard_DS2_v2"
-linux_node_count  = 2
-windows_vm_size   = "Standard_DS2_v2"
-windows_node_count = 1
-kubernetes_version = "1.30.0"
+environment         = "dev"
+location            = "eastus"
+project             = "myproject"
+subscription_id     = "096534ab-9b99-4153-8505-90d030aa4f08"
+tenant_id           = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
+cluster_name        = "129-aks-cluster"
+dns_prefix          = "myaks"
+vm_size             = "Standard_DS2_v2"
+node_count          = 3
+subnet_id           = ""
+linux_vm_size       = "Standard_DS2_v2"
+linux_node_count    = 2
+windows_vm_size     = "Standard_DS2_v2"
+windows_node_count  = 1
+kubernetes_version  = "1.30.0"
 tags = {
   Environment = "dev"
   Project     = "myproject"
 }
 
-authorized_ip_ranges = ["0.0.0.0/0"] # Replace with specific IP ranges if needed
+authorized_ip_ranges       = ["0.0.0.0/0"] # Replace with specific IP ranges if needed
 log_analytics_workspace_id = "your-log-analytics-workspace-id"
 api_server_authorized_ip_ranges = [
-  "203.0.113.0/24", 
+  "203.0.113.0/24",
   "198.51.100.0/24"
 ] # Replace with your trusted IP ranges
 #Replace with specific IP ranges if needed

@@ -35,21 +35,21 @@ variable "vmss_network" {
     subnet_address_prefixes = list(string)
     subnet_id               = string
     nsg_name                = string
-    nsg_rule                = object({
-      name                  = string
-      priority              = number
-      direction             = string
-      access                = string
-      protocol              = string
-      source_port_range     = string
-      destination_port_range = string
-      source_address_prefix = string
+    nsg_rule = object({
+      name                       = string
+      priority                   = number
+      direction                  = string
+      access                     = string
+      protocol                   = string
+      source_port_range          = string
+      destination_port_range     = string
+      source_address_prefix      = string
       destination_address_prefix = string
     })
-    nic_name                = string
-    nic_ip_config_name      = string
-    nic_ip_allocation       = string
-    public_ip_enabled       = bool
+    nic_name           = string
+    nic_ip_config_name = string
+    nic_ip_allocation  = string
+    public_ip_enabled  = bool
   })
   default = {
     admin_username          = "adminuser"
@@ -62,20 +62,20 @@ variable "vmss_network" {
     subnet_id               = "place-holder-for-subnet-id"
     nsg_name                = "nsg-vmss-dev"
     nsg_rule = {
-      name                  = "Allow-SSH"
-      priority              = 1001
-      direction             = "Inbound"
-      access                = "Allow"
-      protocol              = "Tcp"
-      source_port_range     = "*"
-      destination_port_range = "22"
-      source_address_prefix = "*"
+      name                       = "Allow-SSH"
+      priority                   = 1001
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "Tcp"
+      source_port_range          = "*"
+      destination_port_range     = "22"
+      source_address_prefix      = "*"
       destination_address_prefix = "*"
     }
-    nic_name                = "nic-vmss-dev"
-    nic_ip_config_name      = "ipconfig-vmss-dev"
-    nic_ip_allocation       = "Dynamic"
-    public_ip_enabled       = true
+    nic_name           = "nic-vmss-dev"
+    nic_ip_config_name = "ipconfig-vmss-dev"
+    nic_ip_allocation  = "Dynamic"
+    public_ip_enabled  = true
   }
   sensitive = true
 }
@@ -84,44 +84,44 @@ variable "vmss_network" {
 variable "vmss_config" {
   description = "VM Scale Set configuration including VM and load balancer details"
   type = object({
-    name                        = string
-    sku                         = string
-    instances                   = number
-    image                       = object({
-      publisher                 = string
-      offer                     = string
-      sku                       = string
-      version                   = string
+    name      = string
+    sku       = string
+    instances = number
+    image = object({
+      publisher = string
+      offer     = string
+      sku       = string
+      version   = string
     })
-    os_disk                     = object({
-      caching                   = string
-      storage_account_type      = string
+    os_disk = object({
+      caching              = string
+      storage_account_type = string
     })
-    ip_config_name              = string
-    nic_name                    = string
-    load_balancer_id            = string
-    backend_pool_id             = string
-    log_analytics_workspace_id  = string
+    ip_config_name             = string
+    nic_name                   = string
+    load_balancer_id           = string
+    backend_pool_id            = string
+    log_analytics_workspace_id = string
   })
   default = {
-    name                        = "vmss-dev"
-    sku                         = "Standard_DS1_v2"
-    instances                   = 2
+    name      = "vmss-dev"
+    sku       = "Standard_DS1_v2"
+    instances = 2
     image = {
-      publisher                 = "Canonical"
-      offer                     = "UbuntuServer"
-      sku                       = "18.04-LTS"
-      version                   = "latest"
+      publisher = "Canonical"
+      offer     = "UbuntuServer"
+      sku       = "18.04-LTS"
+      version   = "latest"
     }
     os_disk = {
-      caching                   = "ReadWrite"
-      storage_account_type      = "Standard_LRS"
+      caching              = "ReadWrite"
+      storage_account_type = "Standard_LRS"
     }
-    ip_config_name              = "vmss-ip-config"
-    nic_name                    = "nic-vmss-dev"
-    load_balancer_id            = "place-holder-for-load-balancer-id"
-    backend_pool_id             = "place-holder-for-backend-pool-id"
-    log_analytics_workspace_id  = "place-holder-for-log-analytics-workspace-id"
+    ip_config_name             = "vmss-ip-config"
+    nic_name                   = "nic-vmss-dev"
+    load_balancer_id           = "place-holder-for-load-balancer-id"
+    backend_pool_id            = "place-holder-for-backend-pool-id"
+    log_analytics_workspace_id = "place-holder-for-log-analytics-workspace-id"
   }
 }
 
