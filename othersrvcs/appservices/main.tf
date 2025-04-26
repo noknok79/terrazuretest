@@ -25,14 +25,11 @@ provider "azurerm" {
 
 }
 
-resource "random_string" "random_suffix" {
+resource "random_string" "unique_suffix" {
   length  = 6
-  lower   = true
-  upper   = false
-  numeric = true
   special = false
+  upper   = false
 }
-
 # Create a resource group for organizing the App Service Environment resources
 resource "azurerm_resource_group" "rg" {
   location = var.location
@@ -72,42 +69,9 @@ resource "azurerm_subnet" "subnet" {
   ]
 }
 
-# # Define the App Service Environment v3 resource
-# resource "azurerm_app_service_environment_v3" "asev3" {
-#   name                = "asev3-${random_string.random_suffix.result}"
-#   resource_group_name = azurerm_resource_group.rg.name
-#   subnet_id           = azurerm_subnet.subnet.id
-
-#   internal_load_balancing_mode = "Web, Publishing"
-
-#   cluster_setting {
-#     name  = "DisableTls1.0"
-#     value = "1"
-#   }
-
-#   cluster_setting {
-#     name  = "InternalEncryption"
-#     value = "true"
-#   }
-
-#   cluster_setting {
-#     name  = "FrontEndSSLCipherSuiteOrder"
-#     value = "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
-#   }
-
-#   tags = {
-#     env         = "production"
-#     terraformed = "true"
-#   }
-
-#   depends_on = [
-#     azurerm_subnet.subnet
-#   ]
-# }
-
 # Create the Linux App Service Plan
 resource "azurerm_service_plan" "appserviceplan" {
-  name                = "appsrvplan-${random_string.random_suffix.result}"
+  name                = "appsrvplan-${random_string.unique_suffix.result}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   os_type             = "Linux"
@@ -118,8 +82,8 @@ resource "azurerm_service_plan" "appserviceplan" {
 }
 
 # Create the web app, pass in the App Service Plan ID
-resource "azurerm_linux_web_app" "webapp" {
-  name                  = "webapp-${random_string.random_suffix.result}"
+resource "azurerm_linux_web_app" "webapp_nodejs" {
+  name                  = "webapp-${random_string.unique_suffix.result}"
   location              = azurerm_resource_group.rg.location
   resource_group_name   = azurerm_resource_group.rg.name
   service_plan_id       = azurerm_service_plan.appserviceplan.id
@@ -139,13 +103,48 @@ resource "azurerm_linux_web_app" "webapp" {
 
 # Deploy code from a public GitHub repo
 resource "azurerm_app_service_source_control" "sourcecontrol" {
-  app_id                = azurerm_linux_web_app.webapp.id
+  app_id                = azurerm_linux_web_app.webapp_nodejs.id
   repo_url              = "https://github.com/Azure-Samples/nodejs-docs-hello-world"
   branch                = "main"
   use_manual_integration = true
   use_mercurial         = false
 
+    depends_on = [
+    azurerm_linux_web_app.webapp_nodejs
+  ]
+}
+
+# App Service (Web App) with Docker
+resource "azurerm_linux_web_app" "webapp_docker" {
+  name                = "webapp-docker-${random_string.unique_suffix.result}"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  https_only          = true
+  service_plan_id     = azurerm_service_plan.appserviceplan.id
+
+  app_settings = {
+    WEBSITES_PORT                      = "80" # Specify the port your container listens on
+    DOCKER_CUSTOM_IMAGE_NAME           = "noknok79/eshopwebmvc:latest" # Replace with your Docker image and tag
+    DOCKER_REGISTRY_SERVER_URL         = "https://hub.docker.com/u/noknok79" # Replace with your registry URL
+    DOCKER_REGISTRY_SERVER_USERNAME    = "noknok79" # Replace with your registry username
+    DOCKER_REGISTRY_SERVER_PASSWORD    = var.docker_registry_password # Use a secure variable for the password
+    WEBSITES_ENABLE_APP_SERVICE_STORAGE = "false" # Disable persistent storage for Docker containers
+  }
+
+  site_config {
+    minimum_tls_version = "1.2" # Ensure secure TLS version
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  tags = {
+    Environment = var.environment
+    Owner       = var.owner
+  }
+
   depends_on = [
-    azurerm_linux_web_app.webapp
+    azurerm_service_plan.appserviceplan
   ]
 }

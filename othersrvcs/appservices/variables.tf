@@ -5,22 +5,22 @@ variable "resource_group_name_prefix" {
 
 variable "resource_group_name" {
   type        = string
-  description = "The name of the resource group. If not provided, it will be generated using the prefix and a random suffix."
+  description = "Name of the resource group"
 }
 
 variable "location" {
   type        = string
-  description = "Location of the resource group and resources."
+  description = "Azure region for the resources"
 }
 
 variable "virtual_network_name" {
   type        = string
-  description = "The name of the virtual network resource. The value will be randomly generated if blank."
+  description = "Name of the virtual network"
 }
 
 variable "subnet_name" {
   type        = string
-  description = "The name of the virtual network subnet. The value will be randomly generated if blank."
+  description = "Name of the subnet"
 }
 
 variable "app_service_environment_v3_name" {
@@ -52,6 +52,7 @@ variable "subscription_id" {
   type        = string
   description = "The Azure Subscription ID where resources will be deployed."
 }
+
 variable "tenant_id" {
   type        = string
   description = "The Azure Tenant ID where resources will be deployed."
@@ -59,6 +60,39 @@ variable "tenant_id" {
 
 variable "sku_code" {
   type        = string
-  description = "The SKU code for the App Service Plan."
+  description = "SKU code for the App Service Plan"
+}
+
+variable "docker_registry_password" {
+  description = "Password for the Docker registry"
+  type        = string
+}
+
+variable "hosting_plan_name" {
+  description = "Name of the hosting plan"
+  type        = string
+}
+
+variable "docker_registry_username" {
+  description = "Username for the Docker registry"
+  type        = string
+}
+
+variable "docker_registry_url" {
+  description = "URL for the Docker registry"
+  type        = string
+}
+
+# Add your variable declarations here
+
+variable "environment" {
+  description = "The environment for the deployment (e.g., dev, staging, prod)"
+  type        = string
+# Replace with your desired default value
+}
+
+variable "owner" {
+  description = "The owner of the resource"
+  type        = string
   
 }
