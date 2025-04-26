@@ -1,0 +1,43 @@
+# Default values for variables
+
+environment                          = "production" # Matches the tags default value
+location                             = "centralus"
+tags                                 = {
+  environment = "demo"
+  project     = "appservice"
+}
+owner                                = "team@example.com" # The owner of the resource
+resource_group_name_prefix           = "rg"
+resource_group_name                  = "RG-APPSERVICE"
+ase_resource_group_name              = "rg-ase"
+subscription_id                      = "096534ab-9b99-4153-8505-90d030aa4f08" # The Azure Subscription ID where resources will be deployed
+tenant_id                            = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
+
+# Virtual Network Variables
+vnet_name                            = "vnet-appservice-demo"
+virtual_network_name                 = "vnet-dev-eastus"
+address_space                        = ["10.0.0.0/16"]
+subnet_name                          = "subnet-appservice"
+subnet_address                       = ["10.0.1.0/24"]
+ase_subnet_id                        = "/subscriptions/096534ab-9b99-4153-8505-90d030aa4f08/resourceGroups/rg-ase/providers/Microsoft.Network/virtualNetworks/vnet-ase/subnets/subnet-ase"
+
+# App Service Plan configuration
+hosting_plan_name                    = "asp-appservice-demo"
+appserviceplan_name                  = "appserviceplan"
+server_farm_resource_group           = "rg-app-service"
+sku_code                             = "B1"
+sku_tier                             = "Basic"
+app_service_plan_id                  = "/subscriptions/096534ab-9b99-4153-8505-90d030aa4f08/resourceGroups/rg-app-service/providers/Microsoft.Web/serverfarms/asp-appservice-demo"
+
+# App Service Environment Variables
+ase_name                             = "ase-v3"
+app_service_environment_v3_name      = "ase-v3"
+delegation_name                      = "Microsoft.Web/hostingEnvironments"
+ilb_mode                             = "None"
+
+# App Service (Web App) configuration
+name                                 = "appservice-demo"
+webapp_name                          = "webapp"
+docker_registry_password             = "myregistrypassword"
+repo_url                             = "https://github.com/Azure-Samples/nodejs-docs-hello-world"
+branch                               = "main"

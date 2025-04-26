@@ -55,6 +55,10 @@ variable "vneteastus_config" {
         name           = "subnet-appgateway"
         address_prefix = "10.0.11.0/24"
       }
+      subnet9 = {
+        name           = "subnet-appservice"
+        address_prefix = "10.0.12.0/24"
+      }
     }
     project         = "my-project"
     environment     = "dev"
