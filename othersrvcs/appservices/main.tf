@@ -39,8 +39,8 @@ resource "azurerm_resource_group" "rg" {
 # Define the virtual network for the App Service Environment
 resource "azurerm_virtual_network" "vnet" {
   name                = var.virtual_network_name
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = var.resource_group_name
+  location            = var.location
   address_space       = ["10.0.0.0/16"]
 
   depends_on = [
@@ -51,8 +51,8 @@ resource "azurerm_virtual_network" "vnet" {
 # Define a subnet within the virtual network for the App Service Environment
 resource "azurerm_subnet" "subnet" {
   name                 = var.subnet_name
-  resource_group_name  = azurerm_resource_group.rg.name
-  virtual_network_name = azurerm_virtual_network.vnet.name
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = var.virtual_network_name
   address_prefixes     = ["10.0.1.0/24"]
 
   delegation {
@@ -72,8 +72,8 @@ resource "azurerm_subnet" "subnet" {
 # Create the Linux App Service Plan
 resource "azurerm_service_plan" "appserviceplan" {
   name                = "appsrvplan-${random_string.unique_suffix.result}"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = var.resource_group_name
+  location            = var.location
   os_type             = "Linux"
   sku_name            = var.sku_code
   lifecycle {
@@ -84,8 +84,8 @@ resource "azurerm_service_plan" "appserviceplan" {
 # Create the web app, pass in the App Service Plan ID
 resource "azurerm_linux_web_app" "webapp_nodejs" {
   name                  = "webapp-${random_string.unique_suffix.result}"
-  location              = azurerm_resource_group.rg.location
-  resource_group_name   = azurerm_resource_group.rg.name
+  resource_group_name = var.resource_group_name
+  location            = var.location
   service_plan_id       = azurerm_service_plan.appserviceplan.id
   https_only            = true
 
@@ -117,8 +117,8 @@ resource "azurerm_app_service_source_control" "sourcecontrol" {
 # App Service (Web App) with Docker
 resource "azurerm_linux_web_app" "webapp_docker" {
   name                = "webapp-docker-${random_string.unique_suffix.result}"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = var.resource_group_name
+  location            = var.location
   https_only          = true
   service_plan_id     = azurerm_service_plan.appserviceplan.id
 
