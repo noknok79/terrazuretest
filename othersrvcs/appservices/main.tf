@@ -79,11 +79,14 @@ resource "azurerm_service_plan" "appserviceplan" {
   lifecycle {
     prevent_destroy = false
   }
+  depends_on = [
+    azurerm_resource_group.rg
+  ]
 }
 
 # Create the web app, pass in the App Service Plan ID
 resource "azurerm_linux_web_app" "webapp_nodejs" {
-  name                = "webapp-${random_string.unique_suffix.result}"
+  name                = "webapp-nodejs-${random_string.unique_suffix.result}"
   resource_group_name = var.resource_group_name
   location            = var.location
   service_plan_id     = azurerm_service_plan.appserviceplan.id
@@ -116,7 +119,7 @@ resource "azurerm_app_service_source_control" "sourcecontrol" {
 
 # App Service (Web App) with Docker
 resource "azurerm_linux_web_app" "webapp_docker" {
-  name                = "webapp-docker-${random_string.unique_suffix.result}"
+  name                = "webapp-docker-eshoponweb-${random_string.unique_suffix.result}"
   resource_group_name = var.resource_group_name
   location            = var.location
   https_only          = true
