@@ -306,7 +306,8 @@ module "keyvault" {
   )]
   keyvault_secret_value = var.keyvault_config.keyvault_secret_value
 
-  owner = var.keyvault_config.owner
+  owner           = var.keyvault_config.owner
+  admin_object_id = var.keyvault_config.admin_object_id # Added this line
 
   access_policies = var.keyvault_config.access_policies
 

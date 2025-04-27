@@ -17,6 +17,7 @@ variable "keyvault_config" {
     subnet_address_prefixes       = list(string)
     subnet_service_endpoints      = list(string)
     subnet_id                     = string # Added subnet_id variable
+    admin_object_id               = string # Added admin_object_id variable
 
     key_vault_sku_name                      = string
     key_vault_purge_protection_enabled      = bool
@@ -52,7 +53,8 @@ variable "keyvault_config" {
     subnet_name                   = "subnet-keyvault"
     subnet_address_prefixes       = ["10.0.1.0/24"]
     subnet_service_endpoints      = ["Microsoft.KeyVault"]
-    subnet_id                     = "subnet-id-placeholder" # Default value for subnet_id
+    subnet_id                     = "subnet-id-placeholder"                # Default value for subnet_id
+    admin_object_id               = "394166a3-9a96-4db9-94b7-c970f2c97b27" # Added default value for admin_object_id
 
     key_vault_sku_name                      = "standard"
     key_vault_purge_protection_enabled      = true
@@ -65,10 +67,10 @@ variable "keyvault_config" {
     access_policies = {
       admin_policy = {
         tenant_id               = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
-        object_id               = "ac2a3d05-eff3-4e60-baa6-4e15c08ddc4d"
-        secret_permissions      = ["Get", "List"]
-        key_permissions         = ["Get", "List"]
-        certificate_permissions = ["Get", "List"]
+        object_id               = "394166a3-9a96-4db9-94b7-c970f2c97b27"
+        secret_permissions      = ["Get", "List", "Set", "Delete", "Backup", "Restore", "Recover", "Purge"]
+        key_permissions         = ["Get", "List", "Update", "Delete", "Recover", "Backup", "Restore", "Create", "Import"] # Ensure "Get" is included
+        certificate_permissions = ["Get", "List", "Create", "Delete", "Import", "Update", "ManageContacts", "ManageIssuers", "Recover", "Backup", "Restore"]
       }
     }
     network_acls_virtual_network_ids = []
@@ -97,4 +99,46 @@ output "keyvault_name" {
 output "keyvault_uri" {
   description = "The URI of the Key Vault"
   value       = module.keyvault.keyvault_uri
+}
+
+# Output the Key Vault Key Name
+output "keyvault_key_name" {
+  description = "The name of the Key Vault Key"
+  value       = module.keyvault.keyvault_name
+}
+
+# Output the Key Vault Key ID
+output "keyvault_key_id" {
+  description = "The ID of the Key Vault Key"
+  value       = module.keyvault.keyvault_uri
+}
+
+# Output the Key Vault Secret Name
+output "keyvault_secret_name" {
+  description = "The name of the Key Vault Secret"
+  value       = module.keyvault.keyvault_secret_name
+}
+
+# Output the Key Vault Secret ID
+output "keyvault_secret_id" {
+  description = "The ID of the Key Vault Secret"
+  value       = module.keyvault.keyvault_secret_id
+}
+
+# Output the Key Vault Certificate Name
+output "keyvault_certificate_name" {
+  description = "The name of the Key Vault Certificate"
+  value       = module.keyvault.keyvault_certificate_name
+}
+
+# Output the Key Vault Certificate ID
+output "keyvault_certificate_id" {
+  description = "The ID of the Key Vault Certificate"
+  value       = module.keyvault.keyvault_certificate_id
+}
+
+# Output the IP Rules for the Key Vault
+output "keyvault_ip_rules" {
+  description = "The IP rules applied to the Key Vault"
+  value       = module.keyvault.keyvault_ip_rules
 }

@@ -134,6 +134,10 @@ variable "keyvault_secret_value" {
   type        = string
 }
 
+variable "admin_object_id" {
+  description = "The object ID of the admin user for the Key Vault."
+  type        = string
+}
 # variable "keyvault_id" {
 #   description = "The ID of the Key Vault."
 #   type        = string

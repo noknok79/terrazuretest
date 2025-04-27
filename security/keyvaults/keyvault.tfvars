@@ -3,7 +3,7 @@ tenant_id           = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
 resource_group_name = "RG-KEYVAULT"
 location            = "East US"
 
-admin_object_id                          = "ac2a3d05-eff3-4e60-baa6-4e15c08ddc4d"
+admin_object_id                          = "394166a3-9a96-4db9-94b7-c970f2c97b27"
 keyvault_secret_value                    = ">ha.16mGCKKj/RL5Oj(I%T,Bc49}S'"
 sku_name                                 = "standard"
 enable_rbac_authorization                = true
@@ -27,17 +27,10 @@ log_analytics_workspace_id = "/subscriptions/096534ab-9b99-4153-8505-90d030aa4f0
 access_policies = {
   policy1 = {
     tenant_id               = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
-    object_id               = "ac2a3d05-eff3-4e60-baa6-4e15c08ddc4d"
+    object_id               = "3ee9a1eb-d0f5-432f-b935-6a5cbffba9f6"
     certificate_permissions = ["Get", "List"]
     key_permissions         = ["Get", "List", "Create", "Delete"]
     secret_permissions      = ["Get", "List", "Set", "Delete"]
-  }
-  policy2 = {
-    tenant_id               = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
-    object_id               = "a22a3d05-eff3-4e60-baa6-4e15c08ddc4d"
-    certificate_permissions = ["Get"]
-    key_permissions         = ["Get", "List"]
-    secret_permissions      = ["Get", "List"]
   }
 }
 
@@ -55,10 +48,10 @@ client_ip   = "136.158.30.104"
 
 network_acls_bypass              = "AzureServices"
 network_acls_default_action      = "Deny"
-network_acls_ip_rules            = ["136.158.30.104", "136.158.30.105"]
+network_acls_ip_rules            = ["8.8.8.8"]
 network_acls_virtual_network_ids = []
 
-ip_rules = ["136.158.30.104", "136.158.30.105"]
+ip_rules = ["8.8.8.8"]
 virtual_network_subnet_ids = [
   "/subscriptions/12345678-1234-9876-4563-123456789012/resourceGroups/example-rg/providers/Microsoft.Network/virtualNetworks/vnet-keyvault/subnets/example-subnet"
 ]

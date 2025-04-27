@@ -76,15 +76,21 @@ resource "azurerm_subnet" "keyvault_subnet" {
   depends_on = [azurerm_virtual_network.keyvault_vnet]
 }
 
+# Fetch the current public IP address
+data "http" "current_ip" {
+  url = "https://api.ipify.org"
+}
+
 # Key Vault
 resource "azurerm_key_vault" "keyvault" {
   name                          = "kv-${var.project}-${var.environment}-${random_string.keyvault_suffix.result}"
   location                      = var.location
   resource_group_name           = azurerm_resource_group.keyvault_rg.name
-  tenant_id                     = data.azurerm_client_config.current.tenant_id
+  tenant_id                     = var.tenant_id
   sku_name                      = var.key_vault_sku_name
   purge_protection_enabled      = var.key_vault_purge_protection_enabled
-  public_network_access_enabled = var.key_vault_public_network_access_enabled
+  public_network_access_enabled = true
+  enable_rbac_authorization     = true
 
   tags = {
     environment = var.environment
@@ -93,10 +99,9 @@ resource "azurerm_key_vault" "keyvault" {
   }
 
   network_acls {
-    default_action             = var.key_vault_default_action
-    bypass                     = var.key_vault_bypass
-    ip_rules                   = var.ip_rules
-    virtual_network_subnet_ids = [azurerm_subnet.keyvault_subnet.id] # Reference the correct subnet ID
+    default_action = var.key_vault_default_action
+    bypass         = var.key_vault_bypass
+    ip_rules       = concat(var.ip_rules, [trimspace(data.http.current_ip.response_body)]) # Use response_body instead of body    virtual_network_subnet_ids = [azurerm_subnet.keyvault_subnet.id]
   }
 
   depends_on = [azurerm_virtual_network.keyvault_vnet, azurerm_subnet.keyvault_subnet]
@@ -193,5 +198,12 @@ resource "azurerm_key_vault_secret" "keyvault_secret" {
   depends_on = [azurerm_key_vault.keyvault]
 }
 
-# Data Source for Tenant ID and Subscription ID
-data "azurerm_client_config" "current" {}
+
+# Role Assignment for Key Vault Administrator
+resource "azurerm_role_assignment" "keyvault_admin" {
+  scope                = azurerm_key_vault.keyvault.id
+  role_definition_name = "Key Vault Administrator"
+  principal_id         = "394166a3-9a96-4db9-94b7-c970f2c97b27" # Replace with the actual object ID
+
+  depends_on = [azurerm_key_vault.keyvault]
+}

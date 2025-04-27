@@ -181,22 +181,6 @@ variable "vnetwestus_config" {
 }
 
 
-
-
-
-# Inside the vnet_centralus module's outputs.tf
-# output "subnets" {
-#   description = "A map of all subnets with their names and address prefixes"
-#   value = {
-#     for subnet_key, subnet in var.subnets : subnet_key => {
-#       name           = subnet.name
-#       address_prefix = subnet.address_prefix
-#     }
-#   }
-# }
-
-
-
 output "eastus_vnet_and_subnets" {
   description = "Details of the East US VNet and its subnets, including names and address prefixes"
   value = {
@@ -210,21 +194,6 @@ output "eastus_vnet_and_subnets" {
     ]
   }
 }
-
-# output "eastus_vnet_and_subnets" {
-#   description = "Details of the East US VNet and its subnets, including names and address prefixes"
-#   value = {
-#     vnet_name     = var.vneteastus_config.vnet_name
-#     address_space = var.vneteastus_config.address_space
-#     subnets = [
-#       for subnet_key, subnet in var.vneteastus_config.subnets : {
-#         name           = subnet.name
-#         address_prefix = subnet.address_prefix
-#       }
-#     ]
-#   }
-# }
-
 
 
 output "centralus_vnet_and_subnets" {

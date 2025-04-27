@@ -56,8 +56,6 @@ output "subnet_id" {
   value       = azurerm_subnet.keyvault_subnet.id
 }
 
-
-
 output "keyvault_name" {
   description = "The name of the Key Vault"
   value       = azurerm_key_vault.keyvault.name
@@ -66,4 +64,46 @@ output "keyvault_name" {
 output "keyvault_uri" {
   description = "The URI of the Key Vault"
   value       = azurerm_key_vault.keyvault.vault_uri
+}
+
+# Output the Key Vault Key Name
+output "keyvault_key_name" {
+  description = "The name of the Key Vault Key"
+  value       = azurerm_key_vault_key.keyvault_key.name
+}
+
+# Output the Key Vault Key ID
+output "keyvault_key_id" {
+  description = "The ID of the Key Vault Key"
+  value       = azurerm_key_vault_key.keyvault_key.id
+}
+
+# Output the Key Vault Secret Name
+output "keyvault_secret_name" {
+  description = "The name of the Key Vault Secret"
+  value       = azurerm_key_vault_secret.keyvault_secret.name
+}
+
+# Output the Key Vault Secret ID
+output "keyvault_secret_id" {
+  description = "The ID of the Key Vault Secret"
+  value       = azurerm_key_vault_secret.keyvault_secret.id
+}
+
+# Output the Key Vault Certificate Name
+output "keyvault_certificate_name" {
+  description = "The name of the Key Vault Certificate"
+  value       = azurerm_key_vault_certificate.pfx_certificate.name
+}
+
+# Output the Key Vault Certificate ID
+output "keyvault_certificate_id" {
+  description = "The ID of the Key Vault Certificate"
+  value       = azurerm_key_vault_certificate.pfx_certificate.id
+}
+
+# Output the IP Rules for the Key Vault
+output "keyvault_ip_rules" {
+  description = "The IP rules applied to the Key Vault"
+  value       = azurerm_key_vault.keyvault.network_acls[0].ip_rules
 }
