@@ -47,3 +47,16 @@ variable "psqldb_config" {
     }]
   }
 }
+
+
+#FOR PSQDB 
+#DO NOT DELETE THIS
+output "centralus_subnets_for_psqldb" {
+  description = "A list of all subnets in Central US with their names and address prefixes"
+  value = [
+    for subnet_key, subnet in var.vnetcentralus_config.subnets : {
+      name           = subnet.name
+      address_prefix = subnet.address_prefix
+    }
+  ]
+}

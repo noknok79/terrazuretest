@@ -53,6 +53,9 @@ resource "azurerm_subnet" "vnet_subnets" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = [each.value.address_prefix]
+
+  depends_on = [azurerm_virtual_network.vnet] # Ensure the virtual network is created first
+
 }
 
 resource "azurerm_subnet" "keyvault_subnet" {
@@ -92,13 +95,17 @@ resource "azurerm_network_security_group" "vnet_eastus_nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
-  tags = var.tags
+  tags       = var.tags
+  depends_on = [azurerm_resource_group.vnet_rg] # Ensure the resource group is created first
+
 }
 
 resource "azurerm_subnet_network_security_group_association" "subnet_nsg_association" {
   for_each                  = azurerm_subnet.vnet_subnets
   subnet_id                 = each.value.id
   network_security_group_id = azurerm_network_security_group.vnet_eastus_nsg.id
+  depends_on                = [azurerm_network_security_group.vnet_eastus_nsg] # Ensure the NSG is created first
+
 }
 
 # Resource Group Name

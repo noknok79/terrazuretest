@@ -33,7 +33,19 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
-  alias                      = "peering"
+  alias                      = "euswuspeering"
+  subscription_id            = var.subscription_id
+  skip_provider_registration = true
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+}
+
+
+provider "azurerm" {
+  alias                      = "euscuspeering"
   subscription_id            = var.subscription_id
   skip_provider_registration = true
   features {
@@ -149,12 +161,26 @@ module "vnet_centralus" {
   tags            = var.vnetcentralus_config.tags
 }
 
-module "vnet_peering" {
-  source = "./networking/vnet/peering"
+module "vnet_westus" {
+  source = "./networking/vnet/vnetwestus"
 
-  providers = {
-    azurerm = azurerm.peering
-  }
+  resource_group_name = var.vnetwestus_config.resource_group_name
+  location            = var.vnetwestus_config.location
+  vnet_name           = var.vnetwestus_config.vnet_name
+  address_space       = var.vnetwestus_config.address_space
+  subnets             = var.vnetwestus_config.subnets
+
+  project         = var.vnetwestus_config.project
+  environment     = var.vnetwestus_config.environment
+  subscription_id = var.vnetwestus_config.subscription_id
+  tenant_id       = var.vnetwestus_config.tenant_id
+  tags            = var.vnetwestus_config.tags
+}
+
+
+module "euscus_peering" {
+  source = "./networking/peering/vneteuscuspeering"
+
 
   eastus_vnet_name              = module.vnet_eastus.vnet_name
   eastus_resource_group_name    = module.vnet_eastus.resource_group_name
@@ -166,6 +192,22 @@ module "vnet_peering" {
   vnet_eastus_vnetid    = module.vnet_eastus.vnet_id
   vnet_centralus_vnetid = module.vnet_centralus.vnet_id
 }
+
+module "euswus_peering" {
+  source = "./networking/peering/vneteuswuspeering"
+
+
+  eastus_vnet_name           = module.vnet_eastus.vnet_name
+  eastus_resource_group_name = module.vnet_eastus.resource_group_name
+  westus_vnet_name           = module.vnet_westus.vnet_name
+  westus_resource_group_name = module.vnet_westus.resource_group_name
+
+  subscription_id    = var.subscription_id
+  tenant_id          = var.tenant_id
+  vnet_eastus_vnetid = module.vnet_eastus.vnet_id
+  vnet_westus_vnetid = module.vnet_westus.vnet_id
+}
+
 
 module "compute_vm" {
   source = "./compute/vm"
@@ -490,10 +532,12 @@ module "psqldb" {
   admin_password   = var.psqldb_config.admin_password
 
   vnet_name    = module.vnet_centralus.vnet_name
-  vnet_subnets = module.vnet_centralus.subnets
+  vnet_subnets = module.vnet_centralus.vnet_subnets
+
+
   subnet_id = lookup(
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.id },
-    "subnet-appgateway",
+    "subnet-psqldb-centralus",
     null
   )
 

@@ -11,12 +11,20 @@ terraform {
 }
 
 provider "azurerm" {
-  alias = "peering"
-  features {}
+  features {} # Ensure this block is present
   subscription_id            = var.subscription_id
   tenant_id                  = var.tenant_id
   skip_provider_registration = true
 }
+
+provider "azurerm" {
+  alias = "euscuspeering"
+  features {} # Ensure this block is present
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
+  skip_provider_registration = true
+}
+
 
 
 # Virtual Network Peering from East US to Central US

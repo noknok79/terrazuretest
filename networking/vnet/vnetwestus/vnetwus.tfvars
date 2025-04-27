@@ -26,6 +26,10 @@ subnets = {
     name           = "subnet-appservice"
     address_prefix = "10.2.10.0/24"
   }
+  subnet6 = {
+    name           = "subnet-keyvault"
+    address_prefix = "10.2.6.0/24"
+  }
 }
 
 environment = "dev"

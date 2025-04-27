@@ -1,8 +1,0 @@
-subscription_id            = "096534ab-9b99-4153-8505-90d030aa4f08"
-tenant_id                  = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
-eastus_resource_group_name = "RG-VNET-EASTUS"
-westus_resource_group_name = "RG-VNET-WESTUS"
-eastus_vnet_name           = "vnet-dev-eastus"
-westus_vnet_name           = "vnet-dev-westus"
-vnet_eastus_vnetid         = ""
-vnet_westus_vnetid         = ""

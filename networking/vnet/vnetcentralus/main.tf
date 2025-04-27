@@ -14,6 +14,22 @@ provider "azurerm" {
   skip_provider_registration = true
 }
 
+provider "azurerm" {
+  alias = "vneteastus"
+  features {}
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
+  skip_provider_registration = true
+}
+
+provider "azurerm" {
+  alias = "vnetcentralus"
+  features {}
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
+  skip_provider_registration = true
+}
+
 # Resource Group
 resource "azurerm_resource_group" "vnet_rg" {
   name     = var.resource_group_name
@@ -44,9 +60,9 @@ resource "azurerm_subnet" "vnet_subnets" {
   address_prefixes     = [each.value.address_prefix]
 }
 
-resource "azurerm_subnet" "subnet" {
+resource "azurerm_subnet" "keyvault_subnet" {
   name                 = "subnet-keyvault"
-  resource_group_name  = azurerm_resource_group.vnet_rg.name
+  resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.1.6.0/24"]
 
@@ -63,25 +79,6 @@ resource "azurerm_subnet" "subnet" {
   depends_on = [azurerm_virtual_network.vnet]
 }
 
-# resource "azurerm_subnet" "subnets" {
-#   count                = length(var.subnets)
-#   name                 = var.subnets[count.index].name
-#   resource_group_name  = var.resource_group_name
-#   virtual_network_name = var.vnet_name
-#   address_prefixes     = [var.subnets[count.index].address_prefix]
-# }
-
-
-resource "azurerm_subnet" "subnets" {
-  for_each             = var.subnets
-  name                 = each.value.name
-  resource_group_name  = var.resource_group_name
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = [each.value.address_prefix]
-}
-
-
-# Create a Network Security Group for Central US
 resource "azurerm_network_security_group" "vnet_centralus_nsg" {
   name                = "vnet_centralus_nsg"
   location            = var.location
@@ -98,29 +95,16 @@ resource "azurerm_network_security_group" "vnet_centralus_nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+  tags       = var.tags
+  depends_on = [azurerm_resource_group.vnet_rg]
 
-  security_rule {
-    name                       = "Allow-HTTPS"
-    priority                   = 110
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "443"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  tags = var.tags
 }
 
-# Associate the NSG with all subnets in the Central US Virtual Network
-resource "azurerm_subnet_network_security_group_association" "subnet_nsg_association" {
+resource "azurerm_subnet_network_security_group_association" "subnet_nsg_association_centralus" {
   for_each                  = azurerm_subnet.vnet_subnets
   subnet_id                 = each.value.id
   network_security_group_id = azurerm_network_security_group.vnet_centralus_nsg.id
 }
-
 
 # Resource Group Name
 variable "resource_group_name" {
@@ -189,13 +173,14 @@ output "address_space" {
 }
 
 output "subnets" {
-  value = [
-    for subnet in azurerm_subnet.vnet_subnets : {
-      name           = subnet.name
-      id             = subnet.id
-      address_prefix = subnet.address_prefixes[0]
-    }
-  ]
+  value = { for subnet in azurerm_subnet.vnet_subnets : subnet.name => {
+    id = subnet.id
+  } }
+}
+
+output "vnet_id" {
+  description = "The ID of the virtual network"
+  value       = azurerm_virtual_network.vnet.id
 }
 
 output "resource_group_name" {
@@ -203,13 +188,7 @@ output "resource_group_name" {
 }
 
 output "vnet_name" {
-  description = "The name of the virtual network"
-  value       = var.vnet_name
-}
-
-output "vnet_id" {
-  description = "The ID of the Central US Virtual Network."
-  value       = azurerm_virtual_network.vnet.id
+  value = var.vnet_name
 }
 
 output "vnet_subnets" {
@@ -218,8 +197,8 @@ output "vnet_subnets" {
       name           = subnet.name
       id             = subnet.id
       address_prefix = subnet.address_prefixes[0]
-      network_security_group_id = try(
-        azurerm_subnet_network_security_group_association.subnet_nsg_association[subnet.name].network_security_group_id,
+      network_security_group_id_centralus = try(
+        azurerm_subnet_network_security_group_association.subnet_nsg_association_centralus[subnet.name].network_security_group_id,
         null
       )
     }

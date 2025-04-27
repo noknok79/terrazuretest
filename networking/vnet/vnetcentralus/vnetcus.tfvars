@@ -6,6 +6,10 @@ vnet_name           = "vnet-dev-centralus"
 address_space       = ["10.1.0.0/16"]
 
 subnets = {
+  subnet2 = {
+    name           = "subnet-keyvault"
+    address_prefix = "10.1.6.0/24"
+  }
   subnet3 = {
     name           = "subnet-akscluster"
     address_prefix = "10.1.2.0/24"
@@ -22,6 +26,7 @@ subnets = {
     name           = "subnet-vmscaleset"
     address_prefix = "10.1.9.0/24"
   }
+
 }
 
 environment = "dev"

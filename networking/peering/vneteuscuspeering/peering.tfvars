@@ -1,0 +1,8 @@
+subscription_id               = "096534ab-9b99-4153-8505-90d030aa4f08"
+tenant_id                     = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
+eastus_resource_group_name    = "RG-VNET-EASTUS"
+centralus_resource_group_name = "RG-VNET-centralus"
+eastus_vnet_name              = "vnet-dev-eastus"
+centralus_vnet_name           = "vnet-dev-centralus"
+vnet_eastus_vnetid            = "/subscriptions/096534ab-9b99-4153-8505-90d030aa4f08/resourceGroups/RG-VNET-EASTUS/providers/Microsoft.Network/virtualNetworks/vnet-dev-eastus"
+vnet_centralus_vnetid         = "/subscriptions/096534ab-9b99-4153-8505-90d030aa4f08/resourceGroups/RG-VNET-CENTRALUS/providers/Microsoft.Network/virtualNetworks/vnet-dev-centralus"
