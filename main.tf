@@ -581,3 +581,26 @@ module "appgw" {
   vm_size              = var.appgw_config.vm_size
   frontend_subnet_name = var.appgw_config.frontend_subnet_name
 }
+module "appservice" {
+  source = "./othersrvcs/appservices"
+
+  resource_group_name             = var.appservice_config.resource_group_name
+  resource_group_name_prefix      = var.appservice_config.resource_group_name_prefix
+  location                        = var.appservice_config.location
+  subscription_id                 = var.appservice_config.subscription_id
+  tenant_id                       = var.appservice_config.tenant_id
+  environment                     = var.appservice_config.environment
+  owner                           = var.appservice_config.owner
+  sku_code                        = var.appservice_config.sku_code
+  repo_url                        = var.appservice_config.repo_url
+  branch                          = var.appservice_config.branch
+  docker_registry_url             = var.appservice_config.docker_registry_url
+  docker_registry_username        = var.appservice_config.docker_registry_username
+  docker_registry_password        = var.appservice_config.docker_registry_password
+  app_service_environment_v3_name = var.appservice_config.app_service_environment_v3_name
+  appserviceplan_name             = var.appservice_config.appserviceplan_name
+  webapp_name                     = var.appservice_config.webapp_name
+  hosting_plan_name               = var.appservice_config.hosting_plan_name
+  virtual_network_name            = var.appservice_config.virtual_network_name
+  subnet_name                     = var.appservice_config.subnet_name
+}

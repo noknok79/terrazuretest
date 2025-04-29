@@ -22,7 +22,7 @@ provider "azurerm" {
   subscription_id            = "096534ab-9b99-4153-8505-90d030aa4f08"
   tenant_id                  = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
   skip_provider_registration = true
-
+ 
 }
 
 resource "random_string" "unique_suffix" {
@@ -134,12 +134,13 @@ resource "azurerm_linux_web_app" "webapp_docker" {
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = "false"                             # Disable persistent storage for Docker containers
   }
 
+
   site_config {
     minimum_tls_version = "1.2" # Ensure secure TLS version
   }
 
   identity {
-    type = "SystemAssigned"
+    type = "SystemAssigned" # Use SystemAssigned identity
   }
 
   tags = {
