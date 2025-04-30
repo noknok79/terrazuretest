@@ -351,6 +351,44 @@ module "keyvault" {
   #depends_on = [module.vnet_eastus]
 }
 
+module "keyvault_addons1" {
+  source = "./security/keyvaults/keyvault-addon"
+
+  keyvault_config = var.keyvault_config
+
+  keyvault_id                  = module.keyvault.keyvault_id
+  key_name                      = "addon1-key"
+  key_type                      = "RSA"
+  key_size                      = 2048
+  key_opts                      = ["encrypt", "decrypt", "sign", "verify", "wrapKey", "unwrapKey"]
+  secret_name                   = "addon1-secret"
+  secret_value                  = "addon1-value"
+  certificate_name              = "addon1-certificate"
+  certificate_key_size          = 2048
+  certificate_key_type          = "RSA"
+  certificate_subject           = "CN=addon1.com"
+  certificate_validity_in_months = 12
+}
+
+module "keyvault_addons2" {
+  source = "./security/keyvaults/keyvault-addon"
+
+  keyvault_config = var.keyvault_config
+
+  keyvault_id                   = module.keyvault.keyvault_id
+  key_name                      = "addon2-key"
+  key_type                      = "RSA"
+  key_size                      = 2048
+  key_opts                      = ["encrypt", "decrypt", "sign", "verify", "wrapKey", "unwrapKey"]
+  secret_name                   = "addon2-secret"
+  secret_value                  = "addon2-value"
+  certificate_name              = "addon2-certificate"
+  certificate_key_size          = 2048
+  certificate_key_type          = "RSA"
+  certificate_subject           = "CN=addon2.com"
+  certificate_validity_in_months = 12
+}
+
 module "vmss" {
   source = "./compute/vmscalesets"
 
@@ -626,6 +664,7 @@ module "appgw" {
   vm_size              = var.appgw_config.vm_size
   frontend_subnet_name = var.appgw_config.frontend_subnet_name
 }
+
 
 module "appservice" {
   source = "./othersrvcs/appservices"

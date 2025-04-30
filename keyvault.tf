@@ -43,7 +43,7 @@ variable "keyvault_config" {
     subscription_id               = "096534ab-9b99-4153-8505-90d030aa4f08"
     tenant_id                     = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
     resource_group_name           = "RG-KEYVAULT"
-    location                      = "East US"
+    location                      = "eastus"
     environment                   = "dev"
     keyvault_name                 = "keyvault-dev-eastust"
     owner                         = "John Doe"
@@ -51,7 +51,7 @@ variable "keyvault_config" {
     virtual_network_name          = "vnet-keyvault"
     virtual_network_address_space = ["10.0.0.0/16"]
     subnet_name                   = "subnet-keyvault"
-    subnet_address_prefixes       = ["10.0.1.0/24"]
+    subnet_address_prefixes       = ["10.0.6.0/24"]
     subnet_service_endpoints      = ["Microsoft.KeyVault"]
     subnet_id                     = "subnet-id-placeholder"                # Default value for subnet_id
     admin_object_id               = "394166a3-9a96-4db9-94b7-c970f2c97b27" # Added default value for admin_object_id
@@ -86,10 +86,7 @@ variable "keyvault_config" {
 
 
 # Outputs for Key Vault
-output "keyvault_id" {
-  description = "The ID of the Key Vault"
-  value       = module.keyvault.keyvault_id
-}
+
 
 output "keyvault_name" {
   description = "The name of the Key Vault"
@@ -142,3 +139,4 @@ output "keyvault_ip_rules" {
   description = "The IP rules applied to the Key Vault"
   value       = module.keyvault.keyvault_ip_rules
 }
+
