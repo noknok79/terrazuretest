@@ -14,11 +14,12 @@ subscription_id            = "096534ab-9b99-4153-8505-90d030aa4f08" # The Azure 
 tenant_id                  = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
 
 # Virtual Network Variables
-vnet_name            = "vnet-appservice-demo"
-virtual_network_name = "vnet-dev-eastus"
-address_space        = ["10.0.0.0/16"]
-subnet_name          = "subnet-appservice"
-subnet_address       = ["10.0.12.0/24"]
+vnet_name            = "vnet-dev-westus"
+virtual_network_name = "vnet-dev-westus"
+address_space        = ["10.2.0.0/16"]
+address_prefix        = ["10.2.10.0/24"]
+subnet_name          = "subnet-appservice-westus"
+subnet_address       = ["10.2.10.0/24"]
 ase_subnet_id        = "/subscriptions/096534ab-9b99-4153-8505-90d030aa4f08/resourceGroups/rg-ase/providers/Microsoft.Network/virtualNetworks/vnet-ase/subnets/subnet-ase"
 
 # App Service Plan configuration

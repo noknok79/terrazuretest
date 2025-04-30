@@ -29,7 +29,7 @@ variable "appservice_config" {
     resource_group_name              = "RG-APPSERVICE-WESTUS"
     location                         = "westus"
     virtual_network_name             = "vnet-dev-eastus"
-    subnet_name                      = "subnet-appservice"
+    subnet_name                      = "subnet-appservice-westus"
     app_service_environment_v3_name  = "ase-v3"
     appserviceplan_name              = "appserviceplan"
     webapp_name                      = "webapp"

@@ -33,6 +33,19 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
+  alias                      = "vnet_westus"
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
+  skip_provider_registration = true
+
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+}
+
+provider "azurerm" {
   alias                      = "euswuspeering"
   subscription_id            = var.subscription_id
   skip_provider_registration = true
@@ -131,7 +144,9 @@ provider "azurerm" {
 
 module "vnet_eastus" {
   source = "./networking/vnet/vneteastus"
-
+  providers = {
+    azurerm = azurerm.vnet_eastus
+  }
   resource_group_name = var.vneteastus_config.resource_group_name
   location            = var.vneteastus_config.location
   vnet_name           = var.vneteastus_config.vnet_name
@@ -147,6 +162,9 @@ module "vnet_eastus" {
 
 module "vnet_centralus" {
   source = "./networking/vnet/vnetcentralus"
+  providers = {
+    azurerm = azurerm.vnet_centralus
+  }
 
   resource_group_name = var.vnetcentralus_config.resource_group_name
   location            = var.vnetcentralus_config.location
@@ -159,11 +177,15 @@ module "vnet_centralus" {
   subscription_id = var.vnetcentralus_config.subscription_id
   tenant_id       = var.vnetcentralus_config.tenant_id
   tags            = var.vnetcentralus_config.tags
+  #depends_on = [module.vnet_eastus, module.vnet_westus] # Added this line
+
 }
 
 module "vnet_westus" {
   source = "./networking/vnet/vnetwestus"
-
+  providers = {
+    azurerm = azurerm.vnet_westus
+  }
   resource_group_name = var.vnetwestus_config.resource_group_name
   location            = var.vnetwestus_config.location
   vnet_name           = var.vnetwestus_config.vnet_name
@@ -175,7 +197,13 @@ module "vnet_westus" {
   subscription_id = var.vnetwestus_config.subscription_id
   tenant_id       = var.vnetwestus_config.tenant_id
   tags            = var.vnetwestus_config.tags
+  #address_prefix = var.vnetwestus_config.address_prefix
+
+  address_prefix = var.vnetwestus_config.address_prefix
+  #depends_on = [module.vnet_eastus, module.vnet_centralus] # Added this line
 }
+
+# filepath: ./networking/vnet/vnetwestus/variables.tf
 
 
 module "euscus_peering" {
@@ -191,6 +219,7 @@ module "euscus_peering" {
   tenant_id             = var.tenant_id
   vnet_eastus_vnetid    = module.vnet_eastus.vnet_id
   vnet_centralus_vnetid = module.vnet_centralus.vnet_id
+  # depends_on            = [module.vnet_eastus, module.vnet_centralus]
 }
 
 module "euswus_peering" {
@@ -206,6 +235,7 @@ module "euswus_peering" {
   tenant_id          = var.tenant_id
   vnet_eastus_vnetid = module.vnet_eastus.vnet_id
   vnet_westus_vnetid = module.vnet_westus.vnet_id
+  #depends_on         = [module.vnet_eastus, module.vnet_westus]
 }
 
 
@@ -244,6 +274,7 @@ module "compute_vm" {
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix },
     "subnet-computevm"
   )
+  #depends_on = [module.vnet_eastus]
 }
 
 module "aks" {
@@ -277,6 +308,8 @@ module "aks" {
   environment                     = var.aks_config.environment
   project                         = var.aks_config.project
   windows_admin_password          = var.aks_config.windows_admin_password
+  
+  #depends_on = [module.vnet_eastus]
 }
 
 module "keyvault" {
@@ -314,6 +347,8 @@ module "keyvault" {
   tags        = var.keyvault_config.tags
   environment = var.keyvault_config.environment
   project     = var.keyvault_config.project
+  
+  #depends_on = [module.vnet_eastus]
 }
 
 module "vmss" {
@@ -368,6 +403,8 @@ module "vmss" {
   nsg_rule_source_port_range          = var.vmss_network.nsg_rule.source_port_range
   nsg_rule_destination_address_prefix = var.vmss_network.nsg_rule.destination_address_prefix
   nsg_rule_destination_port_range     = var.vmss_network.nsg_rule.destination_port_range
+  
+  #depends_on = [module.vnet_eastus]
 }
 
 module "azsql" {
@@ -414,6 +451,8 @@ module "azsql" {
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix },
     "subnet-azsqldbs"
   )]
+  
+  #depends_on = [module.vnet_eastus]
 }
 
 module "cosmosdb" {
@@ -467,6 +506,8 @@ module "cosmosdb" {
   ]
 
   tags = var.cosmosdb_config.tags
+  
+  #depends_on = [module.vnet_eastus]
 }
 
 module "mysqldb" {
@@ -514,6 +555,8 @@ module "mysqldb" {
   storage_container_name = var.mysqldb_config.storage_container_name
 
   owner = var.mysqldb_config.owner
+  
+  #depends_on = [module.vnet_eastus]
 }
 
 module "psqldb" {
@@ -544,6 +587,8 @@ module "psqldb" {
 
   storage_account_name   = var.psqldb_config.storage_account_name
   storage_container_name = var.psqldb_config.storage_container_name
+  
+  #depends_on = [module.vnet_centralus]
 }
 
 module "appgw" {
@@ -581,9 +626,13 @@ module "appgw" {
   vm_size              = var.appgw_config.vm_size
   frontend_subnet_name = var.appgw_config.frontend_subnet_name
 }
+
 module "appservice" {
   source = "./othersrvcs/appservices"
 
+  # providers = {
+  #   azurerm = azurerm.vnet_westus
+  # }
   resource_group_name             = var.appservice_config.resource_group_name
   resource_group_name_prefix      = var.appservice_config.resource_group_name_prefix
   location                        = var.appservice_config.location
@@ -601,6 +650,17 @@ module "appservice" {
   appserviceplan_name             = var.appservice_config.appserviceplan_name
   webapp_name                     = var.appservice_config.webapp_name
   hosting_plan_name               = var.appservice_config.hosting_plan_name
-  virtual_network_name            = var.appservice_config.virtual_network_name
-  subnet_name                     = var.appservice_config.subnet_name
+  vnet_name                       = module.vnet_westus.vnet_name
+  subnet_name                     = lookup(
+    { for subnet in module.vnet_westus.vnet_subnets : subnet.name => subnet.name },
+    "subnet-appservice-westus",
+    null
+  )
+  address_prefix = lookup(
+    { for subnet in module.vnet_westus.vnet_subnets : subnet.name => [subnet.address_prefix] },
+    "subnet-appservice-westus",
+    ["10.2.10.0/24"] # Default to a valid list of strings if the subnet is not found
+  )
+
+  address_space = module.vnet_westus.address_space
 }

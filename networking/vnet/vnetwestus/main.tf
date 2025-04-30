@@ -7,28 +7,28 @@ terraform {
   }
 }
 
-provider "azurerm" {
-  features {}
-  subscription_id            = var.subscription_id
-  tenant_id                  = var.tenant_id
-  skip_provider_registration = true
-}
+# provider "azurerm" {
+#   features {}
+#   subscription_id            = var.subscription_id
+#   tenant_id                  = var.tenant_id
+#   skip_provider_registration = true
+# }
 
-provider "azurerm" {
-  alias = "vneteastus"
-  features {}
-  subscription_id            = var.subscription_id
-  tenant_id                  = var.tenant_id
-  skip_provider_registration = true
-}
+# provider "azurerm" {
+#   alias = "vneteastus"
+#   features {}
+#   subscription_id            = var.subscription_id
+#   tenant_id                  = var.tenant_id
+#   skip_provider_registration = true
+# }
 
-provider "azurerm" {
-  alias = "vnetwestus"
-  features {}
-  subscription_id            = var.subscription_id
-  tenant_id                  = var.tenant_id
-  skip_provider_registration = true
-}
+# provider "azurerm" {
+#   alias = "vnetwestus"
+#   features {}
+#   subscription_id            = var.subscription_id
+#   tenant_id                  = var.tenant_id
+#   skip_provider_registration = true
+# }
 
 # Resource Group
 resource "azurerm_resource_group" "vnet_rg" {
@@ -124,6 +124,12 @@ variable "vnet_name" {
   type        = string
 }
 
+variable "address_prefix" {
+  description = "The address prefix for the subnet."
+  type        = list(string)
+  
+}
+
 # Address Space
 variable "address_space" {
   description = "The address space for the virtual network."
@@ -166,6 +172,9 @@ variable "tenant_id" {
   description = "The Azure tenant ID to use for the provider."
   type        = string
 }
+
+
+
 
 output "address_space" {
   description = "The address space of the virtual network"

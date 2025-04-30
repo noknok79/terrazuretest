@@ -88,6 +88,7 @@ variable "vnetcentralus_config" {
     subscription_id = string
     tenant_id       = string
     tags            = map(string)
+    address_prefix  = string
   })
 
   default = {
@@ -114,6 +115,7 @@ variable "vnetcentralus_config" {
       "Project"     = "project-centralus"
       "Owner"       = "team-name"
     }
+    address_prefix = "10.1.0.0/16" # Added this attribute to match the type definition
   }
 }
 
@@ -135,6 +137,7 @@ variable "vnetwestus_config" {
     subscription_id = string
     tenant_id       = string
     tags            = map(string)
+    address_prefix = list(string)
   })
 
   default = {
@@ -144,25 +147,25 @@ variable "vnetwestus_config" {
     address_space       = ["10.2.0.0/16"]
     subnets = {
       subnet1 = {
-        name           = "subnet-akscluster"
+        name           = "subnet-akscluster-westus"
         address_prefix = "10.2.2.0/24"
-      }
+      },
       subnet2 = {
-        name           = "subnet-azsqldbs"
+        name           = "subnet-azsqldbs-westus"
         address_prefix = "10.2.7.0/24"
-      }
+      },
       subnet3 = {
-        name           = "subnet-computevm"
+        name           = "subnet-computevm-westus"
         address_prefix = "10.2.8.0/24"
-      }
+      },
       subnet4 = {
-        name           = "subnet-vmscaleset"
+        name           = "subnet-vmscaleset-westus"
         address_prefix = "10.2.9.0/24"
-      }
+      },
       subnet5 = {
-        name           = "subnet-appservice"
+        name           = "subnet-appservice-westus"
         address_prefix = "10.2.10.0/24"
-      }
+      },
       subnet6 = {
         name           = "subnet-keyvault"
         address_prefix = "10.2.6.0/24"
@@ -177,6 +180,7 @@ variable "vnetwestus_config" {
       "Project"     = "my-project"
       "Owner"       = "team-name"
     }
+    address_prefix = ["10.2.0.0/16"] # Fix: Ensure this is a list of strings
   }
 }
 

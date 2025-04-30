@@ -13,7 +13,7 @@ variable "location" {
   description = "Azure region for the resources"
 }
 
-variable "virtual_network_name" {
+variable "vnet_name" {
   type        = string
   description = "Name of the virtual network"
 }
@@ -95,4 +95,15 @@ variable "owner" {
   description = "The owner of the resource"
   type        = string
 
+}
+
+variable "address_prefix" {
+  description = "The address prefix for the subnet"
+  type        = list(string)
+}
+
+variable "address_space" {
+  description = "The address space for the virtual network"
+  type        = list(string)
+  
 }

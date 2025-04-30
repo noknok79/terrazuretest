@@ -7,23 +7,23 @@ terraform {
   }
 }
 
-provider "azurerm" {
-  features {}
-  subscription_id            = var.subscription_id
-  tenant_id                  = var.tenant_id
-  skip_provider_registration = true
+# provider "azurerm" {
+#   features {}
+#   subscription_id            = var.subscription_id
+#   tenant_id                  = var.tenant_id
+#   skip_provider_registration = true
 
-}
+# }
 
 
-provider "azurerm" {
-  alias = "vneteastus"
-  features {}
-  subscription_id            = var.subscription_id
-  tenant_id                  = var.tenant_id
-  skip_provider_registration = true
+# provider "azurerm" {
+#   alias = "vneteastus"
+#   features {}
+#   subscription_id            = var.subscription_id
+#   tenant_id                  = var.tenant_id
+#   skip_provider_registration = true
 
-}
+# }
 
 # Resource Group
 resource "azurerm_resource_group" "vnet_rg" {

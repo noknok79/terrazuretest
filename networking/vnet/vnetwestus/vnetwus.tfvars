@@ -7,27 +7,27 @@ address_space       = ["10.2.0.0/16"]
 
 subnets = {
   subnet1 = {
-    name           = "subnet-akscluster"
+    name           = "subnet-akscluster-westus"
     address_prefix = "10.2.2.0/24"
   }
   subnet2 = {
-    name           = "subnet-azsqldbs"
+    name           = "subnet-azsqldbs-westus"
     address_prefix = "10.2.7.0/24"
   }
   subnet3 = {
-    name           = "subnet-computevm"
+    name           = "subnet-computevm-westus"
     address_prefix = "10.2.8.0/24"
   }
   subnet4 = {
-    name           = "subnet-vmscaleset"
+    name           = "subnet-vmscaleset-westus"
     address_prefix = "10.2.9.0/24"
   }
   subnet5 = {
-    name           = "subnet-appservice"
+    name           = "subnet-appservice-westus"
     address_prefix = "10.2.10.0/24"
   }
   subnet6 = {
-    name           = "subnet-keyvault"
+    name           = "subnet-keyvault-westus"
     address_prefix = "10.2.6.0/24"
   }
 }
