@@ -59,6 +59,10 @@ variable "vneteastus_config" {
         name           = "subnet-appservice"
         address_prefix = "10.0.12.0/24"
       }
+      subnet10 = {
+        name           = "AzureFirewallSubnet"
+         address_prefix = "10.0.13.0/24"
+      }
     }
     project         = "my-project"
     environment     = "dev"
@@ -105,6 +109,10 @@ variable "vnetcentralus_config" {
         name           = "subnet-akscluster-centralus"
         address_prefix = "10.1.2.0/24"
       }
+      subnet3 = {
+        name           = "AzureFirewallSubnet"
+        address_prefix = "10.1.3.0/24"
+      }
     }
     project         = "project-centralus"
     environment     = "dev"
@@ -137,7 +145,7 @@ variable "vnetwestus_config" {
     subscription_id = string
     tenant_id       = string
     tags            = map(string)
-    address_prefix = list(string)
+    address_prefix  = list(string)
   })
 
   default = {
@@ -169,6 +177,10 @@ variable "vnetwestus_config" {
       subnet6 = {
         name           = "subnet-keyvault"
         address_prefix = "10.2.6.0/24"
+      }
+       subnet7 = {
+        name           = "AzureFirewallSubnet"
+        address_prefix = "10.2.11.0/24"
       }
     }
     project         = "my-project"

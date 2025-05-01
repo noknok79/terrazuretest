@@ -127,7 +127,7 @@ variable "vnet_name" {
 variable "address_prefix" {
   description = "The address prefix for the subnet."
   type        = list(string)
-  
+
 }
 
 # Address Space

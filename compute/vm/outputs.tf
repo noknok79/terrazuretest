@@ -19,6 +19,6 @@ output "private_ip" {
 }
 
 output "public_ip" {
-  description = "The public IP address of the virtual machine"
-  value       = azurerm_public_ip.public_ip.ip_address
+  description = "The public IP addresses of the virtual machine"
+  value       = [for ip in azurerm_public_ip.public_ip : ip.ip_address]
 }

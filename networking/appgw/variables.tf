@@ -75,3 +75,39 @@ variable "vm_admin_password" {
 variable "vm_size" {
   description = "Size of the backend virtual machines."
 }
+
+variable "use_public_ip" {
+  description = "Set to true to use a public IP for the Application Gateway"
+  type        = bool
+}
+
+
+variable "vnet_address_space" {
+  description = "Address space for the virtual network."
+  type        = list(string)
+}
+
+variable "sku_name" {
+  description = "SKU name for the Application Gateway."
+  type        = string
+}
+
+variable "tags" {
+  type        = map(string)
+  description = "Tags for the Application Gateway."
+}
+
+variable "capacity" {
+  type        = number
+  description = "Capacity of the Application Gateway."
+}
+
+variable "tier" {
+  type        = string
+  description = "Tier of the Application Gateway."
+}
+
+variable "ssl_certificate_name" {
+  type        = string
+  description = "SSL certificate name for the Application Gateway."
+}

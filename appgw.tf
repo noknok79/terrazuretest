@@ -11,6 +11,7 @@ variable "appgw_config" {
     vnet_name                      = string
     frontend_subnet_name           = string
     backend_subnet_name            = string
+    public_ip                       = bool
     public_ip_name                 = string
     nsg_name                       = string
     backend_address_pool_name      = string
@@ -19,6 +20,7 @@ variable "appgw_config" {
     http_setting_name              = string
     listener_name                  = string
     request_routing_rule_name      = string
+    use_public_ip                    = bool
     ssl_certificate_name           = string
     vm_admin_username              = string
     vm_admin_password              = string
@@ -39,6 +41,9 @@ variable "appgw_config" {
     public_ip_name                 = "pip-app-gateway"
     nsg_name                       = "nsg-app-gateway"
     backend_address_pool_name      = "app-gateway-backend-pool"
+    use_public_ip                   = false
+    public_ip                       = false
+    frontend_ip_configuration_name = "app-gateway-frontend-ip"
     frontend_port_name             = "http-port"
     frontend_ip_configuration_name = "app-gateway-frontend-ip"
     http_setting_name              = "app-gateway-http-settings"

@@ -43,3 +43,5 @@ tags = {
   environment = "dev"
   owner       = "team"
 }
+
+enable_public_ip = false

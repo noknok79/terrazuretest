@@ -160,6 +160,15 @@ module "vnet_eastus" {
   tags            = var.vneteastus_config.tags
 }
 
+module "nsg_standard" {
+  source              = "./networking/nsg"
+  nsg_name            = var.nsg_config.nsg_name
+  location            = var.nsg_config.location
+  resource_group_name = var.nsg_config.resource_group_name
+  allowed_ssh_source  = var.nsg_config.allowed_ssh_source
+  tags                = var.nsg_config.tags
+}
+
 module "vnet_centralus" {
   source = "./networking/vnet/vnetcentralus"
   providers = {
@@ -274,7 +283,9 @@ module "compute_vm" {
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix },
     "subnet-computevm"
   )
+  enable_public_ip = var.vm_config.enable_public_ip
   #depends_on = [module.vnet_eastus]
+
 }
 
 module "aks" {
@@ -308,7 +319,7 @@ module "aks" {
   environment                     = var.aks_config.environment
   project                         = var.aks_config.project
   windows_admin_password          = var.aks_config.windows_admin_password
-  
+
   #depends_on = [module.vnet_eastus]
 }
 
@@ -339,6 +350,11 @@ module "keyvault" {
   )]
   keyvault_secret_value = var.keyvault_config.keyvault_secret_value
 
+  #network_security_group_id = module.nsg_standard.nsg_id
+
+  // Removed invalid attribute "network_security_group_id"
+
+
   owner           = var.keyvault_config.owner
   admin_object_id = var.keyvault_config.admin_object_id # Added this line
 
@@ -347,7 +363,7 @@ module "keyvault" {
   tags        = var.keyvault_config.tags
   environment = var.keyvault_config.environment
   project     = var.keyvault_config.project
-  
+
   #depends_on = [module.vnet_eastus]
 }
 
@@ -356,17 +372,17 @@ module "keyvault_addons1" {
 
   keyvault_config = var.keyvault_config
 
-  keyvault_id                  = module.keyvault.keyvault_id
-  key_name                      = "addon1-key"
-  key_type                      = "RSA"
-  key_size                      = 2048
-  key_opts                      = ["encrypt", "decrypt", "sign", "verify", "wrapKey", "unwrapKey"]
-  secret_name                   = "addon1-secret"
-  secret_value                  = "addon1-value"
-  certificate_name              = "addon1-certificate"
-  certificate_key_size          = 2048
-  certificate_key_type          = "RSA"
-  certificate_subject           = "CN=addon1.com"
+  keyvault_id                    = module.keyvault.keyvault_id
+  key_name                       = "addon1-key"
+  key_type                       = "RSA"
+  key_size                       = 2048
+  key_opts                       = ["encrypt", "decrypt", "sign", "verify", "wrapKey", "unwrapKey"]
+  secret_name                    = "addon1-secret"
+  secret_value                   = "addon1-value"
+  certificate_name               = "addon1-certificate"
+  certificate_key_size           = 2048
+  certificate_key_type           = "RSA"
+  certificate_subject            = "CN=addon1.com"
   certificate_validity_in_months = 12
 }
 
@@ -375,17 +391,17 @@ module "keyvault_addons2" {
 
   keyvault_config = var.keyvault_config
 
-  keyvault_id                   = module.keyvault.keyvault_id
-  key_name                      = "addon2-key"
-  key_type                      = "RSA"
-  key_size                      = 2048
-  key_opts                      = ["encrypt", "decrypt", "sign", "verify", "wrapKey", "unwrapKey"]
-  secret_name                   = "addon2-secret"
-  secret_value                  = "addon2-value"
-  certificate_name              = "addon2-certificate"
-  certificate_key_size          = 2048
-  certificate_key_type          = "RSA"
-  certificate_subject           = "CN=addon2.com"
+  keyvault_id                    = module.keyvault.keyvault_id
+  key_name                       = "addon2-key"
+  key_type                       = "RSA"
+  key_size                       = 2048
+  key_opts                       = ["encrypt", "decrypt", "sign", "verify", "wrapKey", "unwrapKey"]
+  secret_name                    = "addon2-secret"
+  secret_value                   = "addon2-value"
+  certificate_name               = "addon2-certificate"
+  certificate_key_size           = 2048
+  certificate_key_type           = "RSA"
+  certificate_subject            = "CN=addon2.com"
   certificate_validity_in_months = 12
 }
 
@@ -441,7 +457,7 @@ module "vmss" {
   nsg_rule_source_port_range          = var.vmss_network.nsg_rule.source_port_range
   nsg_rule_destination_address_prefix = var.vmss_network.nsg_rule.destination_address_prefix
   nsg_rule_destination_port_range     = var.vmss_network.nsg_rule.destination_port_range
-  
+
   #depends_on = [module.vnet_eastus]
 }
 
@@ -489,7 +505,7 @@ module "azsql" {
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix },
     "subnet-azsqldbs"
   )]
-  
+
   #depends_on = [module.vnet_eastus]
 }
 
@@ -544,7 +560,7 @@ module "cosmosdb" {
   ]
 
   tags = var.cosmosdb_config.tags
-  
+
   #depends_on = [module.vnet_eastus]
 }
 
@@ -593,7 +609,7 @@ module "mysqldb" {
   storage_container_name = var.mysqldb_config.storage_container_name
 
   owner = var.mysqldb_config.owner
-  
+
   #depends_on = [module.vnet_eastus]
 }
 
@@ -625,7 +641,7 @@ module "psqldb" {
 
   storage_account_name   = var.psqldb_config.storage_account_name
   storage_container_name = var.psqldb_config.storage_container_name
-  
+
   #depends_on = [module.vnet_centralus]
 }
 
@@ -634,20 +650,21 @@ module "appgw" {
 
   resource_group_name = var.appgw_config.resource_group_name
   location            = var.appgw_config.location
-  // Removed invalid attribute "tags"
+  tags                = var.appgw_config.tags
 
   app_gateway_name = var.appgw_config.app_gateway_name
-  // Removed invalid attribute "sku"
-  // Removed invalid attribute "capacity"
-  // Removed invalid attribute "tier"
+  sku_name         = var.appgw_config.sku
+  capacity         = var.appgw_config.capacity
+  tier             = var.appgw_config.tier
 
-  vnet_name = module.vnet_eastus.vnet_name
+  vnet_name          = module.vnet_eastus.vnet_name
+  vnet_address_space = module.vnet_eastus.address_space
   backend_subnet_name = lookup(
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.name },
     "subnet-appgateway"
   )
 
-  // Removed invalid attribute "ssl_certificate_name"
+  ssl_certificate_name = var.appgw_config.ssl_certificate_name
 
   frontend_ip_configuration_name = var.appgw_config.frontend_ip_configuration_name
   frontend_port_name             = var.appgw_config.frontend_port_name
@@ -656,13 +673,14 @@ module "appgw" {
   backend_address_pool_name = var.appgw_config.backend_address_pool_name
   http_setting_name         = var.appgw_config.http_setting_name
   request_routing_rule_name = var.appgw_config.request_routing_rule_name
-  public_ip_name            = var.appgw_config.public_ip_name
+  public_ip_name = var.appgw_config.public_ip ? var.appgw_config.public_ip_name : null
 
   vm_admin_username    = var.appgw_config.vm_admin_username
   vm_admin_password    = var.appgw_config.vm_admin_password
   nsg_name             = var.appgw_config.nsg_name
   vm_size              = var.appgw_config.vm_size
   frontend_subnet_name = var.appgw_config.frontend_subnet_name
+  use_public_ip        = var.appgw_config.use_public_ip
 }
 
 
@@ -690,7 +708,7 @@ module "appservice" {
   webapp_name                     = var.appservice_config.webapp_name
   hosting_plan_name               = var.appservice_config.hosting_plan_name
   vnet_name                       = module.vnet_westus.vnet_name
-  subnet_name                     = lookup(
+  subnet_name = lookup(
     { for subnet in module.vnet_westus.vnet_subnets : subnet.name => subnet.name },
     "subnet-appservice-westus",
     null

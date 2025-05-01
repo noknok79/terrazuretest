@@ -115,5 +115,5 @@ vm_size              = "Standard_DS1_v2"
 
 # Add the missing variable for VM admin password
 vm_admin_password = "A1b@C#d$E5f^G&h*J2k!L3m" # Replace with a secure password
-
+use_public_ip = false
 # Output

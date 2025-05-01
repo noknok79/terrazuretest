@@ -142,3 +142,9 @@ variable "admin_object_id" {
 #   description = "The ID of the Key Vault."
 #   type        = string
 # }
+
+variable "network_security_group_id" {
+  description = "The ID of the Network Security Group to associate with the Key Vault subnet."
+  type        = string
+  default     = null
+}

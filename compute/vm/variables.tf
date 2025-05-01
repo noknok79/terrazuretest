@@ -117,3 +117,8 @@ variable "tenant_id" {
   type        = string
 
 }
+
+variable "enable_public_ip" {
+  description = "Set to true to create and associate a public IP with the VM"
+  type        = bool
+}

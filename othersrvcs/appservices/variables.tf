@@ -105,5 +105,5 @@ variable "address_prefix" {
 variable "address_space" {
   description = "The address space for the virtual network"
   type        = list(string)
-  
+
 }

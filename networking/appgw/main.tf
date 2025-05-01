@@ -130,8 +130,11 @@ resource "azurerm_subnet_network_security_group_association" "app_gateway_subnet
   ]
 }
 
-# Updated Public IP
+# Add a new variable to control public IP usage
+
+# Conditionally create the Public IP
 resource "azurerm_public_ip" "app_gateway_pip" {
+  count               = var.use_public_ip ? 1 : 0
   name                = var.public_ip_name
   location            = var.location
   resource_group_name = var.resource_group_name
@@ -159,7 +162,7 @@ resource "azurerm_application_gateway" "app_gateway" {
   }
   frontend_ip_configuration {
     name                 = "app-gateway-frontend-ip"
-    public_ip_address_id = azurerm_public_ip.app_gateway_pip.id
+    public_ip_address_id = var.use_public_ip ? azurerm_public_ip.app_gateway_pip[0].id : null
   }
   frontend_port {
     name = "http-port"

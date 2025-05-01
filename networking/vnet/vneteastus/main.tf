@@ -100,6 +100,7 @@ resource "azurerm_network_security_group" "vnet_eastus_nsg" {
 
 }
 
+
 resource "azurerm_subnet_network_security_group_association" "subnet_nsg_association" {
   for_each                  = azurerm_subnet.vnet_subnets
   subnet_id                 = each.value.id
@@ -107,6 +108,7 @@ resource "azurerm_subnet_network_security_group_association" "subnet_nsg_associa
   depends_on                = [azurerm_network_security_group.vnet_eastus_nsg] # Ensure the NSG is created first
 
 }
+
 
 # Resource Group Name
 variable "resource_group_name" {

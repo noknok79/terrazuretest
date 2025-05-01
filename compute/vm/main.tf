@@ -10,7 +10,11 @@ terraform {
 
 provider "azurerm" {
 
-  features {} # Ensure this block is present
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }# Ensure this block is present
   skip_provider_registration = true
   subscription_id            = var.subscription_id
   tenant_id                  = var.tenant_id
@@ -59,11 +63,15 @@ resource "azurerm_network_interface" "nic" {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Dynamic"
+    public_ip_address_id = var.enable_public_ip ? azurerm_public_ip.public_ip[0].id : null
+
   }
 }
 
 # Public IP
 resource "azurerm_public_ip" "public_ip" {
+  count               = var.enable_public_ip ? 1 : 0
+
   name                = "${var.prefix}-public-ip"
   resource_group_name = var.resource_group_name
   location            = var.location

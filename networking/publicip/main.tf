@@ -12,7 +12,7 @@ provider "azurerm" {
   features {}
 }
 
-resource "azurerm_public_ip" "example" {
+resource "azurerm_public_ip" "pip" {
   name                = "pip-${var.environment}-${var.location}"
   location            = var.location
   resource_group_name = azurerm_resource_group.example.name
@@ -28,7 +28,7 @@ resource "azurerm_public_ip" "example" {
   ]
 }
 
-resource "azurerm_resource_group" "example" {
+resource "azurerm_resource_group" "pip_rg" {
   name     = "rg-${var.environment}-${var.location}"
   location = var.location
   tags = {

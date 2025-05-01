@@ -1,8 +1,8 @@
 provider "azurerm" {
   features {}
-    subscription_id = "096534ab-9b99-4153-8505-90d030aa4f08"
-    tenant_id       = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
-    skip_provider_registration = true
+  subscription_id            = "096534ab-9b99-4153-8505-90d030aa4f08"
+  tenant_id                  = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
+  skip_provider_registration = true
 
 }
 
@@ -12,7 +12,7 @@ resource "azurerm_key_vault_key" "additional_keys" {
   key_type     = var.key_type
   key_size     = var.key_size
   key_opts     = var.key_opts
-  tags         = {
+  tags = {
     environment = var.keyvault_config.environment
     owner       = var.keyvault_config.owner
   }
@@ -22,7 +22,7 @@ resource "azurerm_key_vault_secret" "additional_secrets" {
   name         = var.secret_name
   value        = var.secret_value
   key_vault_id = var.keyvault_id
-  tags         = {
+  tags = {
     environment = var.keyvault_config.environment
     owner       = var.keyvault_config.owner
   }
