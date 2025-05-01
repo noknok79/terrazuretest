@@ -23,7 +23,7 @@ variable "address_space" {
   type        = list(string)
 }
 
-variable "subnet_address_prefixes" {
+variable "address_prefixes" {
   description = "Address prefixes for the firewall subnet"
   type        = list(string)
 }
@@ -103,4 +103,20 @@ variable "ip_configuration_name" {
 variable "public_ip_enabled" {
   description = "Boolean to determine if a public IP should be enabled for the Azure Firewall"
   type        = bool # Optional: Set a default value if applicable
+}
+
+variable "insert_nsg" {
+  description = "Boolean to determine if a Network Security Group (NSG) should be created"
+  type        = bool
+  default     = false # Added to support NSG creation
+}
+
+variable "subnets" {
+  description = "Map of subnets with their names and IDs"
+  type        = map(string)
+}
+
+variable "network_security_group_id" {
+  description = "ID of the Network Security Group to associate with subnets"
+  type        = string
 }

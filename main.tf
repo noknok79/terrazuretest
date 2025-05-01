@@ -8,18 +8,18 @@ terraform {
   }
 }
 
-provider "azurerm" {
-  alias                      = "vnet_eastus"
-  subscription_id            = var.subscription_id
-  tenant_id                  = var.tenant_id
-  skip_provider_registration = true
+# provider "azurerm" {
+#   alias                      = "vnet_eastus"
+#   subscription_id            = var.subscription_id
+#   tenant_id                  = var.tenant_id
+#   skip_provider_registration = true
 
-  features {
-    resource_group {
-      prevent_deletion_if_contains_resources = false
-    }
-  }
-}
+#   features {
+#     resource_group {
+#       prevent_deletion_if_contains_resources = false
+#     }
+#   }
+# }
 
 provider "azurerm" {
   alias                      = "vnet_centralus"
@@ -144,9 +144,9 @@ provider "azurerm" {
 
 module "vnet_eastus" {
   source = "./networking/vnet/vneteastus"
-  providers = {
-    azurerm = azurerm.vnet_eastus
-  }
+  # providers = {
+  #   azurerm = azurerm.vnet_eastus
+  # }
   resource_group_name = var.vneteastus_config.resource_group_name
   location            = var.vneteastus_config.location
   vnet_name           = var.vneteastus_config.vnet_name
@@ -349,8 +349,6 @@ module "keyvault" {
     "10.0.6.0/24"
   )]
   keyvault_secret_value = var.keyvault_config.keyvault_secret_value
-
-  #network_security_group_id = module.nsg_standard.nsg_id
 
   // Removed invalid attribute "network_security_group_id"
 
@@ -720,4 +718,33 @@ module "appservice" {
   )
 
   address_space = module.vnet_westus.address_space
+}
+module "azfirewall" {
+  source = "./security/azfirewall"
+
+  resource_group_name     = var.azfirewall_config.resource_group_name
+  location                = var.azfirewall_config.location
+  environment             = var.azfirewall_config.environment
+  owner                   = var.azfirewall_config.owner
+
+  azfirewall_name         = var.azfirewall_config.azfirewall_name
+  azfirewall_policy_name  = var.azfirewall_config.azfirewall_policy_name
+  sku_name                = var.azfirewall_config.sku_name
+  sku_tier                = var.azfirewall_config.sku_tier
+  address_prefixes        = var.azfirewall_config.address_prefixes
+  vnet_name               = var.azfirewall_config.vnet_name
+  address_space           = var.azfirewall_config.address_space
+  azfirewall_pip_name     = var.azfirewall_config.azfirewall_pip_name
+  pip_allocation_method   = var.azfirewall_config.pip_allocation_method
+  pip_sku                 = var.azfirewall_config.pip_sku
+  use_public_ip           = var.azfirewall_config.use_public_ip
+
+  ip_configuration_name   = var.azfirewall_config.ip_configuration_name
+  public_ip_enabled       = var.azfirewall_config.public_ip_enabled
+  zones                   = var.azfirewall_config.zones
+  insert_nsg              = var.azfirewall_config.insert_nsg
+
+  subnets                 = module.vnet_westus.vnet_subnets
+  network_security_group_id = module.nsg_standard.nsg_id
+
 }

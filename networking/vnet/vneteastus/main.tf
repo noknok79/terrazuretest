@@ -7,13 +7,17 @@ terraform {
   }
 }
 
-# provider "azurerm" {
-#   features {}
-#   subscription_id            = var.subscription_id
-#   tenant_id                  = var.tenant_id
-#   skip_provider_registration = true
+provider "azurerm" {
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
+  skip_provider_registration = true
 
-# }
+}
 
 
 # provider "azurerm" {
@@ -80,6 +84,7 @@ resource "azurerm_subnet" "keyvault_subnet" {
 
 # Associate NSGs with subnets
 resource "azurerm_network_security_group" "vnet_eastus_nsg" {
+  count               = var.enable_nsg ? 1 : 0
   name                = "vnet_eastus_nsg"
   location            = var.location
   resource_group_name = var.resource_group_name
@@ -102,9 +107,9 @@ resource "azurerm_network_security_group" "vnet_eastus_nsg" {
 
 
 resource "azurerm_subnet_network_security_group_association" "subnet_nsg_association" {
-  for_each                  = azurerm_subnet.vnet_subnets
-  subnet_id                 = each.value.id
-  network_security_group_id = azurerm_network_security_group.vnet_eastus_nsg.id
+  for_each = { for subnet in azurerm_virtual_network.vnet.subnet : subnet.name => subnet.id if lower(subnet.name) != "azurefirewallsubnet" }
+  subnet_id                 = each.value
+  network_security_group_id = azurerm_network_security_group.vnet_eastus_nsg[0].id
   depends_on                = [azurerm_network_security_group.vnet_eastus_nsg] # Ensure the NSG is created first
 
 }
@@ -170,6 +175,13 @@ variable "tenant_id" {
   description = "The Azure tenant ID to use for the provider."
   type        = string
 }
+
+variable "enable_nsg" {
+  description = "Boolean to enable or disable the creation and association of the NSG."
+  type        = bool
+  default     = true
+}
+
 
 
 # filepath: /mnt/c/markacnwsl/terrazuretest/networking/vnet/vneteastus/main.tf

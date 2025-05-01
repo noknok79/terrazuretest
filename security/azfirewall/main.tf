@@ -12,7 +12,7 @@ provider "azurerm" {
   features {}
   subscription_id = "096534ab-9b99-4153-8505-90d030aa4f08"
   tenant_id       = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
-  #skip_provider_registration = true
+  skip_provider_registration = true
 }
 
 resource "azurerm_firewall_policy" "azfw_policy" {
@@ -43,7 +43,7 @@ resource "azurerm_firewall" "azfw" {
   ip_configuration {
     name                 = "azfw-ipconfig"
     subnet_id            = azurerm_subnet.firewall_subnet.id
-    public_ip_address_id = azurerm_public_ip.azfw_pip[0].id # Access the first instance
+    public_ip_address_id = var.use_public_ip ? azurerm_public_ip.azfw_pip[0].id : null
   }
 
   firewall_policy_id = azurerm_firewall_policy.azfw_policy.id
@@ -89,10 +89,10 @@ resource "azurerm_virtual_network" "vnet" {
 }
 
 resource "azurerm_subnet" "firewall_subnet" {
-  name                 = var.subnet_name
+  name                 = "AzureFirewallSubnet" # Updated to the required name
   resource_group_name  = var.resource_group_name
-  virtual_network_name = var.vnet_name
-  address_prefixes     = var.subnet_address_prefixes
+  virtual_network_name = azurerm_virtual_network.vnet.name # Corrected reference
+  address_prefixes     = [var.firewall_subnet_prefix]
 
   depends_on = [
     azurerm_virtual_network.vnet,
@@ -119,3 +119,33 @@ resource "azurerm_public_ip" "azfw_pip" {
   ]
 }
 
+resource "azurerm_network_security_group" "azfirewall_nsg" {
+  count               = var.insert_nsg ? 1 : 0
+  name                = "${var.azfirewall_name}-nsg"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+
+  security_rule {
+    name                       = "AllowAzureFirewall"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  tags = {
+    environment = var.environment
+    owner       = var.owner
+  }
+}
+
+resource "azurerm_subnet_network_security_group_association" "subnet_nsg_association" {
+  for_each = { for subnet in azurerm_virtual_network.vnet.subnet : subnet.name => subnet.id if lower(subnet.name) != "azurefirewallsubnet" }
+
+  subnet_id                 = each.value
+  network_security_group_id = azurerm_network_security_group.azfirewall_nsg[0].id
+}
