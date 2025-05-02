@@ -41,8 +41,8 @@ variable "appgw_config" {
     public_ip_name                 = "pip-app-gateway"
     nsg_name                       = "nsg-app-gateway"
     backend_address_pool_name      = "app-gateway-backend-pool"
-    use_public_ip                   = false
-    public_ip                       = false
+    use_public_ip                   = true
+    public_ip                       = true
     frontend_ip_configuration_name = "app-gateway-frontend-ip"
     frontend_port_name             = "http-port"
     frontend_ip_configuration_name = "app-gateway-frontend-ip"

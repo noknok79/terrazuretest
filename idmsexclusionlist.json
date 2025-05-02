@@ -1,0 +1,714 @@
+[
+    {
+        "Attribute": "city",
+        "Rule": "",
+        "RuleName": "",
+        "TestString": "",
+        "Column1": "0",
+        "Count": "0"
+    },
+    {
+        "Attribute": "comment",
+        "Rule": "920230",
+        "RuleName": "Multiple URL Encoding Detected",
+        "TestString": "something%12#",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "comment",
+        "Rule": "920271",
+        "RuleName": "Invalid character in request (non printable characters)",
+        "TestString": "",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "comment",
+        "Rule": "931130",
+        "RuleName": "Possible Remote File Inclusion (RFI) Attack: Off-Domain Reference/Link",
+        "TestString": "https://some.url",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "comment",
+        "Rule": "941100",
+        "RuleName": "XSS Attack Detected via libinjection",
+        "TestString": "div style=test>",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "comment",
+        "Rule": "941150",
+        "RuleName": "XSS Filter - Category 5: Disallowed HTML Attributes",
+        "TestString": "style=",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "comment",
+        "Rule": "941180",
+        "RuleName": "Node-Validator Blacklist Keywords",
+        "TestString": "foo@example.com --> send update every month",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "comment",
+        "Rule": "942120",
+        "RuleName": "SQL Injection Attack: SQL Operator Detected",
+        "TestString": "something <= something",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "comment",
+        "Rule": "942130",
+        "RuleName": "SQL Injection Attack: SQL Tautology Detected.",
+        "TestString": "foo@example.com <= send update every month!",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "comment",
+        "Rule": "942390",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values greater than 25\ufffdC or 77\ufffdF",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "comment",
+        "Rule": "942400",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values between 25 and 30\ufffdC",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "comment",
+        "Rule": "942430",
+        "RuleName": "Restricted SQL Character Anomaly Detection (args): # of special characters exceeded (12)",
+        "TestString": "\ufffd!$%&/#()[]*\ufffd=\\\\",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "comment",
+        "Rule": "942440",
+        "RuleName": "SQL Comment Sequence Detected.",
+        "TestString": "foo@example.com -> use template #5 always!",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "customer_group",
+        "Rule": "931130",
+        "RuleName": "Possible Remote File Inclusion (RFI) Attack: Off-Domain Reference/Link",
+        "TestString": "https://some.url",
+        "Column1": "1",
+        "Count": "4"
+    },
+    {
+        "Attribute": "customer_group",
+        "Rule": "942130",
+        "RuleName": "SQL Injection Attack: SQL Tautology Detected.",
+        "TestString": "foo@example.com <= send update every month!",
+        "Column1": "1",
+        "Count": "4"
+    },
+    {
+        "Attribute": "customer_group",
+        "Rule": "942390",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values greater than 25\ufffdC or 77\ufffdF",
+        "Column1": "1",
+        "Count": "4"
+    },
+    {
+        "Attribute": "customer_group",
+        "Rule": "942400",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values between 25 and 30\ufffdC",
+        "Column1": "1",
+        "Count": "4"
+    },
+    {
+        "Attribute": "invoice_receiver",
+        "Rule": "931130",
+        "RuleName": "Possible Remote File Inclusion (RFI) Attack: Off-Domain Reference/Link",
+        "TestString": "https://some.url",
+        "Column1": "1",
+        "Count": "4"
+    },
+    {
+        "Attribute": "invoice_receiver",
+        "Rule": "942130",
+        "RuleName": "SQL Injection Attack: SQL Tautology Detected.",
+        "TestString": "foo@example.com <= send update every month!",
+        "Column1": "1",
+        "Count": "4"
+    },
+    {
+        "Attribute": "invoice_receiver",
+        "Rule": "942390",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values greater than 25\ufffdC or 77\ufffdF",
+        "Column1": "1",
+        "Count": "4"
+    },
+    {
+        "Attribute": "invoice_receiver",
+        "Rule": "942400",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values between 25 and 30\ufffdC",
+        "Column1": "1",
+        "Count": "4"
+    },
+    {
+        "Attribute": "labAssistant",
+        "Rule": "941180",
+        "RuleName": "Node-Validator Blacklist Keywords",
+        "TestString": "foo@example.com --> send update every month",
+        "Column1": "1",
+        "Count": "6"
+    },
+    {
+        "Attribute": "labAssistant",
+        "Rule": "942120",
+        "RuleName": "SQL Injection Attack: SQL Operator Detected",
+        "TestString": "something <= something",
+        "Column1": "1",
+        "Count": "6"
+    },
+    {
+        "Attribute": "labAssistant",
+        "Rule": "942130",
+        "RuleName": "SQL Injection Attack: SQL Tautology Detected.",
+        "TestString": "foo@example.com <= send update every month!",
+        "Column1": "1",
+        "Count": "6"
+    },
+    {
+        "Attribute": "labAssistant",
+        "Rule": "942390",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values greater than 25\ufffdC or 77\ufffdF",
+        "Column1": "1",
+        "Count": "6"
+    },
+    {
+        "Attribute": "labAssistant",
+        "Rule": "942400",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values between 25 and 30\ufffdC",
+        "Column1": "1",
+        "Count": "6"
+    },
+    {
+        "Attribute": "labAssistant",
+        "Rule": "942440",
+        "RuleName": "SQL Comment Sequence Detected.",
+        "TestString": "foo@example.com -> use template #5 always!",
+        "Column1": "1",
+        "Count": "6"
+    },
+    {
+        "Attribute": "labAssistantAdditionalInformation",
+        "Rule": "920230",
+        "RuleName": "Multiple URL Encoding Detected",
+        "TestString": "something%12#",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "labAssistantAdditionalInformation",
+        "Rule": "920271",
+        "RuleName": "Invalid character in request (non printable characters)",
+        "TestString": "",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "labAssistantAdditionalInformation",
+        "Rule": "931130",
+        "RuleName": "Possible Remote File Inclusion (RFI) Attack: Off-Domain Reference/Link",
+        "TestString": "https://some.url",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "labAssistantAdditionalInformation",
+        "Rule": "941100",
+        "RuleName": "XSS Attack Detected via libinjection",
+        "TestString": "div style=test>",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "labAssistantAdditionalInformation",
+        "Rule": "941150",
+        "RuleName": "XSS Filter - Category 5: Disallowed HTML Attributes",
+        "TestString": "style=",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "labAssistantAdditionalInformation",
+        "Rule": "941180",
+        "RuleName": "Node-Validator Blacklist Keywords",
+        "TestString": "foo@example.com --> send update every month",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "labAssistantAdditionalInformation",
+        "Rule": "942120",
+        "RuleName": "SQL Injection Attack: SQL Operator Detected",
+        "TestString": "something <= something",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "labAssistantAdditionalInformation",
+        "Rule": "942130",
+        "RuleName": "SQL Injection Attack: SQL Tautology Detected.",
+        "TestString": "foo@example.com <= send update every month!",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "labAssistantAdditionalInformation",
+        "Rule": "942390",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values greater than 25\ufffdC or 77\ufffdF",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "labAssistantAdditionalInformation",
+        "Rule": "942400",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values between 25 and 30\ufffdC",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "labAssistantAdditionalInformation",
+        "Rule": "942430",
+        "RuleName": "Restricted SQL Character Anomaly Detection (args): # of special characters exceeded (12)",
+        "TestString": "\ufffd!$%&/#()[]*\ufffd=\\\\",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "labAssistantAdditionalInformation",
+        "Rule": "942440",
+        "RuleName": "SQL Comment Sequence Detected.",
+        "TestString": "foo@example.com -> use template #5 always!",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "name",
+        "Rule": "942390",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values greater than 25\ufffdC or 77\ufffdF",
+        "Column1": "1",
+        "Count": "2"
+    },
+    {
+        "Attribute": "name",
+        "Rule": "942400",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values between 25 and 30\ufffdC",
+        "Column1": "1",
+        "Count": "2"
+    },
+    {
+        "Attribute": "password",
+        "Rule": "920230",
+        "RuleName": "Multiple URL Encoding Detected",
+        "TestString": "something%12#",
+        "Column1": "1",
+        "Count": "13"
+    },
+    {
+        "Attribute": "password",
+        "Rule": "920271",
+        "RuleName": "Invalid character in request (non printable characters)",
+        "TestString": "",
+        "Column1": "1",
+        "Count": "13"
+    },
+    {
+        "Attribute": "password",
+        "Rule": "931130",
+        "RuleName": "Possible Remote File Inclusion (RFI) Attack: Off-Domain Reference/Link",
+        "TestString": "https://some.url",
+        "Column1": "1",
+        "Count": "13"
+    },
+    {
+        "Attribute": "password",
+        "Rule": "941100",
+        "RuleName": "XSS Attack Detected via libinjection",
+        "TestString": "div style=test>",
+        "Column1": "1",
+        "Count": "13"
+    },
+    {
+        "Attribute": "password",
+        "Rule": "941150",
+        "RuleName": "XSS Filter - Category 5: Disallowed HTML Attributes",
+        "TestString": "style=",
+        "Column1": "1",
+        "Count": "13"
+    },
+    {
+        "Attribute": "password",
+        "Rule": "941180",
+        "RuleName": "Node-Validator Blacklist Keywords",
+        "TestString": "foo@example.com --> send update every month",
+        "Column1": "1",
+        "Count": "13"
+    },
+    {
+        "Attribute": "password",
+        "Rule": "942100",
+        "RuleName": "SQL Injection Attack Detected via libinjection",
+        "TestString": "Testing1234567890!@#",
+        "Column1": "1",
+        "Count": "13"
+    },
+    {
+        "Attribute": "password",
+        "Rule": "942120",
+        "RuleName": "SQL Injection Attack: SQL Operator Detected",
+        "TestString": "something <= something",
+        "Column1": "1",
+        "Count": "13"
+    },
+    {
+        "Attribute": "password",
+        "Rule": "942130",
+        "RuleName": "SQL Injection Attack: SQL Tautology Detected.",
+        "TestString": "foo@example.com <= send update every month!",
+        "Column1": "1",
+        "Count": "13"
+    },
+    {
+        "Attribute": "password",
+        "Rule": "942390",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values greater than 25\ufffdC or 77\ufffdF",
+        "Column1": "1",
+        "Count": "13"
+    },
+    {
+        "Attribute": "password",
+        "Rule": "942400",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values between 25 and 30\ufffdC",
+        "Column1": "1",
+        "Count": "13"
+    },
+    {
+        "Attribute": "password",
+        "Rule": "942430",
+        "RuleName": "Restricted SQL Character Anomaly Detection (args): # of special characters exceeded (12)",
+        "TestString": "\ufffd!$%&/#()[]*\ufffd=\\\\",
+        "Column1": "1",
+        "Count": "13"
+    },
+    {
+        "Attribute": "password",
+        "Rule": "942440",
+        "RuleName": "SQL Comment Sequence Detected.",
+        "TestString": "foo@example.com -> use template #5 always!",
+        "Column1": "1",
+        "Count": "13"
+    },
+    {
+        "Attribute": "probeCollector",
+        "Rule": "941180",
+        "RuleName": "Node-Validator Blacklist Keywords",
+        "TestString": "foo@example.com --> send update every month",
+        "Column1": "1",
+        "Count": "6"
+    },
+    {
+        "Attribute": "probeCollector",
+        "Rule": "942120",
+        "RuleName": "SQL Injection Attack: SQL Operator Detected",
+        "TestString": "something <= something",
+        "Column1": "1",
+        "Count": "6"
+    },
+    {
+        "Attribute": "probeCollector",
+        "Rule": "942130",
+        "RuleName": "SQL Injection Attack: SQL Tautology Detected.",
+        "TestString": "foo@example.com <= send update every month!",
+        "Column1": "1",
+        "Count": "6"
+    },
+    {
+        "Attribute": "probeCollector",
+        "Rule": "942390",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values greater than 25\ufffdC or 77\ufffdF",
+        "Column1": "1",
+        "Count": "6"
+    },
+    {
+        "Attribute": "probeCollector",
+        "Rule": "942400",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values between 25 and 30\ufffdC",
+        "Column1": "1",
+        "Count": "6"
+    },
+    {
+        "Attribute": "probeCollector",
+        "Rule": "942440",
+        "RuleName": "SQL Comment Sequence Detected.",
+        "TestString": "foo@example.com -> use template #5 always!",
+        "Column1": "1",
+        "Count": "6"
+    },
+    {
+        "Attribute": "probeCollectorAdditionalInformation",
+        "Rule": "920230",
+        "RuleName": "Multiple URL Encoding Detected",
+        "TestString": "something%12#",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "probeCollectorAdditionalInformation",
+        "Rule": "920271",
+        "RuleName": "Invalid character in request (non printable characters)",
+        "TestString": "",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "probeCollectorAdditionalInformation",
+        "Rule": "931130",
+        "RuleName": "Possible Remote File Inclusion (RFI) Attack: Off-Domain Reference/Link",
+        "TestString": "https://some.url",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "probeCollectorAdditionalInformation",
+        "Rule": "941100",
+        "RuleName": "XSS Attack Detected via libinjection",
+        "TestString": "div style=test>",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "probeCollectorAdditionalInformation",
+        "Rule": "941150",
+        "RuleName": "XSS Filter - Category 5: Disallowed HTML Attributes",
+        "TestString": "style=",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "probeCollectorAdditionalInformation",
+        "Rule": "941180",
+        "RuleName": "Node-Validator Blacklist Keywords",
+        "TestString": "foo@example.com --> send update every month",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "probeCollectorAdditionalInformation",
+        "Rule": "942120",
+        "RuleName": "SQL Injection Attack: SQL Operator Detected",
+        "TestString": "something <= something",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "probeCollectorAdditionalInformation",
+        "Rule": "942130",
+        "RuleName": "SQL Injection Attack: SQL Tautology Detected.",
+        "TestString": "foo@example.com <= send update every month!",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "probeCollectorAdditionalInformation",
+        "Rule": "942390",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values greater than 25\ufffdC or 77\ufffdF",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "probeCollectorAdditionalInformation",
+        "Rule": "942400",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values between 25 and 30\ufffdC",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "probeCollectorAdditionalInformation",
+        "Rule": "942430",
+        "RuleName": "Restricted SQL Character Anomaly Detection (args): # of special characters exceeded (12)",
+        "TestString": "\ufffd!$%&/#()[]*\ufffd=\\\\",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "probeCollectorAdditionalInformation",
+        "Rule": "942440",
+        "RuleName": "SQL Comment Sequence Detected.",
+        "TestString": "foo@example.com -> use template #5 always!",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "street",
+        "Rule": "942390",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values greater than 25\ufffdC or 77\ufffdF",
+        "Column1": "1",
+        "Count": "2"
+    },
+    {
+        "Attribute": "street",
+        "Rule": "942400",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values between 25 and 30\ufffdC",
+        "Column1": "1",
+        "Count": "2"
+    },
+    {
+        "Attribute": "values.comment ",
+        "Rule": "920230",
+        "RuleName": "Multiple URL Encoding Detected",
+        "TestString": "something%12#",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "values.comment ",
+        "Rule": "920271",
+        "RuleName": "Invalid character in request (non printable characters)",
+        "TestString": "",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "values.comment ",
+        "Rule": "931130",
+        "RuleName": "Possible Remote File Inclusion (RFI) Attack: Off-Domain Reference/Link",
+        "TestString": "https://some.url",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "values.comment ",
+        "Rule": "941100",
+        "RuleName": "XSS Attack Detected via libinjection",
+        "TestString": "div style=test>",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "values.comment ",
+        "Rule": "941150",
+        "RuleName": "XSS Filter - Category 5: Disallowed HTML Attributes",
+        "TestString": "style=",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "values.comment ",
+        "Rule": "941180",
+        "RuleName": "Node-Validator Blacklist Keywords",
+        "TestString": "foo@example.com --> send update every month",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "values.comment ",
+        "Rule": "942120",
+        "RuleName": "SQL Injection Attack: SQL Operator Detected",
+        "TestString": "something <= something",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "values.comment ",
+        "Rule": "942130",
+        "RuleName": "SQL Injection Attack: SQL Tautology Detected.",
+        "TestString": "foo@example.com <= send update every month!",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "values.comment ",
+        "Rule": "942390",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values greater than 25\ufffdC or 77\ufffdF",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "values.comment ",
+        "Rule": "942400",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values between 25 and 30\ufffdC",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "values.comment ",
+        "Rule": "942430",
+        "RuleName": "Restricted SQL Character Anomaly Detection (args): # of special characters exceeded (12)",
+        "TestString": "\ufffd!$%&/#()[]*\ufffd=\\\\",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "values.comment ",
+        "Rule": "942440",
+        "RuleName": "SQL Comment Sequence Detected.",
+        "TestString": "foo@example.com -> use template #5 always!",
+        "Column1": "1",
+        "Count": "12"
+    },
+    {
+        "Attribute": "values.operator ",
+        "Rule": "942120",
+        "RuleName": "SQL Injection Attack: SQL Operator Detected",
+        "TestString": "something <= something",
+        "Column1": "1",
+        "Count": "3"
+    },
+    {
+        "Attribute": "values.operator ",
+        "Rule": "942390",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values greater than 25\ufffdC or 77\ufffdF",
+        "Column1": "1",
+        "Count": "3"
+    },
+    {
+        "Attribute": "values.operator ",
+        "Rule": "942400",
+        "RuleName": "SQL Injection Attack",
+        "TestString": "Check for values between 25 and 30\ufffdC",
+        "Column1": "1",
+        "Count": "3"
+    }
+]

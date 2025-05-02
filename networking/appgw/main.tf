@@ -146,14 +146,254 @@ resource "azurerm_public_ip" "app_gateway_pip" {
   ]
 }
 
-# Updated Application Gateway
+# Define WAF Policy
+resource "azurerm_web_application_firewall_policy" "app_gateway_waf_policy" {
+  name                = "${var.app_gateway_name}-waf-policy"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+
+  
+ custom_rules {
+    action    = "Allow"
+    enabled   = false
+    name      = "SpecialCharatersException"
+    priority  = 10
+    rule_type = "MatchRule"
+    match_conditions {
+      match_values = [">=", "<=", "https://", "or ", "and", "&", "|", "{", "}", "#"]
+      operator     = "Contains"
+      match_variables {
+        variable_name = "RequestBody"
+      }
+    }
+  }
+  managed_rules {
+    exclusion {
+      match_variable          = "RequestArgNames"
+      selector                = "values.operator"
+      selector_match_operator = "Equals"
+      excluded_rule_set {
+        rule_group {
+          excluded_rules  = ["942120", "942390", "942400"]
+          rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
+        }
+      }
+    }
+    exclusion {
+      match_variable          = "RequestArgNames"
+      selector                = "comment"
+      selector_match_operator = "Equals"
+      excluded_rule_set {
+        rule_group {
+          excluded_rules  = ["920230", "920271"]
+          rule_group_name = "REQUEST-920-PROTOCOL-ENFORCEMENT"
+        }
+        rule_group {
+          excluded_rules  = ["931130"]
+          rule_group_name = "REQUEST-931-APPLICATION-ATTACK-RFI"
+        }
+        rule_group {
+          excluded_rules  = ["941100", "941150", "941180"]
+          rule_group_name = "REQUEST-941-APPLICATION-ATTACK-XSS"
+        }
+        rule_group {
+          excluded_rules  = ["942120", "942130", "942430", "942440", "942390", "942400"]
+          rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
+        }
+      }
+    }
+    exclusion {
+      match_variable          = "RequestArgNames"
+      selector                = "values.comment"
+      selector_match_operator = "Equals"
+      excluded_rule_set {
+        rule_group {
+          excluded_rules  = ["920230", "920271"]
+          rule_group_name = "REQUEST-920-PROTOCOL-ENFORCEMENT"
+        }
+        rule_group {
+          excluded_rules  = ["931130"]
+          rule_group_name = "REQUEST-931-APPLICATION-ATTACK-RFI"
+        }
+        rule_group {
+          excluded_rules  = ["941100", "941150", "941180"]
+          rule_group_name = "REQUEST-941-APPLICATION-ATTACK-XSS"
+        }
+        rule_group {
+          excluded_rules  = ["942120", "942130", "942430", "942440", "942390", "942400"]
+          rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
+        }
+      }
+    }
+    exclusion {
+      match_variable          = "RequestArgNames"
+      selector                = "labAssistantAdditionalInformation"
+      selector_match_operator = "Equals"
+      excluded_rule_set {
+        rule_group {
+          excluded_rules  = ["920230", "920271"]
+          rule_group_name = "REQUEST-920-PROTOCOL-ENFORCEMENT"
+        }
+        rule_group {
+          excluded_rules  = ["931130"]
+          rule_group_name = "REQUEST-931-APPLICATION-ATTACK-RFI"
+        }
+        rule_group {
+          excluded_rules  = ["941100", "941150", "941180"]
+          rule_group_name = "REQUEST-941-APPLICATION-ATTACK-XSS"
+        }
+        rule_group {
+          excluded_rules  = ["942120", "942130", "942430", "942440", "942390", "942400"]
+          rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
+        }
+      }
+    }
+    exclusion {
+      match_variable          = "RequestArgNames"
+      selector                = "probeCollectorAdditionalInformation"
+      selector_match_operator = "Equals"
+      excluded_rule_set {
+        rule_group {
+          excluded_rules  = ["920230", "920271"]
+          rule_group_name = "REQUEST-920-PROTOCOL-ENFORCEMENT"
+        }
+        rule_group {
+          excluded_rules  = ["931130"]
+          rule_group_name = "REQUEST-931-APPLICATION-ATTACK-RFI"
+        }
+        rule_group {
+          excluded_rules  = ["941100", "941150", "941180"]
+          rule_group_name = "REQUEST-941-APPLICATION-ATTACK-XSS"
+        }
+        rule_group {
+          excluded_rules  = ["942120", "942130", "942430", "942440", "942390", "942400"]
+          rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
+        }
+      }
+    }
+    exclusion {
+      match_variable          = "RequestArgNames"
+      selector                = "password"
+      selector_match_operator = "Contains"
+      excluded_rule_set {
+        rule_group {
+          excluded_rules  = ["920230", "920271"]
+          rule_group_name = "REQUEST-920-PROTOCOL-ENFORCEMENT"
+        }
+        rule_group {
+          excluded_rules  = ["931130"]
+          rule_group_name = "REQUEST-931-APPLICATION-ATTACK-RFI"
+        }
+        rule_group {
+          excluded_rules  = ["941100", "941150", "941180"]
+          rule_group_name = "REQUEST-941-APPLICATION-ATTACK-XSS"
+        }
+        rule_group {
+          excluded_rules  = ["942120", "942130", "942430", "942440", "942100", "942390", "942400"]
+          rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
+        }
+      }
+    }
+    exclusion {
+      match_variable          = "RequestArgNames"
+      selector                = "labAssistant"
+      selector_match_operator = "Equals"
+      excluded_rule_set {
+        rule_group {
+          excluded_rules  = ["941180"]
+          rule_group_name = "REQUEST-941-APPLICATION-ATTACK-XSS"
+        }
+        rule_group {
+          excluded_rules  = ["942120", "942130", "942390", "942400", "942440"]
+          rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
+        }
+      }
+    }
+    exclusion {
+      match_variable          = "RequestArgNames"
+      selector                = "probeCollector"
+      selector_match_operator = "Equals"
+      excluded_rule_set {
+        rule_group {
+          excluded_rules  = ["941180"]
+          rule_group_name = "REQUEST-941-APPLICATION-ATTACK-XSS"
+        }
+        rule_group {
+          excluded_rules  = ["942120", "942130", "942390", "942400", "942440"]
+          rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
+        }
+      }
+    }
+    exclusion {
+      match_variable          = "RequestArgNames"
+      selector                = "name"
+      selector_match_operator = "Equals"
+      excluded_rule_set {
+        rule_group {
+          excluded_rules  = ["942390", "942400"]
+          rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
+        }
+      }
+    }
+    exclusion {
+      match_variable          = "RequestArgNames"
+      selector                = "street"
+      selector_match_operator = "Equals"
+      excluded_rule_set {
+        rule_group {
+          excluded_rules  = ["942390", "942400"]
+          rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
+        }
+      }
+    }
+    exclusion {
+      match_variable          = "RequestArgNames"
+      selector                = "customer_group"
+      selector_match_operator = "Equals"
+      excluded_rule_set {
+        rule_group {
+          excluded_rules  = ["931130"]
+          rule_group_name = "REQUEST-931-APPLICATION-ATTACK-RFI"
+        }
+        rule_group {
+          excluded_rules  = ["942130", "942390", "942400"]
+          rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
+        }
+      }
+    }
+    exclusion {
+      match_variable          = "RequestArgNames"
+      selector                = "invoice_receiver"
+      selector_match_operator = "Equals"
+      excluded_rule_set {
+        rule_group {
+          excluded_rules  = ["931130"]
+          rule_group_name = "REQUEST-931-APPLICATION-ATTACK-RFI"
+        }
+        rule_group {
+          excluded_rules  = ["942130", "942390", "942400"]
+          rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
+        }
+      }
+    }
+    managed_rule_set {
+      version = "3.2"
+    }
+  }
+  policy_settings {
+    max_request_body_size_in_kb      = 1024
+    request_body_inspect_limit_in_kb = 1024
+  }
+}
+
+# Updated Application Gateway with WAF Policy
 resource "azurerm_application_gateway" "app_gateway" {
   name                = var.app_gateway_name
   location            = var.location
   resource_group_name = var.resource_group_name
   sku {
-    name     = "Standard_v2"
-    tier     = "Standard_v2"
+    name     = "WAF_v2"
+    tier     = "WAF_v2"
     capacity = 2
   }
   gateway_ip_configuration {
@@ -192,6 +432,9 @@ resource "azurerm_application_gateway" "app_gateway" {
     backend_http_settings_name = "app-gateway-http-settings"
     priority                   = 1
   }
+
+  # Attach WAF Policy
+  firewall_policy_id = azurerm_web_application_firewall_policy.app_gateway_waf_policy.id
 
   depends_on = [
     azurerm_subnet.app_gateway_frontend_subnet,
