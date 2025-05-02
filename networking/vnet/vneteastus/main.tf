@@ -52,7 +52,7 @@ resource "azurerm_virtual_network" "vnet" {
 
 # Subnets
 resource "azurerm_subnet" "vnet_subnets" {
-  for_each             = var.subnets
+  for_each = { for name, subnet in var.subnets : name => subnet if lower(name) != "azurefirewallsubnet" }
   name                 = each.value.name
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet.name
@@ -82,6 +82,9 @@ resource "azurerm_subnet" "keyvault_subnet" {
 }
 
 
+
+
+
 # Associate NSGs with subnets
 resource "azurerm_network_security_group" "vnet_eastus_nsg" {
   count               = var.enable_nsg ? 1 : 0
@@ -107,11 +110,15 @@ resource "azurerm_network_security_group" "vnet_eastus_nsg" {
 
 
 resource "azurerm_subnet_network_security_group_association" "subnet_nsg_association" {
-  for_each = { for subnet in azurerm_virtual_network.vnet.subnet : subnet.name => subnet.id if lower(subnet.name) != "azurefirewallsubnet" }
-  subnet_id                 = each.value
-  network_security_group_id = azurerm_network_security_group.vnet_eastus_nsg[0].id
-  depends_on                = [azurerm_network_security_group.vnet_eastus_nsg] # Ensure the NSG is created first
+  for_each = var.subnets
 
+  subnet_id                 = azurerm_subnet.vnet_subnets[each.key].id
+  network_security_group_id = azurerm_network_security_group.vnet_eastus_nsg[0].id
+
+  depends_on = [
+    azurerm_subnet.vnet_subnets,
+    azurerm_network_security_group.vnet_eastus_nsg
+  ]
 }
 
 

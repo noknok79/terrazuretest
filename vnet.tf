@@ -59,10 +59,7 @@ variable "vneteastus_config" {
         name           = "subnet-appservice"
         address_prefix = "10.0.12.0/24"
       }
-      subnet10 = {
-        name           = "AzureFirewallSubnet"
-         address_prefix = "10.0.13.0/24"
-      }
+
     }
     project         = "my-project"
     environment     = "dev"

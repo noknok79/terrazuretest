@@ -731,20 +731,32 @@ module "azfirewall" {
   azfirewall_policy_name  = var.azfirewall_config.azfirewall_policy_name
   sku_name                = var.azfirewall_config.sku_name
   sku_tier                = var.azfirewall_config.sku_tier
-  address_prefixes        = var.azfirewall_config.address_prefixes
-  vnet_name               = var.azfirewall_config.vnet_name
-  address_space           = var.azfirewall_config.address_space
+  
+  #When PUBLIC IP is needed
   azfirewall_pip_name     = var.azfirewall_config.azfirewall_pip_name
+  
+  #When PUBLIC IP is NOT needed
+  #azfirewall_pip_name     = var.azfirewall_config.use_public_ip ? var.azfirewall_config.azfirewall_pip_name : null
+
   pip_allocation_method   = var.azfirewall_config.pip_allocation_method
   pip_sku                 = var.azfirewall_config.pip_sku
   use_public_ip           = var.azfirewall_config.use_public_ip
 
-  ip_configuration_name   = var.azfirewall_config.ip_configuration_name
-  public_ip_enabled       = var.azfirewall_config.public_ip_enabled
+  # Removed invalid attribute "ip_configuration_name"
+  // Removed invalid attribute "public_ip_enabled"
   zones                   = var.azfirewall_config.zones
-  insert_nsg              = var.azfirewall_config.insert_nsg
-
-  subnets                 = module.vnet_westus.vnet_subnets
-  network_security_group_id = module.nsg_standard.nsg_id
+  vnet_name               = var.azfirewall_config.vnet_name
+  address_space           = var.azfirewall_config.address_space
+  # Removed invalid attribute "subnet_name"
+    subnets = [
+    for subnet in var.azfirewall_config.subnets : {
+      name = subnet.name
+      address_prefix = subnet.address_prefix
+      id   = subnet.id
+    }
+  ]
+  tenant_id               = var.azfirewall_config.tenant_id
+  subscription_id         = var.azfirewall_config.subscription_id
+  firewall_subnet_prefix  = var.azfirewall_config.firewall_subnet_prefix
 
 }
