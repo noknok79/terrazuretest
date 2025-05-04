@@ -91,8 +91,8 @@ variable "use_public_ip" {
 variable "subnets" {
   description = "List of subnets to be created"
   type = list(object({
-    name = string
+    name           = string
     address_prefix = string
-    id   = string
+    id             = string
   }))
 }

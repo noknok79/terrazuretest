@@ -10,9 +10,9 @@ terraform {
 
 provider "azurerm" {
   features {}
-  subscription_id = var.subscription_id
-  tenant_id       = var.tenant_id
-skip_provider_registration = true
+  subscription_id            = var.subscription_id
+  tenant_id                  = var.tenant_id
+  skip_provider_registration = true
 }
 
 resource "azurerm_firewall_policy" "azfw_policy" {
@@ -31,9 +31,9 @@ resource "azurerm_firewall_policy" "azfw_policy" {
 }
 
 resource "azurerm_firewall_policy_rule_collection_group" "app_rule_collection" {
-  name                = "AppRuleCollectionGroup"
-  firewall_policy_id  = azurerm_firewall_policy.azfw_policy.id
-  priority            = 100
+  name               = "AppRuleCollectionGroup"
+  firewall_policy_id = azurerm_firewall_policy.azfw_policy.id
+  priority           = 100
 
   application_rule_collection {
     name     = "AppRuleCollection"
@@ -41,9 +41,9 @@ resource "azurerm_firewall_policy_rule_collection_group" "app_rule_collection" {
     action   = "Allow"
 
     rule {
-      name               = "AllowWebTraffic"
-      source_addresses   = ["10.0.0.0/24"]
-      destination_fqdns  = ["www.microsoft.com", "www.github.com"]
+      name              = "AllowWebTraffic"
+      source_addresses  = ["10.0.0.0/24"]
+      destination_fqdns = ["www.microsoft.com", "www.github.com"]
       protocols {
         type = "Http"
         port = 80
@@ -57,9 +57,9 @@ resource "azurerm_firewall_policy_rule_collection_group" "app_rule_collection" {
 }
 
 resource "azurerm_firewall_policy_rule_collection_group" "nat_rule_collection" {
-  name                = "NatRuleCollectionGroup"
-  firewall_policy_id  = azurerm_firewall_policy.azfw_policy.id
-  priority            = 200
+  name               = "NatRuleCollectionGroup"
+  firewall_policy_id = azurerm_firewall_policy.azfw_policy.id
+  priority           = 200
 
   nat_rule_collection {
     name     = "NatRuleCollection"
@@ -67,21 +67,21 @@ resource "azurerm_firewall_policy_rule_collection_group" "nat_rule_collection" {
     action   = "Dnat"
 
     rule {
-      name                   = "DNATRule"
-      source_addresses       = ["*"]
-      destination_address    = var.use_public_ip ? azurerm_public_ip.azfw_pip[0].ip_address : null
-      destination_ports      = ["3389"]
-      translated_address     = "10.0.0.4"
-      translated_port        = "3389"
-      protocols              = ["TCP"]
+      name                = "DNATRule"
+      source_addresses    = ["*"]
+      destination_address = var.use_public_ip ? azurerm_public_ip.azfw_pip[0].ip_address : null
+      destination_ports   = ["3389"]
+      translated_address  = "10.0.0.4"
+      translated_port     = "3389"
+      protocols           = ["TCP"]
     }
   }
 }
 
 resource "azurerm_firewall_policy_rule_collection_group" "network_rule_collection" {
-  name                = "NetworkRuleCollectionGroup"
-  firewall_policy_id  = azurerm_firewall_policy.azfw_policy.id
-  priority            = 300
+  name               = "NetworkRuleCollectionGroup"
+  firewall_policy_id = azurerm_firewall_policy.azfw_policy.id
+  priority           = 300
 
   network_rule_collection {
     name     = "NetworkRuleCollection"
@@ -89,11 +89,11 @@ resource "azurerm_firewall_policy_rule_collection_group" "network_rule_collectio
     action   = "Allow"
 
     rule {
-      name                   = "AllowSQLTraffic"
-      source_addresses       = ["10.0.0.0/24"]
-      destination_addresses  = ["20.30.40.50"]
-      destination_ports      = ["1433"]
-      protocols              = ["TCP"]
+      name                  = "AllowSQLTraffic"
+      source_addresses      = ["10.0.0.0/24"]
+      destination_addresses = ["20.30.40.50"]
+      destination_ports     = ["1433"]
+      protocols             = ["TCP"]
     }
   }
 }

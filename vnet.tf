@@ -175,7 +175,7 @@ variable "vnetwestus_config" {
         name           = "subnet-keyvault"
         address_prefix = "10.2.6.0/24"
       }
-       subnet7 = {
+      subnet7 = {
         name           = "AzureFirewallSubnet"
         address_prefix = "10.2.11.0/24"
       }

@@ -130,7 +130,7 @@ variable "request_routing_rule_name" {
 variable "appgw_subnet_address_space" {
   description = "Address space for the Application Gateway subnet."
   type        = list(string)
-  
+
 }
 
 variable "app_gateway_frontend_subnet_prefix" {

@@ -44,7 +44,7 @@ resource "azurerm_virtual_network" "app_gateway_vnet" {
 
 resource "azurerm_subnet" "appgw_subnet" {
   name                 = var.subnet_name
-  resource_group_name = var.resource_group_name
+  resource_group_name  = var.resource_group_name
   virtual_network_name = var.vnet_name
   address_prefixes     = var.appgw_subnet_address_space # Additional backend subnet
 
@@ -65,7 +65,7 @@ resource "azurerm_application_gateway" "app_gateway" {
   name                = var.app_gateway_name
   location            = var.location
   resource_group_name = var.resource_group_name
- 
+
   sku {
     name     = "WAF_v2" # Updated SKU to support WAF policies
     tier     = "WAF_v2" # Updated tier to WAF_v2
@@ -162,7 +162,7 @@ resource "azurerm_subnet" "app_gateway_frontend_subnet" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = var.vnet_name
   address_prefixes     = var.app_gateway_frontend_subnet_prefix
-  
+
   lifecycle {
     prevent_destroy = false              # Allow deletion of the subnet
     ignore_changes  = [address_prefixes] # Ignore changes to address prefixes

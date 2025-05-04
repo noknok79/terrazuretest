@@ -30,8 +30,8 @@ variable "vm_config" {
     project                       = string
     os_type                       = string
     ssh_public_key                = string # Added SSH public key variable
-    enable_public_ip            = bool # Added public_ip_enabled variable
-    public_ip_id                  = string 
+    enable_public_ip              = bool   # Added public_ip_enabled variable
+    public_ip_id                  = string
   })
   default = {
     subscription_id        = "096534ab-9b99-4153-8505-90d030aa4f08"
@@ -67,8 +67,8 @@ variable "vm_config" {
     os_type        = "Linux"
     ssh_public_key = "" # Leave this empty; it will be set dynamically
     # Reads the SSH public key from the file
-    enable_public_ip  = false # Default value for public_ip_enabled
-    public_ip_id      = "" 
+    enable_public_ip = false # Default value for public_ip_enabled
+    public_ip_id     = ""
   }
 }
 

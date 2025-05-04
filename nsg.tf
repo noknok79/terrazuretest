@@ -10,7 +10,7 @@ variable "nsg_config" {
     tags                = map(string)
   })
   default = {
-    environment         = "dev"                # Default to 'dev' environment
+    environment         = "dev"               # Default to 'dev' environment
     location            = "eastus"            # Default Azure region
     owner               = "admin@example.com" # Replace with the actual owner email or name
     allowed_ssh_source  = "136.158.57.0/32"   # Replace with your actual IP or range

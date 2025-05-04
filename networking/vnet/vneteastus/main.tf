@@ -52,7 +52,7 @@ resource "azurerm_virtual_network" "vnet" {
 
 # Subnets
 resource "azurerm_subnet" "vnet_subnets" {
-  for_each = { for name, subnet in var.subnets : name => subnet if lower(name) != "azurefirewallsubnet" }
+  for_each             = { for name, subnet in var.subnets : name => subnet if lower(name) != "azurefirewallsubnet" }
   name                 = each.value.name
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet.name
