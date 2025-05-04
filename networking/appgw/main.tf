@@ -35,10 +35,87 @@ resource "azurerm_virtual_network" "app_gateway_vnet" {
   name                = var.vnet_name
   location            = var.location
   resource_group_name = var.resource_group_name
-  address_space       = ["10.0.0.0/16"]
+  address_space       = var.vnet_address_space
 
   depends_on = [
     azurerm_resource_group.app_gateway_rg
+  ]
+}
+
+resource "azurerm_subnet" "appgw_subnet" {
+  name                 = var.subnet_name
+  resource_group_name = var.resource_group_name
+  virtual_network_name = var.vnet_name
+  address_prefixes     = var.appgw_subnet_address_space # Additional backend subnet
+
+  lifecycle {
+    prevent_destroy = false              # Prevent accidental deletion of the subnet
+    ignore_changes  = [address_prefixes] # Ignore changes to address prefixes
+  }
+
+  depends_on = [
+    azurerm_resource_group.app_gateway_rg,
+    azurerm_virtual_network.app_gateway_vnet
+  ]
+}
+
+
+# Updated Application Gateway with depends_on
+resource "azurerm_application_gateway" "app_gateway" {
+  name                = var.app_gateway_name
+  location            = var.location
+  resource_group_name = var.resource_group_name
+ 
+  sku {
+    name     = "WAF_v2" # Updated SKU to support WAF policies
+    tier     = "WAF_v2" # Updated tier to WAF_v2
+    capacity = 2
+  }
+
+  gateway_ip_configuration {
+    name      = "app-gateway-ip-config"
+    subnet_id = azurerm_subnet.app_gateway_frontend_subnet.id
+  }
+  frontend_ip_configuration {
+    name                 = "app-gateway-frontend-ip"
+    public_ip_address_id = var.use_public_ip ? azurerm_public_ip.app_gateway_pip[0].id : null
+  }
+  frontend_port {
+    name = "http-port"
+    port = 80
+  }
+  backend_address_pool {
+    name = "app-gateway-backend-pool"
+  }
+  http_listener {
+    name                           = "app-gateway-http-listener"
+    frontend_ip_configuration_name = "app-gateway-frontend-ip"
+    frontend_port_name             = "http-port"
+    protocol                       = "Http"
+  }
+  backend_http_settings {
+    name                  = "app-gateway-http-settings"
+    cookie_based_affinity = "Disabled"
+    port                  = 80
+    protocol              = "Http"
+    request_timeout       = 60
+  }
+  request_routing_rule {
+    name                       = "app-gateway-routing-rule"
+    rule_type                  = "Basic"
+    http_listener_name         = "app-gateway-http-listener"
+    backend_address_pool_name  = "app-gateway-backend-pool"
+    backend_http_settings_name = "app-gateway-http-settings"
+    priority                   = 1
+  }
+
+  # Attach WAF Policy
+  firewall_policy_id = azurerm_web_application_firewall_policy.app_gateway_waf_policy.id
+
+  depends_on = [
+    azurerm_subnet.app_gateway_frontend_subnet,
+    azurerm_public_ip.app_gateway_pip,
+    azurerm_web_application_firewall_policy.app_gateway_waf_policy
   ]
 }
 
@@ -84,7 +161,12 @@ resource "azurerm_subnet" "app_gateway_frontend_subnet" {
   name                 = var.frontend_subnet_name
   resource_group_name  = var.resource_group_name
   virtual_network_name = var.vnet_name
-  address_prefixes     = ["10.0.1.0/24"]
+  address_prefixes     = var.app_gateway_frontend_subnet_prefix
+  
+  lifecycle {
+    prevent_destroy = false              # Allow deletion of the subnet
+    ignore_changes  = [address_prefixes] # Ignore changes to address prefixes
+  }
 
   depends_on = [
     azurerm_virtual_network.app_gateway_vnet
@@ -95,29 +177,20 @@ resource "azurerm_subnet" "app_gateway_backend_subnet" {
   name                 = var.backend_subnet_name
   resource_group_name  = var.resource_group_name
   virtual_network_name = var.vnet_name
-  address_prefixes     = ["10.0.2.0/24"]
-
-  depends_on = [
-    azurerm_virtual_network.app_gateway_vnet
-  ]
-}
-
-resource "azurerm_subnet" "backend_subnet" {
-  name                 = var.backend_subnet_name
-  resource_group_name  = var.resource_group_name
-  virtual_network_name = var.vnet_name
-  address_prefixes     = ["10.0.3.0/24"] # Additional backend subnet
+  address_prefixes     = var.app_gateway_backend_subnet_prefix
 
   lifecycle {
-    prevent_destroy = false              # Prevent accidental deletion of the subnet
+    prevent_destroy = false              # Allow deletion of the subnet
     ignore_changes  = [address_prefixes] # Ignore changes to address prefixes
   }
 
+
   depends_on = [
-    azurerm_resource_group.app_gateway_rg,
     azurerm_virtual_network.app_gateway_vnet
   ]
 }
+
+
 
 # Associate NSG with the Subnet
 resource "azurerm_subnet_network_security_group_association" "app_gateway_subnet_nsg_association" {
@@ -132,7 +205,7 @@ resource "azurerm_subnet_network_security_group_association" "app_gateway_subnet
 
 # Add a new variable to control public IP usage
 
-# Conditionally create the Public IP
+# Updated Public IP with depends_on
 resource "azurerm_public_ip" "app_gateway_pip" {
   count               = var.use_public_ip ? 1 : 0
   name                = var.public_ip_name
@@ -142,18 +215,22 @@ resource "azurerm_public_ip" "app_gateway_pip" {
   sku                 = "Standard"
 
   depends_on = [
-    azurerm_resource_group.app_gateway_rg
+    azurerm_resource_group.app_gateway_rg,
+    azurerm_virtual_network.app_gateway_vnet
   ]
 }
 
-# Define WAF Policy
+# Updated WAF Policy with depends_on
 resource "azurerm_web_application_firewall_policy" "app_gateway_waf_policy" {
   name                = "${var.app_gateway_name}-waf-policy"
   location            = var.location
   resource_group_name = var.resource_group_name
 
-  
- custom_rules {
+  depends_on = [
+    azurerm_resource_group.app_gateway_rg
+  ]
+
+  custom_rules {
     action    = "Allow"
     enabled   = false
     name      = "SpecialCharatersException"
@@ -386,63 +463,8 @@ resource "azurerm_web_application_firewall_policy" "app_gateway_waf_policy" {
   }
 }
 
-# Updated Application Gateway with WAF Policy
-resource "azurerm_application_gateway" "app_gateway" {
-  name                = var.app_gateway_name
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  sku {
-    name     = "WAF_v2"
-    tier     = "WAF_v2"
-    capacity = 2
-  }
-  gateway_ip_configuration {
-    name      = "app-gateway-ip-config"
-    subnet_id = azurerm_subnet.app_gateway_frontend_subnet.id
-  }
-  frontend_ip_configuration {
-    name                 = "app-gateway-frontend-ip"
-    public_ip_address_id = var.use_public_ip ? azurerm_public_ip.app_gateway_pip[0].id : null
-  }
-  frontend_port {
-    name = "http-port"
-    port = 80
-  }
-  backend_address_pool {
-    name = "app-gateway-backend-pool"
-  }
-  http_listener {
-    name                           = "app-gateway-http-listener"
-    frontend_ip_configuration_name = "app-gateway-frontend-ip"
-    frontend_port_name             = "http-port"
-    protocol                       = "Http"
-  }
-  backend_http_settings {
-    name                  = "app-gateway-http-settings"
-    cookie_based_affinity = "Disabled"
-    port                  = 80
-    protocol              = "Http"
-    request_timeout       = 60
-  }
-  request_routing_rule {
-    name                       = "app-gateway-routing-rule"
-    rule_type                  = "Basic"
-    http_listener_name         = "app-gateway-http-listener"
-    backend_address_pool_name  = "app-gateway-backend-pool"
-    backend_http_settings_name = "app-gateway-http-settings"
-    priority                   = 1
-  }
 
-  # Attach WAF Policy
-  firewall_policy_id = azurerm_web_application_firewall_policy.app_gateway_waf_policy.id
-
-  depends_on = [
-    azurerm_subnet.app_gateway_frontend_subnet,
-    azurerm_public_ip.app_gateway_pip
-  ]
-}
-
-# New Virtual Machines
+# Updated Network Interface with depends_on
 resource "azurerm_network_interface" "backend_nic" {
   count               = 2
   name                = "backend-nic-${count.index}"
@@ -455,14 +477,17 @@ resource "azurerm_network_interface" "backend_nic" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = azurerm_subnet.backend_subnet.id
+    subnet_id                     = azurerm_subnet.app_gateway_backend_subnet.id # Corrected reference
     private_ip_address_allocation = "Dynamic"
   }
+
   depends_on = [
-    azurerm_subnet.backend_subnet
+    azurerm_subnet.app_gateway_backend_subnet, # Corrected reference
+    azurerm_network_security_group.app_gateway_nsg
   ]
 }
 
+# Updated Virtual Machine with depends_on
 resource "azurerm_virtual_machine" "backend_vm" {
   count                 = 2 # Adjust the count as needed
   name                  = "backend-vm-${count.index}"
@@ -502,8 +527,9 @@ resource "azurerm_virtual_machine" "backend_vm" {
   tags = {
     environment = "production"
   }
-  depends_on = [
-    azurerm_network_interface.backend_nic
-  ]
 
+  depends_on = [
+    azurerm_network_interface.backend_nic,
+    azurerm_subnet.app_gateway_backend_subnet
+  ]
 }

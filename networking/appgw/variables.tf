@@ -13,12 +13,22 @@ variable "vnet_name" {
   type        = string
 }
 
+variable "vnet_address_space" {
+  description = "Address space for the virtual network."
+  type        = list(string)
+}
+
 variable "frontend_subnet_name" {
   description = "Name of the frontend subnet"
   type        = string
 }
 
 variable "backend_subnet_name" {
+  description = "Name of the backend subnet"
+  type        = string
+}
+
+variable "subnet_name" {
   description = "Name of the backend subnet"
   type        = string
 }
@@ -51,26 +61,13 @@ variable "sku_name" {
 variable "tier" {
   description = "Tier of the Application Gateway."
   type        = string
+  default     = "WAF_v2"
 }
 
 variable "capacity" {
   description = "Capacity of the Application Gateway."
   type        = number
-}
-
-variable "tags" {
-  description = "Tags for the Application Gateway."
-  type        = map(string)
-}
-
-variable "ssl_certificate_name" {
-  description = "SSL certificate name for the Application Gateway."
-  type        = string
-}
-
-variable "vnet_address_space" {
-  description = "Address space for the virtual network."
-  type        = list(string)
+  default     = 2
 }
 
 variable "vm_admin_username" {
@@ -92,6 +89,17 @@ variable "vm_size" {
 variable "backend_address_pool_name" {
   description = "Name of the backend address pool for the Application Gateway."
   type        = string
+}
+
+variable "tags" {
+  description = "Tags for the Application Gateway."
+  type        = map(string)
+}
+
+variable "ssl_certificate_name" {
+  description = "SSL certificate name for the Application Gateway."
+  type        = string
+  default     = "default-ssl-cert" # Example default value
 }
 
 variable "frontend_port_name" {
@@ -118,3 +126,17 @@ variable "request_routing_rule_name" {
   description = "Name of the request routing rule for the Application Gateway."
   type        = string
 }
+
+variable "appgw_subnet_address_space" {
+  description = "Address space for the Application Gateway subnet."
+  type        = list(string)
+  
+}
+
+variable "app_gateway_frontend_subnet_prefix" {
+  type = list(string)
+}
+
+variable "app_gateway_backend_subnet_prefix" {
+  type = list(string)
+} 

@@ -117,18 +117,18 @@ provider "azurerm" {
   }
 }
 
-provider "azurerm" {
-  alias                      = "appgw"
-  subscription_id            = var.subscription_id
-  tenant_id                  = var.tenant_id
-  skip_provider_registration = true
+# provider "azurerm" {
+#   alias                      = "appgw"
+#   subscription_id            = var.subscription_id
+#   tenant_id                  = var.tenant_id
+#   skip_provider_registration = true
 
-  features {
-    resource_group {
-      prevent_deletion_if_contains_resources = false
-    }
-  }
-}
+#   features {
+#     resource_group {
+#       prevent_deletion_if_contains_resources = false
+#     }
+#   }
+# }
 
 provider "azurerm" {
   alias                      = "psqldb"
@@ -651,16 +651,23 @@ module "appgw" {
   tags                = var.appgw_config.tags
 
   app_gateway_name = var.appgw_config.app_gateway_name
-  sku_name         = var.appgw_config.sku
+  sku_name         = var.appgw_config.sku_name
   capacity         = var.appgw_config.capacity
   tier             = var.appgw_config.tier
 
+  # Use vnet_eastus module's subnet and address prefix
   vnet_name          = module.vnet_eastus.vnet_name
   vnet_address_space = module.vnet_eastus.address_space
-  backend_subnet_name = lookup(
+  subnet_name = lookup(
     { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.name },
     "subnet-appgateway"
   )
+  # subnet_address_prefix = lookup(
+  #   { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix },
+  #   "10.0.11.0/24"
+  # )
+
+  backend_subnet_name = var.appgw_config.backend_subnet_name
 
   ssl_certificate_name = var.appgw_config.ssl_certificate_name
 
@@ -671,7 +678,8 @@ module "appgw" {
   backend_address_pool_name = var.appgw_config.backend_address_pool_name
   http_setting_name         = var.appgw_config.http_setting_name
   request_routing_rule_name = var.appgw_config.request_routing_rule_name
-  public_ip_name = var.appgw_config.public_ip ? var.appgw_config.public_ip_name : null
+
+  public_ip_name = var.appgw_config.public_ip ? var.appgw_config.public_ip_name : "default-public-ip-name"
 
   vm_admin_username    = var.appgw_config.vm_admin_username
   vm_admin_password    = var.appgw_config.vm_admin_password
@@ -679,6 +687,10 @@ module "appgw" {
   vm_size              = var.appgw_config.vm_size
   frontend_subnet_name = var.appgw_config.frontend_subnet_name
   use_public_ip        = var.appgw_config.use_public_ip
+
+  appgw_subnet_address_space         = var.appgw_config.appgw_subnet_address_space
+  app_gateway_frontend_subnet_prefix = var.appgw_config.app_gateway_frontend_subnet_prefix
+  app_gateway_backend_subnet_prefix  = var.appgw_config.app_gateway_backend_subnet_prefix
 }
 
 
