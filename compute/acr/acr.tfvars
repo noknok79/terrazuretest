@@ -15,7 +15,7 @@ subnet_name = "subnet-acr"
 # Address Space of Virtual Network
 vnet_address_space = ["10.0.0.0/16"]
 # Address Prefix of Subnet
-subnet_address_prefix = ["10.0.1.0/24"]
+subnet_address_prefixes = ["10.0.1.0/24"]
 # Tags
 tags = {
   Environment = "Production"

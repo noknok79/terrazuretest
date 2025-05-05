@@ -13,8 +13,9 @@ terraform {
 # Define the provider
 provider "azurerm" {
   features {}
-  subscription_id = "096534ab-9b99-4153-8505-90d030aa4f08"
-  tenant_id       = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
+  subscription_id            = "096534ab-9b99-4153-8505-90d030aa4f08"
+  tenant_id                  = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
+  skip_provider_registration = true
 }
 
 resource "random_string" "unique_suffix" {
@@ -26,7 +27,7 @@ resource "random_string" "unique_suffix" {
 # Resource group for the ACR
 resource "azurerm_resource_group" "acr_rg" {
   name     = var.resource_group_name
-  location = var.resource_group_location
+  location = var.location
 
   tags = var.tags
 }
@@ -35,7 +36,7 @@ resource "azurerm_resource_group" "acr_rg" {
 resource "azurerm_container_registry" "acr" {
   name                = "${var.acr_name}${random_string.unique_suffix.result}"
   resource_group_name = var.resource_group_name
-  location            = var.resource_group_location
+  location            = var.location
   sku                 = var.acr_sku
   admin_enabled       = false # Disable admin user for better security
 
@@ -57,7 +58,7 @@ resource "azurerm_container_registry" "acr" {
 # Virtual Network for Private Endpoint
 resource "azurerm_virtual_network" "acr_vnet" {
   name                = var.vnet_name
-  location            = var.resource_group_location
+  location            = var.location
   resource_group_name = var.resource_group_name
   address_space       = var.vnet_address_space
 
@@ -73,7 +74,7 @@ resource "azurerm_subnet" "acr_subnet" {
   name                 = var.subnet_name
   resource_group_name  = var.resource_group_name
   virtual_network_name = var.vnet_name
-  address_prefixes     = var.subnet_address_prefix
+  address_prefixes     = var.subnet_address_prefixes
 
   depends_on = [
     azurerm_virtual_network.acr_vnet
@@ -83,6 +84,6 @@ resource "azurerm_subnet" "acr_subnet" {
 resource "azurerm_container_registry_agent_pool" "acr_agent_pool" {
   name                    = "acragentpool"
   resource_group_name     = var.resource_group_name
-  location                = var.resource_group_location
+  location                = var.location
   container_registry_name = azurerm_container_registry.acr.name
 }

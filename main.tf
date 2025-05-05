@@ -772,3 +772,48 @@ module "azfirewall" {
   firewall_subnet_prefix = var.azfirewall_config.firewall_subnet_prefix
 
 }
+
+module "acr" {
+  source = "./compute/acr"
+
+  subscription_id           = var.acr_config.subscription_id
+  tenant_id                 = var.acr_config.tenant_id
+  resource_group_name       = var.acr_config.resource_group_name
+  location                  = var.acr_config.location
+  environment               = var.acr_config.environment
+  owner                     = var.acr_config.owner
+  project                   = var.acr_config.project
+  acr_name                  = var.acr_config.acr_name
+  acr_sku                   = var.acr_config.acr_sku
+  geo_replication_locations = var.acr_config.geo_replication_locations
+
+  # Networking configuration
+  vnet_name          = module.vnet_eastus.vnet_name
+  vnet_address_space = module.vnet_eastus.address_space
+  subnet_name = lookup(
+    { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.name },
+    "subnet-acr",
+    null
+  )
+  subnet_address_prefixes = [
+    lookup(
+      { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix },
+      "subnet-acr",
+      "10.0.13.0/24" # Default value if not found
+    )
+  ]
+
+  # Security settings
+  enable_private_endpoint = var.acr_config.enable_private_endpoint
+  private_endpoint_subnet = var.acr_config.private_endpoint_subnet
+
+  tags = merge(
+    var.acr_config.tags,
+    {
+      "Environment" = var.acr_config.environment,
+      "Owner"       = var.acr_config.owner,
+      "Project"     = var.acr_config.project
+    }
+  )
+}
+
