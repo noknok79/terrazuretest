@@ -3,13 +3,13 @@ resource_group_name = "RG-ACR"
 # Resource Group Location
 resource_group_location = "eastus"
 # Azure Container Registry Name
-acr_name = "acrExample123"
+acr_name = "acrdeveastus"
 # Azure Container Registry SKU
 acr_sku = "Premium"
 # Key Vault Name
 key_vault_name = "kv-acr-example"
 # Virtual Network Name
-vnet_name = "vnet-acr-example"
+vnet_name = "vnet-dev-eastus"
 # Subnet Name
 subnet_name = "subnet-acr"
 # Address Space of Virtual Network
