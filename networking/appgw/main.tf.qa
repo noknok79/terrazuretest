@@ -226,6 +226,10 @@ resource "azurerm_web_application_firewall_policy" "app_gateway_waf_policy" {
   location            = var.location
   resource_group_name = var.resource_group_name
 
+# location            = "northcentralus"
+# name                = "idms-waf-ncu-q1"
+# resource_group_name = "RG-IDMS-PLATFORM-NCU-Q1"
+
   depends_on = [
     azurerm_resource_group.app_gateway_rg
   ]

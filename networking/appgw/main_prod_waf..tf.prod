@@ -226,10 +226,19 @@ resource "azurerm_web_application_firewall_policy" "app_gateway_waf_policy" {
   location            = var.location
   resource_group_name = var.resource_group_name
 
-  depends_on = [
-    azurerm_resource_group.app_gateway_rg
-  ]
 
+#   location            = "northcentralus"
+#   name                = "idms-waf-ncu-q1"
+#   resource_group_name = "RG-IDMS-PLATFORM-NCU-Q1"
+  
+  tags = {
+    Contact         = "siraj.pasha@freseniusmedicalcare.com; zoltan.csibrik@ext.freseniusmedicalcare.com"
+    Environment     = "Q1"
+    Project         = "IDMS"
+    ProvisionedWith = "Terraform"
+    Purpose         = "Infrastructure for the IDMS and CPM Smart Services initiative"
+    Stage           = "QA"
+  }
   custom_rules {
     action    = "Allow"
     enabled   = false
@@ -455,12 +464,90 @@ resource "azurerm_web_application_firewall_policy" "app_gateway_waf_policy" {
     }
     managed_rule_set {
       version = "3.2"
+      rule_group_override {
+        rule_group_name = "REQUEST-920-PROTOCOL-ENFORCEMENT"
+        rule {
+          action  = "Log"
+          enabled = true
+          id      = "920230"
+        }
+        rule {
+          action  = "Log"
+          enabled = true
+          id      = "920271"
+        }
+      }
+      rule_group_override {
+        rule_group_name = "REQUEST-931-APPLICATION-ATTACK-RFI"
+        rule {
+          action  = "Log"
+          enabled = true
+          id      = "931130"
+        }
+      }
+      rule_group_override {
+        rule_group_name = "REQUEST-941-APPLICATION-ATTACK-XSS"
+        rule {
+          action  = "Log"
+          enabled = true
+          id      = "941100"
+        }
+        rule {
+          action  = "Log"
+          enabled = true
+          id      = "941150"
+        }
+        rule {
+          action  = "Log"
+          enabled = true
+          id      = "941180"
+        }
+      }
+      rule_group_override {
+        rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
+        rule {
+          action  = "Log"
+          enabled = true
+          id      = "942100"
+        }
+        rule {
+          action  = "Log"
+          enabled = true
+          id      = "942120"
+        }
+        rule {
+          action  = "Log"
+          enabled = true
+          id      = "942130"
+        }
+        rule {
+          action  = "Log"
+          enabled = true
+          id      = "942390"
+        }
+        rule {
+          action  = "Log"
+          enabled = true
+          id      = "942400"
+        }
+        rule {
+          action  = "Log"
+          enabled = true
+          id      = "942430"
+        }
+        rule {
+          action  = "Log"
+          enabled = true
+          id      = "942440"
+        }
+      }
     }
   }
   policy_settings {
     max_request_body_size_in_kb      = 1024
     request_body_inspect_limit_in_kb = 1024
     mode                             = "Prevention" # Updated to Prevention mode
+
   }
 }
 
