@@ -63,6 +63,10 @@ variable "vneteastus_config" {
         name           = "subnet-acr"
         address_prefix = "10.0.13.0/24"
       }
+      subnet11 = {
+        name           = "subnet-loadbalancer"
+        address_prefix = "10.0.14.0/24"
+      }
 
     }
     project         = "my-project"

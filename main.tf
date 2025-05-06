@@ -694,6 +694,38 @@ module "appgw" {
 }
 
 
+module "loadbalancer" {
+  source = "./networking/loadbalancer"
+
+  # Load Balancer Configuration
+  location            = var.load_balancer_config.location
+  resource_group_name = var.load_balancer_config.resource_group_name
+  load_balancer_name  = var.load_balancer_config.load_balancer_name
+  frontend_ip_configs = var.load_balancer_config.frontend_ip_configs
+  backend_pool_name   = var.load_balancer_config.backend_pool_name
+  health_probe_name   = var.load_balancer_config.health_probe_name
+  lb_rule_name        = var.load_balancer_config.lb_rule_name
+
+  # Networking Configuration
+  vnet_name          = module.vnet_eastus.vnet_name
+  vnet_address_space = module.vnet_eastus.address_space
+  subnet_name = lookup(
+    { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.name },
+    var.load_balancer_config.subnet_name
+  )
+  subnet_address_prefix = [
+    lookup(
+      { for subnet in module.vnet_eastus.vnet_subnets : subnet.name => subnet.address_prefix },
+      var.load_balancer_config.subnet_name
+    )
+  ]
+
+  nsg_name       = var.load_balancer_config.nsg_name
+  public_ip_name = var.load_balancer_config.public_ip_name
+}
+
+
+
 module "appservice" {
   source = "./othersrvcs/appservices"
 
@@ -731,6 +763,8 @@ module "appservice" {
 
   address_space = module.vnet_westus.address_space
 }
+
+
 module "azfirewall" {
   source = "./security/azfirewall"
 
