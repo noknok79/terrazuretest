@@ -21,8 +21,8 @@ variable "acr_config" {
   })
 
   default = {
-    subscription_id           = "your-subscription-id"
-    tenant_id                 = "your-tenant-id"
+    subscription_id = "096534ab-9b99-4153-8505-90d030aa4f08"
+    tenant_id       = "0e4b57cd-89d9-4dac-853b-200a412f9d3c"
     resource_group_name       = "RG-ACR"
     location                  = "eastus"
     environment               = "Production"

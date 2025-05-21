@@ -1,0 +1,207 @@
+parameters:
+- name: pool
+  displayName: Pool
+  type: string
+  default: Microsoft
+  values:
+    - Microsoft
+
+- name: channel
+  displayName: Channel
+  type: string
+  default: Alpha
+  values:
+    - Local       # Local development
+    - Validation  # AppCenter 
+    - Alpha       # AppCenter
+    - Beta        # AppCenter
+    - SAV         # AppCenter
+    - Demo        # AppCenter
+    - RC          # AppCenter
+    - PreProd     # AppCenter
+    - RC-stores   # Google Play Store, Apple App Store
+    - Val-stores  # Google Play Store, Apple App Store
+    - Prod-stores # Google Play Store, Apple App Store
+
+- name: distributionGroup
+  default: 'PD-HTA-Tester-All'
+
+- name: color
+  displayName: Color
+  type: string
+  default: '#5F6B6D'
+
+- name: AndroidBuild
+  displayName: Android build
+  type: boolean
+  default: false
+
+- name: iOSBuild
+  displayName: iOS build
+  type: boolean
+  default: false
+
+- name: release
+  displayName: Push artifacts on AppCenter
+  type: boolean
+  default: false
+
+- name: doc
+  displayName: Create documentation
+  type: boolean
+  default: false
+
+- name: codequality
+  displayName: Code quality checks
+  type: boolean
+  default: false
+
+- name: blackduck
+  displayName: Black Duck scan
+  type: boolean
+  default: false
+
+- name: fortify
+  displayName: Fortify scan
+  type: boolean
+  default: false
+
+- name: sonarqube
+  displayName: SonarQube code quality check
+  type: boolean
+  default: false
+
+variables:
+- group: Stores                                             # Stores group variables from Azure Devops Pipelines
+- template: vars/vars.yml                                   # General variables, to be used for every channel/os combination
+- template: vars/vars-${{ lower(parameters.channel) }}.yml  # Channel specific variables
+- ${{ if parameters.AndroidBuild }}:
+  - template: vars/vars-android.yml                         # Android specific variables
+- ${{ if parameters.iOSBuild }}:
+  - template: vars/vars-ios.yml                             # iOS specific variables
+
+trigger: none
+
+stages:
+- stage: AndroidBuild
+  displayName: Android build
+  dependsOn: []                                             # this removes the implicit dependency on previous stage and causes this stage to run in parallel
+  condition: ${{ parameters.AndroidBuild }}
+  jobs:
+  - job: AndroidBuild
+    pool:
+      vmImage: $(win_img)
+    workspace:
+      clean: all                                            # what to clean up before the job runs - outputs | resources | all
+    steps:
+    - template: templates/android-build.yml
+      parameters:
+        release: ${{ parameters.release }}
+        channel: ${{ parameters.channel }}
+        color: ${{ parameters.color }}
+        codequality: ${{ parameters.codequality }}
+        sonarqube: ${{ parameters.sonarqube }}
+
+- stage: iOSBuild
+  displayName: iOS build
+  dependsOn: []                                             # this removes the implicit dependency on previous stage and causes this stage to run in parallel
+  condition: ${{ parameters.iOSBuild }}
+  jobs:
+  - job: iOSBuild
+    pool:
+      vmImage: $(mac_img)
+    steps:
+    - template: templates/ios-build.yml
+      parameters:
+        release: ${{ parameters.release }}
+        channel: ${{ parameters.channel }}
+        color: ${{ parameters.color }}
+        codequality: ${{ parameters.codequality }}
+
+- stage: AndroidPublish
+  displayName: Android publish
+  dependsOn: AndroidBuild
+  condition: and(succeeded(), ${{ parameters.release }})
+  variables:
+  - group: AppCenter
+  jobs:
+  - job: AndroidPublish
+    pool:
+      vmImage: $(win_img)
+    steps:
+    - template: templates/android-publish.yml
+      parameters:
+        channel: ${{ parameters.channel }}
+        distributionGroup: ${{ parameters.distributionGroup }}
+
+- stage: iOSPublish
+  displayName: iOS publish
+  dependsOn: iOSBuild
+  condition: and(succeeded(), ${{ parameters.release }})
+  variables:
+  - group: AppCenter
+  jobs:
+  - job: iOSPublish
+    pool:
+      vmImage: $(mac_img)
+    steps:
+    - template: templates/ios-publish.yml
+      parameters:
+        channel: ${{ parameters.channel }}
+        distributionGroup: ${{ parameters.distributionGroup }}
+        proxy: false
+
+- stage: AndroidBlackDuck
+  displayName: Android BlackDuck scan
+  dependsOn: AndroidBuild
+  condition: and(succeeded(), ${{ parameters.blackduck }})
+  jobs:
+  - job: BlackDuckAndroid
+    pool:
+      vmImage: $(win_img)
+    workspace:
+      clean: all # what to clean up before the job runs: outputs | resources | all
+    steps:
+    - checkout: none
+    - template: templates/blackduck.yml
+      parameters:
+        platform: Android
+
+- stage: iOSBlackDuck
+  displayName: iOS BlackDuck scan
+  dependsOn: iOSBuild
+  condition: and(succeeded(), ${{ parameters.blackduck }})
+  jobs:
+  - job: BlackDuckIOS
+    pool:
+      vmImage: $(win_img)
+    workspace:
+      clean: all                                            # what to clean up before the job runs: outputs | resources | all
+    steps:
+    - checkout: none
+    - template: templates/blackduck.yml
+      parameters:
+        platform: iOS
+
+- stage: Fortify
+  displayName: Fortify scan
+  dependsOn: []                                             # this removes the implicit dependency on previous stage and causes this stage to run in parallel
+  condition: ${{ eq(parameters.fortify, true) }}
+  jobs:
+  - job: FortifyScan
+    timeoutInMinutes: 180
+    pool:
+      name: FortifyAgent
+    steps:
+    - template: templates/fortify.yml
+
+- stage: Documentation
+  displayName: Documentation build
+  dependsOn: []                                             # this removes the implicit dependency on previous stage and causes this stage to run in parallel
+  condition: ${{ eq(parameters.doc, true) }}
+  jobs:
+  - job: Documentation
+    pool:
+      vmImage: $(linux_img)
+    steps:
+    - template: templates/documentation.yml
