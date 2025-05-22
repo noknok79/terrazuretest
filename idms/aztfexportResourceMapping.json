@@ -1,0 +1,7 @@
+{
+	"/subscriptions/b876779a-6ccf-475f-8ea1-d1a829aab943/resourceGroups/RG-IDMS-PLATFORM-NCU-Q1/providers/Microsoft.Network/applicationGateways/idms-agw-ncu-q1": {
+		"resource_id": "/subscriptions/b876779a-6ccf-475f-8ea1-d1a829aab943/resourceGroups/RG-IDMS-PLATFORM-NCU-Q1/providers/Microsoft.Network/applicationGateways/idms-agw-ncu-q1",
+		"resource_type": "azurerm_application_gateway",
+		"resource_name": "res-0"
+	}
+}

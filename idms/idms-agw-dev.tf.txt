@@ -1,0 +1,310 @@
+resource "azurerm_application_gateway" "res-0" {
+  firewall_policy_id  = "/subscriptions/5d1900ee-fcbc-4e76-a1f1-95a25a81dff5/resourceGroups/RG-IDMS-PLATFORM-NCU-D1/providers/Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies/idms-waf-ncu-d1"
+  location            = "northcentralus"
+  name                = "idms-agw-ncu-d1"
+  resource_group_name = "RG-IDMS-PLATFORM-NCU-D1"
+  tags = {
+    Contact                = "siraj.pasha@freseniusmedicalcare.com; zoltan.csibrik@ext.freseniusmedicalcare.com"
+    Environment            = "D1"
+    Project                = "IDMS"
+    ProvisionedWith        = "Terraform"
+    Purpose                = "Infrastructure for the IDMS and CPM Smart Services initiative"
+    Stage                  = "Development"
+    managed-by-k8s-ingress = "1.8.1/05a0d9c7/2025-04-04-14:12T-0700"
+  }
+  autoscale_configuration {
+    max_capacity = 2
+    min_capacity = 1
+  }
+  backend_address_pool {
+    ip_addresses = ["10.243.236.89"]
+    name         = "pool-idms-delta-backfiller-8080-bp-8080"
+  }
+  backend_address_pool {
+    ip_addresses = ["10.243.236.61"]
+    name         = "pool-idms-idms-frontend-http-bp-8080"
+  }
+  backend_address_pool {
+    ip_addresses = ["10.243.236.17", "10.243.236.67", "10.243.236.72"]
+    name         = "pool-idms-idms-streamimporter-8080-bp-8080"
+  }
+  backend_address_pool {
+    ip_addresses = ["10.243.236.71"]
+    name         = "pool-top-top-frontend-http-bp-8080"
+  }
+  backend_http_settings {
+    cookie_based_affinity = "Disabled"
+    name                  = "bp-idms-delta-backfiller-8080-8080-delta-backfiller"
+    port                  = 8080
+    probe_name            = "pb-idms-delta-backfiller-8080-delta-backfiller"
+    protocol              = "Http"
+  }
+  backend_http_settings {
+    cookie_based_affinity = "Disabled"
+    name                  = "bp-idms-idms-frontend-http-8080-idms"
+    port                  = 8080
+    probe_name            = "pb-idms-idms-frontend-http-idms"
+    protocol              = "Http"
+  }
+  backend_http_settings {
+    cookie_based_affinity = "Disabled"
+    name                  = "bp-idms-idms-streamimporter-8080-8080-idms-streamimporter-ingress"
+    port                  = 8080
+    probe_name            = "pb-idms-idms-streamimporter-8080-idms-streamimporter-ingress"
+    protocol              = "Http"
+  }
+  backend_http_settings {
+    cookie_based_affinity = "Disabled"
+    name                  = "bp-idms-top-frontend-http-80-top"
+    port                  = 80
+    probe_name            = "pb-idms-top-frontend-http-top"
+    protocol              = "Http"
+  }
+  backend_http_settings {
+    cookie_based_affinity = "Disabled"
+    name                  = "bp-top-top-frontend-http-8080-top"
+    port                  = 8080
+    probe_name            = "pb-top-top-frontend-http-top"
+    protocol              = "Http"
+  }
+  frontend_ip_configuration {
+    name                 = "public-ip"
+    public_ip_address_id = "/subscriptions/5d1900ee-fcbc-4e76-a1f1-95a25a81dff5/resourceGroups/RG-IDMS-PLATFORM-NCU-D1/providers/Microsoft.Network/publicIPAddresses/idms-agw-pip-ncu-d1"
+  }
+  frontend_port {
+    name = "fp-443"
+    port = 443
+  }
+  frontend_port {
+    name = "fp-80"
+    port = 80
+  }
+  gateway_ip_configuration {
+    name      = "ip-config"
+    subnet_id = "/subscriptions/5d1900ee-fcbc-4e76-a1f1-95a25a81dff5/resourceGroups/RG-IDMS-PLATFORM-NCU-D1/providers/Microsoft.Network/virtualNetworks/idms-vnet-ncu-d1/subnets/idms-agw-snet-ncu-d1"
+  }
+  http_listener {
+    frontend_ip_configuration_name = "public-ip"
+    frontend_port_name             = "fp-443"
+    host_names                     = ["idms-delta-backfiller.dev.eu.fmc-ag.com"]
+    name                           = "fl-91d7bc8371c38a603d0bb9e095b34b36"
+    protocol                       = "Https"
+    ssl_certificate_name           = "wildcard-dev-eu-fmc-ag-com"
+  }
+  http_listener {
+    frontend_ip_configuration_name = "public-ip"
+    frontend_port_name             = "fp-443"
+    host_names                     = ["idms.dev.eu.fmc-ag.com"]
+    name                           = "fl-9719ce6cddce22556de0198fa0694d22"
+    protocol                       = "Https"
+    ssl_certificate_name           = "wildcard-dev-eu-fmc-ag-com"
+  }
+  http_listener {
+    frontend_ip_configuration_name = "public-ip"
+    frontend_port_name             = "fp-443"
+    host_names                     = ["idms1-streamimporter-dev.dev.eu.fmc-ag.com"]
+    name                           = "fl-e9b85907b2a94db0c403c734ec7dd9fa"
+    protocol                       = "Https"
+    ssl_certificate_name           = "wildcard-dev-eu-fmc-ag-com"
+  }
+  http_listener {
+    frontend_ip_configuration_name = "public-ip"
+    frontend_port_name             = "fp-443"
+    host_names                     = ["top.dev.eu.fmc-ag.com"]
+    name                           = "fl-b08091d39811637e5f7cd5a99151447f"
+    protocol                       = "Https"
+    ssl_certificate_name           = "wildcard-dev-eu-fmc-ag-com"
+  }
+  http_listener {
+    frontend_ip_configuration_name = "public-ip"
+    frontend_port_name             = "fp-80"
+    host_names                     = ["idms-delta-backfiller.dev.eu.fmc-ag.com"]
+    name                           = "fl-373720285b646f079eda22a2b0c25371"
+    protocol                       = "Http"
+  }
+  http_listener {
+    frontend_ip_configuration_name = "public-ip"
+    frontend_port_name             = "fp-80"
+    host_names                     = ["idms.dev.eu.fmc-ag.com"]
+    name                           = "fl-4bd81f94ee0350db15ac89833bf0317e"
+    protocol                       = "Http"
+  }
+  http_listener {
+    frontend_ip_configuration_name = "public-ip"
+    frontend_port_name             = "fp-80"
+    host_names                     = ["idms1-streamimporter-dev.dev.eu.fmc-ag.com"]
+    name                           = "fl-15fd3a13914623b1adfa1cd584906a58"
+    protocol                       = "Http"
+  }
+  http_listener {
+    frontend_ip_configuration_name = "public-ip"
+    frontend_port_name             = "fp-80"
+    host_names                     = ["top.dev.eu.fmc-ag.com"]
+    name                           = "fl-6ca56b9996c0328d1e1b03d4358a2759"
+    protocol                       = "Http"
+  }
+  identity {
+    identity_ids = ["/subscriptions/5d1900ee-fcbc-4e76-a1f1-95a25a81dff5/resourceGroups/RG-IDMS-PLATFORM-NCU-D1/providers/Microsoft.ManagedIdentity/userAssignedIdentities/idms-agw-mid-ncu-d1"]
+    type         = "UserAssigned"
+  }
+  probe {
+    host                = "idms-delta-backfiller.dev.eu.fmc-ag.com"
+    interval            = 10
+    name                = "pb-idms-delta-backfiller-8080-delta-backfiller"
+    path                = "/healthz"
+    port                = 8080
+    protocol            = "Http"
+    timeout             = 1
+    unhealthy_threshold = 3
+    match {
+      status_code = ["200-399"]
+    }
+  }
+  probe {
+    host                = "idms.dev.eu.fmc-ag.com"
+    interval            = 10
+    name                = "pb-idms-idms-frontend-http-idms"
+    path                = "/healthz"
+    port                = 10254
+    protocol            = "Http"
+    timeout             = 1
+    unhealthy_threshold = 3
+    match {
+      status_code = ["200-399"]
+    }
+  }
+  probe {
+    host                = "idms1-streamimporter-dev.dev.eu.fmc-ag.com"
+    interval            = 10
+    name                = "pb-idms-idms-streamimporter-8080-idms-streamimporter-ingress"
+    path                = "/healthz"
+    port                = 8080
+    protocol            = "Http"
+    timeout             = 1
+    unhealthy_threshold = 3
+    match {
+      status_code = ["200-399"]
+    }
+  }
+  probe {
+    host                = "top.dev.eu.fmc-ag.com"
+    interval            = 30
+    name                = "pb-idms-top-frontend-http-top"
+    path                = "/"
+    protocol            = "Http"
+    timeout             = 30
+    unhealthy_threshold = 3
+    match {
+      status_code = ["200-399"]
+    }
+  }
+  probe {
+    host                = "top.dev.eu.fmc-ag.com"
+    interval            = 10
+    name                = "pb-top-top-frontend-http-top"
+    path                = "/healthz"
+    port                = 10254
+    protocol            = "Http"
+    timeout             = 1
+    unhealthy_threshold = 3
+    match {
+      status_code = ["200-399"]
+    }
+  }
+  redirect_configuration {
+    include_path         = true
+    include_query_string = true
+    name                 = "sslr-fl-91d7bc8371c38a603d0bb9e095b34b36"
+    redirect_type        = "Permanent"
+    target_listener_name = "fl-91d7bc8371c38a603d0bb9e095b34b36"
+  }
+  redirect_configuration {
+    include_path         = true
+    include_query_string = true
+    name                 = "sslr-fl-9719ce6cddce22556de0198fa0694d22"
+    redirect_type        = "Permanent"
+    target_listener_name = "fl-9719ce6cddce22556de0198fa0694d22"
+  }
+  redirect_configuration {
+    include_path         = true
+    include_query_string = true
+    name                 = "sslr-fl-b08091d39811637e5f7cd5a99151447f"
+    redirect_type        = "Permanent"
+    target_listener_name = "fl-b08091d39811637e5f7cd5a99151447f"
+  }
+  redirect_configuration {
+    include_path         = true
+    include_query_string = true
+    name                 = "sslr-fl-e9b85907b2a94db0c403c734ec7dd9fa"
+    redirect_type        = "Permanent"
+    target_listener_name = "fl-e9b85907b2a94db0c403c734ec7dd9fa"
+  }
+  request_routing_rule {
+    http_listener_name          = "fl-15fd3a13914623b1adfa1cd584906a58"
+    name                        = "rr-15fd3a13914623b1adfa1cd584906a58"
+    priority                    = 19000
+    redirect_configuration_name = "sslr-fl-e9b85907b2a94db0c403c734ec7dd9fa"
+    rule_type                   = "Basic"
+  }
+  request_routing_rule {
+    http_listener_name          = "fl-373720285b646f079eda22a2b0c25371"
+    name                        = "rr-373720285b646f079eda22a2b0c25371"
+    priority                    = 19005
+    redirect_configuration_name = "sslr-fl-91d7bc8371c38a603d0bb9e095b34b36"
+    rule_type                   = "Basic"
+  }
+  request_routing_rule {
+    http_listener_name          = "fl-4bd81f94ee0350db15ac89833bf0317e"
+    name                        = "rr-4bd81f94ee0350db15ac89833bf0317e"
+    priority                    = 19010
+    redirect_configuration_name = "sslr-fl-9719ce6cddce22556de0198fa0694d22"
+    rule_type                   = "Basic"
+  }
+  request_routing_rule {
+    http_listener_name          = "fl-6ca56b9996c0328d1e1b03d4358a2759"
+    name                        = "rr-6ca56b9996c0328d1e1b03d4358a2759"
+    priority                    = 19015
+    redirect_configuration_name = "sslr-fl-b08091d39811637e5f7cd5a99151447f"
+    rule_type                   = "Basic"
+  }
+  request_routing_rule {
+    backend_address_pool_name  = "pool-idms-delta-backfiller-8080-bp-8080"
+    backend_http_settings_name = "bp-idms-delta-backfiller-8080-8080-delta-backfiller"
+    http_listener_name         = "fl-91d7bc8371c38a603d0bb9e095b34b36"
+    name                       = "rr-91d7bc8371c38a603d0bb9e095b34b36"
+    priority                   = 19020
+    rule_type                  = "Basic"
+  }
+  request_routing_rule {
+    backend_address_pool_name  = "pool-idms-idms-frontend-http-bp-8080"
+    backend_http_settings_name = "bp-idms-idms-frontend-http-8080-idms"
+    http_listener_name         = "fl-9719ce6cddce22556de0198fa0694d22"
+    name                       = "rr-9719ce6cddce22556de0198fa0694d22"
+    priority                   = 19025
+    rule_type                  = "Basic"
+  }
+  request_routing_rule {
+    backend_address_pool_name  = "pool-idms-idms-streamimporter-8080-bp-8080"
+    backend_http_settings_name = "bp-idms-idms-streamimporter-8080-8080-idms-streamimporter-ingress"
+    http_listener_name         = "fl-e9b85907b2a94db0c403c734ec7dd9fa"
+    name                       = "rr-e9b85907b2a94db0c403c734ec7dd9fa"
+    priority                   = 19035
+    rule_type                  = "Basic"
+  }
+  request_routing_rule {
+    backend_address_pool_name  = "pool-top-top-frontend-http-bp-8080"
+    backend_http_settings_name = "bp-top-top-frontend-http-8080-top"
+    http_listener_name         = "fl-b08091d39811637e5f7cd5a99151447f"
+    name                       = "rr-b08091d39811637e5f7cd5a99151447f"
+    priority                   = 19030
+    rule_type                  = "Basic"
+  }
+  sku {
+    name = "WAF_v2"
+    tier = "WAF_v2"
+  }
+  ssl_certificate {
+    key_vault_secret_id = "https://idms-app-kvt-ncu-d1.vault.azure.net/secrets/wildcard-dev-eu-fmc-ag-com"
+    name                = "wildcard-dev-eu-fmc-ag-com"
+  }
+}

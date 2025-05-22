@@ -1,0 +1,112 @@
+resource "azurerm_application_gateway" "res-0" {
+  firewall_policy_id  = "/subscriptions/b876779a-6ccf-475f-8ea1-d1a829aab943/resourceGroups/rg-idms-eus-i1/providers/Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies/idms-waf-eus-i1"
+  location            = "eastus"
+  name                = "idms-agw-eus-i1"
+  resource_group_name = "rg-idms-eus-i1"
+  tags = {
+    Contact                = "admin@freseniusmedicalcare.com"
+    Environment            = "I1"
+    Project                = "IDMS"
+    ProvisionedWith        = "Terraform"
+    Purpose                = "Infrastructure for the IDMS and CPM Smart Services initiative"
+    Stage                  = "Demo"
+    managed-by-k8s-ingress = "1.8.1/05a0d9c7/2025-04-04-14:12T-0700"
+  }
+  autoscale_configuration {
+    max_capacity = 2
+    min_capacity = 1
+  }
+  backend_address_pool {
+    ip_addresses = ["10.243.160.46"]
+    name         = "pool-idms-idms-frontend-http-bp-8080"
+  }
+  backend_http_settings {
+    cookie_based_affinity = "Disabled"
+    name                  = "bp-idms-idms-frontend-http-8080-idms"
+    port                  = 8080
+    probe_name            = "pb-idms-idms-frontend-http-idms"
+    protocol              = "Http"
+  }
+  frontend_ip_configuration {
+    name                 = "public-ip"
+    public_ip_address_id = "/subscriptions/b876779a-6ccf-475f-8ea1-d1a829aab943/resourceGroups/rg-idms-eus-i1/providers/Microsoft.Network/publicIPAddresses/idms-agw-pip-eus-i1"
+  }
+  frontend_port {
+    name = "fp-443"
+    port = 443
+  }
+  frontend_port {
+    name = "fp-80"
+    port = 80
+  }
+  gateway_ip_configuration {
+    name      = "ip-config"
+    subnet_id = "/subscriptions/b876779a-6ccf-475f-8ea1-d1a829aab943/resourceGroups/rg-idms-eus-i1/providers/Microsoft.Network/virtualNetworks/idms-vnet-eus-i1/subnets/idms-agw-snet-eus-i1"
+  }
+  http_listener {
+    frontend_ip_configuration_name = "public-ip"
+    frontend_port_name             = "fp-443"
+    host_names                     = ["idmsdemo.freseniusmedicalcare.com"]
+    name                           = "fl-0ae81585c3e8232875544743a98f29f6"
+    protocol                       = "Https"
+    ssl_certificate_name           = "idmsdemo-freseniusmedicalcare-com"
+  }
+  http_listener {
+    frontend_ip_configuration_name = "public-ip"
+    frontend_port_name             = "fp-80"
+    host_names                     = ["idmsdemo.freseniusmedicalcare.com"]
+    name                           = "fl-ccb2f8c791f131584493cb744485da70"
+    protocol                       = "Http"
+  }
+  identity {
+    identity_ids = ["/subscriptions/b876779a-6ccf-475f-8ea1-d1a829aab943/resourceGroups/rg-idms-eus-i1/providers/Microsoft.ManagedIdentity/userAssignedIdentities/idms-agw-mid-eus-i1"]
+    type         = "UserAssigned"
+  }
+  probe {
+    host                = "idmsdemo.freseniusmedicalcare.com"
+    interval            = 10
+    name                = "pb-idms-idms-frontend-http-idms"
+    path                = "/healthz"
+    port                = 10254
+    protocol            = "Http"
+    timeout             = 1
+    unhealthy_threshold = 3
+    match {
+      status_code = ["200-399"]
+    }
+  }
+  redirect_configuration {
+    include_path         = true
+    include_query_string = true
+    name                 = "sslr-fl-0ae81585c3e8232875544743a98f29f6"
+    redirect_type        = "Permanent"
+    target_listener_name = "fl-0ae81585c3e8232875544743a98f29f6"
+  }
+  request_routing_rule {
+    http_listener_name          = "fl-ccb2f8c791f131584493cb744485da70"
+    name                        = "rr-ccb2f8c791f131584493cb744485da70"
+    priority                    = 19005
+    redirect_configuration_name = "sslr-fl-0ae81585c3e8232875544743a98f29f6"
+    rule_type                   = "Basic"
+  }
+  request_routing_rule {
+    backend_address_pool_name  = "pool-idms-idms-frontend-http-bp-8080"
+    backend_http_settings_name = "bp-idms-idms-frontend-http-8080-idms"
+    http_listener_name         = "fl-0ae81585c3e8232875544743a98f29f6"
+    name                       = "rr-0ae81585c3e8232875544743a98f29f6"
+    priority                   = 19000
+    rule_type                  = "Basic"
+  }
+  sku {
+    name = "WAF_v2"
+    tier = "WAF_v2"
+  }
+  ssl_certificate {
+    key_vault_secret_id = "https://idms-app-kvt-eus-i1.vault.azure.net/secrets/idmsdemo-freseniusmedicalcare-com"
+    name                = "idmsdemo-freseniusmedicalcare-com"
+  }
+  ssl_certificate {
+    key_vault_secret_id = "https://idms-app-kvt-eus-i1.vault.azure.net/secrets/wildcard-dev-eu-fmc-ag-com"
+    name                = "wildcard-dev-eu-fmc-ag-com"
+  }
+}

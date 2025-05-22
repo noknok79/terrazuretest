@@ -1,0 +1,16 @@
+resource "azurerm_container_registry" "res-0" {
+  admin_enabled       = true
+  location            = "northcentralus"
+  name                = "idmscrncuq1"
+  resource_group_name = "RG-IDMS-PLATFORM-NCU-Q1"
+  sku                 = "Premium"
+  tags = {
+    Classification  = "Confidential"
+    Contact         = "siraj.pasha@freseniusmedicalcare.com; zoltan.csibrik@ext.freseniusmedicalcare.com"
+    Environment     = "Q1"
+    Project         = "IDMS"
+    ProvisionedWith = "Terraform"
+    Purpose         = "Infrastructure for the IDMS and CPM Smart Services initiative"
+    Stage           = "QA"
+  }
+}

@@ -1,0 +1,52 @@
+resource "azurerm_kubernetes_cluster" "res-0" {
+  azure_policy_enabled    = true
+  dns_prefix              = "idms-aks-ncu-q1"
+  local_account_disabled  = true
+  location                = "northcentralus"
+  name                    = "idms-aks-ncu-q1"
+  oidc_issuer_enabled     = true
+  private_cluster_enabled = true
+  resource_group_name     = "rg-idms-platform-ncu-q1"
+  tags = {
+    Classification  = "Confidential"
+    Contact         = "siraj.pasha@freseniusmedicalcare.com; zoltan.csibrik@ext.freseniusmedicalcare.com"
+    Environment     = "Q1"
+    Project         = "IDMS"
+    ProvisionedWith = "Terraform"
+    Purpose         = "Infrastructure for the IDMS and CPM Smart Services initiative"
+    Stage           = "QA"
+  }
+  workload_identity_enabled = true
+  azure_active_directory_role_based_access_control {
+    admin_group_object_ids = ["f3737bf7-4cef-44d4-8734-3d119755fa83"]
+    azure_rbac_enabled     = true
+    tenant_id              = "3f2b88e9-3129-4541-9f09-ac82b2149ab3"
+  }
+  default_node_pool {
+    auto_scaling_enabled = true
+    max_count            = 2
+    min_count            = 1
+    name                 = "agentpool1"
+    vm_size              = "Standard_D4ds_v4"
+    vnet_subnet_id       = "/subscriptions/b876779a-6ccf-475f-8ea1-d1a829aab943/resourceGroups/RG-IDMS-PLATFORM-NCU-Q1/providers/Microsoft.Network/virtualNetworks/idms-vnet-ncu-q1/subnets/idms-aks-snet-ncu-q1"
+    upgrade_settings {
+      max_surge = "10%"
+    }
+  }
+  identity {
+    identity_ids = ["/subscriptions/b876779a-6ccf-475f-8ea1-d1a829aab943/resourceGroups/RG-IDMS-PLATFORM-NCU-Q1/providers/Microsoft.ManagedIdentity/userAssignedIdentities/idms-aks-mid-ncu-q1"]
+    type         = "UserAssigned"
+  }
+  ingress_application_gateway {
+    gateway_id = "/subscriptions/b876779a-6ccf-475f-8ea1-d1a829aab943/resourceGroups/RG-IDMS-PLATFORM-NCU-Q1/providers/Microsoft.Network/applicationGateways/idms-agw-ncu-q1"
+  }
+  key_vault_secrets_provider {
+    secret_rotation_enabled = true
+  }
+  microsoft_defender {
+    log_analytics_workspace_id = "/subscriptions/b876779a-6ccf-475f-8ea1-d1a829aab943/resourceGroups/RG-IDMS-PLATFORM-NCU-Q1/providers/Microsoft.OperationalInsights/workspaces/idms-law-ncu-q1"
+  }
+  oms_agent {
+    log_analytics_workspace_id = "/subscriptions/b876779a-6ccf-475f-8ea1-d1a829aab943/resourceGroups/RG-IDMS-PLATFORM-NCU-Q1/providers/Microsoft.OperationalInsights/workspaces/idms-law-ncu-q1"
+  }
+}

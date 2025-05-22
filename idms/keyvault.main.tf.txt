@@ -1,0 +1,19 @@
+resource "azurerm_key_vault" "res-0" {
+  enable_rbac_authorization     = true
+  location                      = "northcentralus"
+  name                          = "idms-app-kvt1-ncu-q1"
+  public_network_access_enabled = false
+  purge_protection_enabled      = true
+  resource_group_name           = "RG-IDMS-PLATFORM-NCU-Q1"
+  sku_name                      = "premium"
+  tags = {
+    Classification  = "Confidential"
+    Contact         = "siraj.pasha@freseniusmedicalcare.com; zoltan.csibrik@ext.freseniusmedicalcare.com"
+    Environment     = "Q1"
+    Project         = "IDMS"
+    ProvisionedWith = "Terraform"
+    Purpose         = "Infrastructure for the IDMS and CPM Smart Services initiative"
+    Stage           = "QA"
+  }
+  tenant_id = "3f2b88e9-3129-4541-9f09-ac82b2149ab3"
+}
